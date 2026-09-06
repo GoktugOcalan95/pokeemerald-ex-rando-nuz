@@ -20,6 +20,7 @@
 #include "overworld.h"
 #include "palette.h"
 #include "party_menu.h"
+#include "player_teachable_moves.h"
 #include "pokemon_storage_system.h"
 #include "pokemon_summary_screen.h"
 #include "script.h"
@@ -31,7 +32,6 @@
 #include "constants/party_menu.h"
 #include "constants/rgb.h"
 #include "constants/songs.h"
-#include "data/tutor_moves.h"
 
 // The different versions of hearts are selected using animation
 // commands.
@@ -981,7 +981,7 @@ static u32 GetRelearnerTMMoves(struct BoxPokemon *mon, u16 *moves)
         if (!IsTmAvailable(item))
             continue;
 
-        if (!CanLearnTeachableMove(species, move))
+        if (!CanPlayerLearnTeachableMove(species, move))
             continue;
 
         if (!BoxMonKnowsMove(mon, move))
@@ -1000,7 +1000,7 @@ static u32 GetRelearnerTutorMoves(struct BoxPokemon *mon, u16 *moves)
     {
         enum Move move = gTutorMoves[i];
 
-        if (!CanLearnTeachableMove(species, move))
+        if (!CanPlayerLearnTeachableMove(species, move))
             continue;
 
         if (!BoxMonKnowsMove(mon, move))
@@ -1093,7 +1093,7 @@ static bool32 HasRelearnerTMMoves(struct BoxPokemon *boxMon)
         if (!tmAvailable)
             continue;
 
-        if (!CanLearnTeachableMove(species, move))
+        if (!CanPlayerLearnTeachableMove(species, move))
             continue;
 
         if (!BoxMonKnowsMove(boxMon, move))
@@ -1110,7 +1110,7 @@ static bool32 HasRelearnerTutorMoves(struct BoxPokemon *boxMon)
     {
         enum Move move = gTutorMoves[i];
 
-        if (!CanLearnTeachableMove(species, move))
+        if (!CanPlayerLearnTeachableMove(species, move))
             continue;
 
         if (!BoxMonKnowsMove(boxMon, move))

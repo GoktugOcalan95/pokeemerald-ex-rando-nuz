@@ -292,26 +292,26 @@ static const u8 sMenuCursorDimensions[][2] =
 // these three arrays are most for readability, ie instead of returning a magic number 8
 static const u8 sTextSpeedFrameDelays[] =
 {
-    [OPTIONS_TEXT_SPEED_SLOW]    = 8,
     [OPTIONS_TEXT_SPEED_MID]     = 4,
     [OPTIONS_TEXT_SPEED_FAST]    = 1,
     [OPTIONS_TEXT_SPEED_INSTANT] = 1,
+    [OPTIONS_TEXT_SPEED_AUTO]    = 1,
 };
 
 static const u8 sTextSpeedModifiers[] =
 {
-    [OPTIONS_TEXT_SPEED_SLOW]    = TEXT_SPEED_SLOW_MODIFIER,
     [OPTIONS_TEXT_SPEED_MID]     = TEXT_SPEED_MEDIUM_MODIFIER,
     [OPTIONS_TEXT_SPEED_FAST]    = TEXT_SPEED_FAST_MODIFIER,
     [OPTIONS_TEXT_SPEED_INSTANT] = TEXT_SPEED_INSTANT_MODIFIER,
+    [OPTIONS_TEXT_SPEED_AUTO]    = TEXT_SPEED_INSTANT_MODIFIER,
 };
 
 static const u8 sTextScrollSpeeds[] =
 {
-    [OPTIONS_TEXT_SPEED_SLOW]    = 1,
     [OPTIONS_TEXT_SPEED_MID]     = 2,
     [OPTIONS_TEXT_SPEED_FAST]    = 4,
     [OPTIONS_TEXT_SPEED_INSTANT] = 6,
+    [OPTIONS_TEXT_SPEED_AUTO]    = 6,
 };
 
 static const u16 sFontBoldJapaneseGlyphs[] = INCGFX_U16("graphics/fonts/japanese_bold.png", ".hwjpnfont");
@@ -321,18 +321,24 @@ static void SetFontsPointer(const struct FontInfo *fonts)
     gFonts = fonts;
 }
 
+u32 GetSavedTextSpeed(void)
+{
+    if (gSaveBlock2Ptr->optionsTextSpeed < OPTIONS_TEXT_SPEED_MID
+     || gSaveBlock2Ptr->optionsTextSpeed > OPTIONS_TEXT_SPEED_AUTO)
+        gSaveBlock2Ptr->optionsTextSpeed = OPTIONS_TEXT_SPEED_MID;
+
+    return gSaveBlock2Ptr->optionsTextSpeed;
+}
+
 u32 GetPlayerTextSpeed(void)
 {
     if (gTextFlags.forceMidTextSpeed)
         return OPTIONS_TEXT_SPEED_MID;
 
-    if (gSaveBlock2Ptr->optionsTextSpeed > OPTIONS_TEXT_SPEED_INSTANT)
-        gSaveBlock2Ptr->optionsTextSpeed = OPTIONS_TEXT_SPEED_FAST;
-
     if (FlagGet(FLAG_TEXT_SPEED_INSTANT) || TEXT_SPEED_INSTANT)
         return OPTIONS_TEXT_SPEED_INSTANT;
 
-    return gSaveBlock2Ptr->optionsTextSpeed;
+    return GetSavedTextSpeed();
 }
 
 u32 GetPlayerTextSpeedDelay(void)
@@ -352,7 +358,9 @@ u32 GetPlayerTextScrollSpeed(void)
 
 bool32 IsPlayerTextSpeedInstant(void)
 {
-    return GetPlayerTextSpeed() == OPTIONS_TEXT_SPEED_INSTANT;
+    u32 speed = GetPlayerTextSpeed();
+
+    return speed == OPTIONS_TEXT_SPEED_INSTANT || speed == OPTIONS_TEXT_SPEED_AUTO;
 }
 
 void DeactivateAllTextPrinters(void)
@@ -1262,6 +1270,10 @@ void SetResultWithButtonPress(bool32 *result)
 bool32 TextPrinterWaitWithDownArrow(struct TextPrinter *textPrinter)
 {
     bool32 result = FALSE;
+
+    if (GetPlayerTextSpeed() == OPTIONS_TEXT_SPEED_AUTO)
+        return TRUE;
+
     if (gTextFlags.autoScroll != 0 || AUTO_SCROLL_TEXT)
     {
         result = TextPrinterWaitAutoMode(textPrinter);
@@ -1280,6 +1292,10 @@ bool32 TextPrinterWaitWithDownArrow(struct TextPrinter *textPrinter)
 bool32 TextPrinterWait(struct TextPrinter *textPrinter)
 {
     bool32 result = FALSE;
+
+    if (GetPlayerTextSpeed() == OPTIONS_TEXT_SPEED_AUTO)
+        return TRUE;
+
     if (gTextFlags.autoScroll != 0 || AUTO_SCROLL_TEXT)
     {
         result = TextPrinterWaitAutoMode(textPrinter);

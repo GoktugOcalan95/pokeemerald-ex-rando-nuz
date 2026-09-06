@@ -1751,6 +1751,8 @@ bool8 ScrCmd_closemessage(struct ScriptContext *ctx)
 
 static bool8 WaitForAorBPress(void)
 {
+    if (GetPlayerTextSpeed() == OPTIONS_TEXT_SPEED_AUTO)
+        return TRUE;
     if (JOY_NEW(A_BUTTON))
         return TRUE;
     if (JOY_NEW(B_BUTTON))

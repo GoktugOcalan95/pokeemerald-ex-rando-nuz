@@ -28,6 +28,7 @@
 #include "pokemon.h"
 #include "random.h"
 #include "rtc.h"
+#include "run_setup.h"
 #include "save.h"
 #include "scanline_effect.h"
 #include "sound.h"
@@ -91,7 +92,7 @@
  *    the selection, then go back to Task_HighlightSelectedMainMenuItem.
  *
  * Task_HandleMainMenuAPressed
- *  - If the user selected New Game, advance to Task_NewGameBirchSpeech_Init.
+ *  - If the user selected New Game, advance to the Run Setup tasks.
  *  - If the user selected Continue, advance to CB2_ContinueSavedGame.
  *  - If the user selected the Options menu, advance to CB2_InitOptionMenu.
  *  - If the user selected Mystery Gift, advance to CB2_InitMysteryGift. However,
@@ -99,6 +100,13 @@
  *    Task_DisplayMainMenuInvalidActionError.
  *  - Code to start a Mystery Event is present here, but is unreachable in this
  *    version.
+ *
+ * Task_RunSetup_Init / Task_RunSetup_ProcessInput
+ *  - Display a new draft and let the user configure the run.
+ *  - Back discards the draft and returns to the main menu.
+ * Task_RunSetup_ProcessConfirmationInput
+ *  - Back returns to setup with the draft intact.
+ *  - Continue confirms the draft and advances to Task_NewGameBirchSpeech_Init.
  *
  * Task_HandleMainMenuBPressed
  *  - Clean up the main menu and go back to CB2_InitTitleScreen.
@@ -191,6 +199,15 @@ static void HighlightSelectedMainMenuItem(enum PartyMenuType, u8, s16);
 static void Task_HandleMainMenuInput(u8);
 static void Task_HandleMainMenuAPressed(u8);
 static void Task_HandleMainMenuBPressed(u8);
+static void Task_RunSetup_Init(u8);
+static void Task_RunSetup_FadeIn(u8);
+static void Task_RunSetup_ProcessInput(u8);
+static void Task_RunSetup_ProcessConfirmationInput(u8);
+static void Task_RunSetup_FadeOut(u8);
+static void DrawRunSetupScreen(u8);
+static void DrawRunSetupConfirmationScreen(u8);
+static void DrawRunSetupCursor(u8, u8);
+static void DrawRunSetupFullCompatibility(void);
 static void Task_NewGameBirchSpeech_Init(u8);
 static void Task_DisplayMainMenuInvalidActionError(u8);
 static void AddBirchSpeechObjects(u8);
@@ -244,6 +261,21 @@ static void MainMenu_FormatSavegamePlayer(void);
 static void MainMenu_FormatSavegamePokedex(void);
 static void MainMenu_FormatSavegameTime(void);
 static void MainMenu_FormatSavegameBadges(void);
+
+enum
+{
+    RUN_SETUP_ITEM_FULL_COMPATIBILITY,
+    RUN_SETUP_ITEM_CONTINUE,
+    RUN_SETUP_ITEM_BACK,
+    RUN_SETUP_ITEM_COUNT,
+};
+
+enum
+{
+    RUN_SETUP_CONFIRM_CONTINUE,
+    RUN_SETUP_CONFIRM_BACK,
+    RUN_SETUP_CONFIRM_COUNT,
+};
 
 // .rodata
 
@@ -391,6 +423,20 @@ static const struct WindowTemplate sWindowTemplates_MainMenu[] =
     DUMMY_WIN_TEMPLATE
 };
 
+static const struct WindowTemplate sWindowTemplates_RunSetup[] =
+{
+    {
+        .bg = 0,
+        .tilemapLeft = 1,
+        .tilemapTop = 2,
+        .width = 28,
+        .height = 15,
+        .paletteNum = 15,
+        .baseBlock = 1
+    },
+    DUMMY_WIN_TEMPLATE
+};
+
 static const struct WindowTemplate sNewGameBirchSpeechTextWindows[] =
 {
     {
@@ -428,6 +474,19 @@ static const u16 sMainMenuTextPal[] = INCGFX_U16("graphics/interface/main_menu_t
 
 static const u8 sTextColor_Headers[] = {TEXT_DYNAMIC_COLOR_1, TEXT_DYNAMIC_COLOR_2, TEXT_DYNAMIC_COLOR_3};
 static const u8 sTextColor_MenuInfo[] = {TEXT_DYNAMIC_COLOR_1, TEXT_COLOR_WHITE, TEXT_DYNAMIC_COLOR_3};
+
+static const u8 sText_RunSetupTitle[] = _("RUN SETUP");
+static const u8 sText_RunSetupFullCompatibility[] = _("FULL COMPATIBILITY");
+static const u8 sText_RunSetupContinue[] = _("CONTINUE");
+static const u8 sText_RunSetupBack[] = _("BACK");
+static const u8 sText_RunSetupOff[] = _("OFF");
+static const u8 sText_RunSetupOn[] = _("ON");
+static const u8 sText_RunSetupHelp[] = _("ALL POKéMON MAY LEARN ALL\nTM, HM, AND TUTOR MOVES.");
+static const u8 sText_RunSetupConfirmTitle[] = _("CONFIRM RUN SETUP");
+static const u8 sText_RunSetupConfirmPrompt[] = _("BEGIN THIS RUN?");
+
+static const u8 sRunSetupCursorY[RUN_SETUP_ITEM_COUNT] = {25, 49, 65};
+static const u8 sRunSetupConfirmCursorY[RUN_SETUP_CONFIRM_COUNT] = {73, 89};
 
 static const struct BgTemplate sMainMenuBgTemplates[] = {
     {
@@ -1091,7 +1150,8 @@ static void Task_HandleMainMenuAPressed(u8 taskId)
 
             gPlttBufferUnfaded[0] = RGB_BLACK;
             gPlttBufferFaded[0] = RGB_BLACK;
-            gTasks[taskId].func = Task_NewGameBirchSpeech_Init;
+            RunSetup_Begin();
+            gTasks[taskId].func = Task_RunSetup_Init;
             break;
         case ACTION_CONTINUE:
             gPlttBufferUnfaded[0] = RGB_BLACK;
@@ -1283,6 +1343,204 @@ static void HighlightSelectedMainMenuItem(enum PartyMenuType menuType, u8 select
         break;
     }
 }
+
+#define tRunSetupSelection data[0]
+#define tRunSetupStartIntro data[1]
+
+static void Task_RunSetup_Init(u8 taskId)
+{
+    RunSetup_PrepareDisplay();
+    InitWindows(sWindowTemplates_RunSetup);
+    DeactivateAllTextPrinters();
+    FillBgTilemapBufferRect_Palette0(0, 0, 0, 0, DISPLAY_TILE_WIDTH, DISPLAY_TILE_HEIGHT);
+    gTasks[taskId].tRunSetupSelection = RUN_SETUP_ITEM_FULL_COMPATIBILITY;
+    gTasks[taskId].tRunSetupStartIntro = FALSE;
+    DrawRunSetupScreen(taskId);
+    BeginNormalPaletteFade(PALETTES_ALL, 0, 16, 0, RGB_BLACK);
+    gTasks[taskId].func = Task_RunSetup_FadeIn;
+}
+
+static void Task_RunSetup_FadeIn(u8 taskId)
+{
+    if (!gPaletteFade.active)
+        gTasks[taskId].func = Task_RunSetup_ProcessInput;
+}
+
+static void Task_RunSetup_ProcessInput(u8 taskId)
+{
+    u8 previousSelection = gTasks[taskId].tRunSetupSelection;
+
+    if (JOY_NEW(A_BUTTON))
+    {
+        PlaySE(SE_SELECT);
+        switch (gTasks[taskId].tRunSetupSelection)
+        {
+        case RUN_SETUP_ITEM_FULL_COMPATIBILITY:
+            RunSetup_SetFullCompatibility(!RunSetup_GetFullCompatibility());
+            DrawRunSetupFullCompatibility();
+            break;
+        case RUN_SETUP_ITEM_CONTINUE:
+            RunSetup_EnterConfirmation();
+            gTasks[taskId].tRunSetupSelection = RUN_SETUP_CONFIRM_CONTINUE;
+            DrawRunSetupConfirmationScreen(taskId);
+            gTasks[taskId].func = Task_RunSetup_ProcessConfirmationInput;
+            break;
+        case RUN_SETUP_ITEM_BACK:
+            RunSetup_Discard();
+            BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
+            gTasks[taskId].func = Task_RunSetup_FadeOut;
+            break;
+        }
+    }
+    else if (JOY_NEW(B_BUTTON))
+    {
+        PlaySE(SE_SELECT);
+        RunSetup_Discard();
+        BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
+        gTasks[taskId].func = Task_RunSetup_FadeOut;
+    }
+    else if (JOY_NEW(DPAD_UP))
+    {
+        if (gTasks[taskId].tRunSetupSelection > 0)
+            gTasks[taskId].tRunSetupSelection--;
+        else
+            gTasks[taskId].tRunSetupSelection = RUN_SETUP_ITEM_BACK;
+    }
+    else if (JOY_NEW(DPAD_DOWN))
+    {
+        if (gTasks[taskId].tRunSetupSelection < RUN_SETUP_ITEM_BACK)
+            gTasks[taskId].tRunSetupSelection++;
+        else
+            gTasks[taskId].tRunSetupSelection = RUN_SETUP_ITEM_FULL_COMPATIBILITY;
+    }
+    else if (gTasks[taskId].tRunSetupSelection == RUN_SETUP_ITEM_FULL_COMPATIBILITY
+          && JOY_NEW(DPAD_LEFT | DPAD_RIGHT))
+    {
+        PlaySE(SE_SELECT);
+        RunSetup_SetFullCompatibility(!RunSetup_GetFullCompatibility());
+        DrawRunSetupFullCompatibility();
+    }
+
+    if (previousSelection != gTasks[taskId].tRunSetupSelection
+     && gTasks[taskId].func == Task_RunSetup_ProcessInput)
+    {
+        PlaySE(SE_SELECT);
+        DrawRunSetupCursor(sRunSetupCursorY[previousSelection], sRunSetupCursorY[gTasks[taskId].tRunSetupSelection]);
+    }
+}
+
+static void Task_RunSetup_ProcessConfirmationInput(u8 taskId)
+{
+    u8 previousSelection = gTasks[taskId].tRunSetupSelection;
+
+    if (JOY_NEW(A_BUTTON))
+    {
+        PlaySE(SE_SELECT);
+        if (gTasks[taskId].tRunSetupSelection == RUN_SETUP_CONFIRM_CONTINUE)
+        {
+            RunSetup_Confirm();
+            gTasks[taskId].tRunSetupStartIntro = TRUE;
+            RunSetup_ClearDisplayTilemap();
+            CopyBgTilemapBufferToVram(0);
+            BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
+            gTasks[taskId].func = Task_RunSetup_FadeOut;
+        }
+        else
+        {
+            RunSetup_ReturnToDraft();
+            gTasks[taskId].tRunSetupSelection = RUN_SETUP_ITEM_CONTINUE;
+            DrawRunSetupScreen(taskId);
+            gTasks[taskId].func = Task_RunSetup_ProcessInput;
+        }
+    }
+    else if (JOY_NEW(B_BUTTON))
+    {
+        PlaySE(SE_SELECT);
+        RunSetup_ReturnToDraft();
+        gTasks[taskId].tRunSetupSelection = RUN_SETUP_ITEM_CONTINUE;
+        DrawRunSetupScreen(taskId);
+        gTasks[taskId].func = Task_RunSetup_ProcessInput;
+    }
+    else if (JOY_NEW(DPAD_UP | DPAD_DOWN))
+    {
+        gTasks[taskId].tRunSetupSelection ^= 1;
+    }
+
+    if (previousSelection != gTasks[taskId].tRunSetupSelection
+     && gTasks[taskId].func == Task_RunSetup_ProcessConfirmationInput)
+    {
+        PlaySE(SE_SELECT);
+        DrawRunSetupCursor(sRunSetupConfirmCursorY[previousSelection], sRunSetupConfirmCursorY[gTasks[taskId].tRunSetupSelection]);
+    }
+}
+
+static void Task_RunSetup_FadeOut(u8 taskId)
+{
+    if (!gPaletteFade.active)
+    {
+        FreeAllWindowBuffers();
+        if (gTasks[taskId].tRunSetupStartIntro)
+        {
+            gPlttBufferUnfaded[0] = RGB_BLACK;
+            gPlttBufferFaded[0] = RGB_BLACK;
+            gTasks[taskId].func = Task_NewGameBirchSpeech_Init;
+        }
+        else
+        {
+            SetMainCallback2(CB2_ReinitMainMenu);
+            DestroyTask(taskId);
+        }
+    }
+}
+
+static void DrawRunSetupScreen(u8 taskId)
+{
+    FillWindowPixelBuffer(0, PIXEL_FILL(0xA));
+    AddTextPrinterParameterized3(0, FONT_NORMAL, GetStringCenterAlignXOffset(FONT_NORMAL, sText_RunSetupTitle, 224), 1, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupTitle);
+    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 25, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupFullCompatibility);
+    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 49, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupContinue);
+    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 65, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupBack);
+    AddTextPrinterParameterized3(0, FONT_SMALL, 16, 89, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupHelp);
+    DrawRunSetupFullCompatibility();
+    DrawRunSetupCursor(sRunSetupCursorY[gTasks[taskId].tRunSetupSelection], sRunSetupCursorY[gTasks[taskId].tRunSetupSelection]);
+    PutWindowTilemap(0);
+    DrawMainMenuWindowBorder(&sWindowTemplates_RunSetup[0], MAIN_MENU_BORDER_TILE);
+    CopyWindowToVram(0, COPYWIN_FULL);
+}
+
+static void DrawRunSetupConfirmationScreen(u8 taskId)
+{
+    const u8 *fullCompatibility = RunSetup_GetFullCompatibility() ? sText_RunSetupOn : sText_RunSetupOff;
+
+    FillWindowPixelBuffer(0, PIXEL_FILL(0xA));
+    AddTextPrinterParameterized3(0, FONT_NORMAL, GetStringCenterAlignXOffset(FONT_NORMAL, sText_RunSetupConfirmTitle, 224), 1, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupConfirmTitle);
+    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 25, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupFullCompatibility);
+    AddTextPrinterParameterized3(0, FONT_NORMAL, GetStringRightAlignXOffset(FONT_NORMAL, fullCompatibility, 216), 25, sTextColor_Headers, TEXT_SKIP_DRAW, fullCompatibility);
+    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 49, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupConfirmPrompt);
+    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 73, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupContinue);
+    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 89, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupBack);
+    DrawRunSetupCursor(sRunSetupConfirmCursorY[gTasks[taskId].tRunSetupSelection], sRunSetupConfirmCursorY[gTasks[taskId].tRunSetupSelection]);
+    CopyWindowToVram(0, COPYWIN_FULL);
+}
+
+static void DrawRunSetupCursor(u8 oldY, u8 newY)
+{
+    FillWindowPixelRect(0, PIXEL_FILL(0xA), 4, oldY, 8, 16);
+    AddTextPrinterParameterized3(0, FONT_NORMAL, 4, newY, sTextColor_Headers, TEXT_SKIP_DRAW, gText_SelectorArrow3);
+    CopyWindowToVram(0, COPYWIN_GFX);
+}
+
+static void DrawRunSetupFullCompatibility(void)
+{
+    const u8 *text = RunSetup_GetFullCompatibility() ? sText_RunSetupOn : sText_RunSetupOff;
+
+    FillWindowPixelRect(0, PIXEL_FILL(0xA), 184, 25, 32, 16);
+    AddTextPrinterParameterized3(0, FONT_NORMAL, GetStringRightAlignXOffset(FONT_NORMAL, text, 216), 25, sTextColor_Headers, TEXT_SKIP_DRAW, text);
+    CopyWindowToVram(0, COPYWIN_GFX);
+}
+
+#undef tRunSetupSelection
+#undef tRunSetupStartIntro
 
 #define tPlayerSpriteId data[2]
 #define tBG1HOFS data[4]

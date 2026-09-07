@@ -354,7 +354,7 @@
 #define B_SHOW_TARGETS                      TRUE       // If set to TRUE, all available targets will be shown before selecting a move in Double Battles.
 #define B_SHOW_CATEGORY_ICON                TRUE       // If set to TRUE, an icon in the summary and move relearner will show a move's category.
 #define B_HIDE_HEALTHBOX_IN_ANIMS           TRUE       // If set to TRUE, healthboxes will be hidden during move animations.
-#define B_MIN_TEXT_DISPLAY_FRAMES          48         // Minimum readable time for a completed battle narration page.
+#define B_MIN_TEXT_DISPLAY_FRAMES           48         // Minimum readable time for a completed battle narration page.
 #define B_WAIT_TIME_MULTIPLIER              16         // This determines how long text pauses for in battle. Vanilla is 16. Lower values result in faster battles.
 #define B_QUICK_MOVE_CURSOR_TO_RUN          FALSE      // If set to TRUE, pushing B in the battle menu in a wild encounter will move the cursor to the Run option.
 #define B_RUN_TRAINER_BATTLE                TRUE       // If set to TRUE, players can run from Trainer battles as in Gen9+. This is treated as a white out.

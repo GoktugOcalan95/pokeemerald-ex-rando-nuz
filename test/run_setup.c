@@ -166,3 +166,141 @@ TEST("Run setup does not apply unconfirmed reusable TMs")
     RunSetup_ApplyToNewGame();
     EXPECT(!FlagGet(FLAG_RUN_RULE_REUSABLE_TMS));
 }
+
+TEST("Run setup scrolling keeps the selected row visible")
+{
+    u32 selection;
+    u32 top;
+    u32 count;
+    u32 expected;
+
+    PARAMETRIZE { selection = 1; top = 0; count = 2; expected = 0; }
+    PARAMETRIZE { selection = 3; top = 0; count = 4; expected = 0; }
+    PARAMETRIZE { selection = 3; top = 0; count = 8; expected = 0; }
+    PARAMETRIZE { selection = 4; top = 0; count = 8; expected = 1; }
+    PARAMETRIZE { selection = 7; top = 1; count = 8; expected = 4; }
+    PARAMETRIZE { selection = 2; top = 3; count = 8; expected = 2; }
+    PARAMETRIZE { selection = 0; top = 3; count = 8; expected = 0; }
+    PARAMETRIZE { selection = 7; top = 0; count = 8; expected = 4; }
+    PARAMETRIZE { selection = 8; top = 0; count = 9; expected = 5; }
+    PARAMETRIZE { selection = 6; top = 0; count = 8; expected = 3; }
+    PARAMETRIZE { selection = 4; top = 5; count = 8; expected = 4; }
+
+    EXPECT_EQ(RunSetup_GetScrollTop(selection, top, count), expected);
+}
+
+TEST("Run setup presets replace the draft without changing the loaded save")
+{
+    enum RunSetupPreset preset;
+    bool32 enabled;
+
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; enabled = FALSE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; enabled = TRUE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; enabled = TRUE; }
+
+    FlagSet(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
+    RunSetup_Begin();
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_VANILLA);
+    RunSetup_SetFullCompatibility(!enabled);
+    RunSetup_SetReusableTMs(!enabled);
+    RunSetup_SetPreset(preset);
+    EXPECT_EQ(RunSetup_GetFullCompatibility(), enabled);
+    EXPECT_EQ(RunSetup_GetReusableTMs(), enabled);
+    EXPECT_EQ(RunSetup_GetPreset(), preset);
+    EXPECT(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY));
+    EXPECT(!FlagGet(FLAG_RUN_RULE_REUSABLE_TMS));
+    RunSetup_EnterConfirmation();
+    RunSetup_Confirm();
+    RunSetup_ApplyToNewGame();
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), enabled);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), enabled);
+    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
+}
+
+TEST("Run setup preset names follow edits and retain the chosen identical preset")
+{
+    enum RunSetupPreset preset;
+
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; }
+
+    RunSetup_Begin();
+    RunSetup_SetPreset(preset);
+    RunSetup_SetReusableTMs(FALSE);
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
+    RunSetup_SetReusableTMs(TRUE);
+    EXPECT_EQ(RunSetup_GetPreset(), preset);
+    RunSetup_SetFullCompatibility(FALSE);
+    RunSetup_SetReusableTMs(FALSE);
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_VANILLA);
+    RunSetup_SetFullCompatibility(TRUE);
+    RunSetup_SetReusableTMs(TRUE);
+    EXPECT_EQ(RunSetup_GetPreset(), preset);
+    RunSetup_Discard();
+    RunSetup_Begin();
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_VANILLA);
+    RunSetup_SetFullCompatibility(TRUE);
+    RunSetup_SetReusableTMs(TRUE);
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_NUZLOCKE);
+    RunSetup_Discard();
+}
+
+TEST("Run setup presets cannot change a confirmation and survive returning to the draft")
+{
+    RunSetup_Begin();
+    RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
+    RunSetup_EnterConfirmation();
+    RunSetup_SetPreset(RUN_SETUP_PRESET_VANILLA);
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_BISHEY);
+    EXPECT(RunSetup_GetFullCompatibility());
+    EXPECT(RunSetup_GetReusableTMs());
+    RunSetup_ReturnToDraft();
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_BISHEY);
+    RunSetup_SetPreset(RUN_SETUP_PRESET_VANILLA);
+    EXPECT(!RunSetup_GetFullCompatibility());
+    EXPECT(!RunSetup_GetReusableTMs());
+    RunSetup_Discard();
+    RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_VANILLA);
+}
+
+TEST("Run setup rejects Custom and invalid preset choices")
+{
+    enum RunSetupPreset preset;
+
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_CUSTOM; }
+    PARAMETRIZE { preset = -1; }
+    PARAMETRIZE { preset = 255; }
+
+    RunSetup_Begin();
+    RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
+    RunSetup_SetPreset(preset);
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_BISHEY);
+    EXPECT(RunSetup_GetFullCompatibility());
+    EXPECT(RunSetup_GetReusableTMs());
+    RunSetup_Discard();
+}
+
+TEST("Run setup clears background graphics before Birch changes character base")
+{
+    volatile u16 *background = (volatile u16 *)VRAM;
+    volatile u16 *sprites = (volatile u16 *)(VRAM + BG_VRAM_SIZE);
+    u16 previousSpritePixel = sprites[0];
+    bool32 cleared = TRUE;
+
+    DmaFill16(3, 0x1234, (void *)VRAM, BG_VRAM_SIZE);
+    sprites[0] = 0x5678;
+    RunSetup_ClearDisplayGraphics();
+
+    EXPECT_EQ(*(volatile u16 *)BG_CHAR_ADDR(3), 0);
+    for (u32 i = 0; i < BG_VRAM_SIZE / sizeof(u16); i++)
+    {
+        if (background[i] != 0)
+            cleared = FALSE;
+    }
+    EXPECT(cleared);
+    EXPECT_EQ(sprites[0], 0x5678);
+    sprites[0] = previousSpritePixel;
+}

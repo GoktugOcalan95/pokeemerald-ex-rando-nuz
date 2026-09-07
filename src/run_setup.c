@@ -18,15 +18,56 @@ struct RunSetupDraft
     bool8 fullCompatibility;
     bool8 reusableTMs;
     enum RunSetupState state:8;
+    enum RunSetupPreset preferredPreset:8;
 };
 
 static EWRAM_DATA struct RunSetupDraft sRunSetupDraft = {0};
+
+static const struct
+{
+    bool8 fullCompatibility;
+    bool8 reusableTMs;
+} sRunSetupPresets[RUN_SETUP_PRESET_COUNT] =
+{
+    [RUN_SETUP_PRESET_VANILLA] = {FALSE, FALSE},
+    [RUN_SETUP_PRESET_NUZLOCKE] = {TRUE, TRUE},
+    [RUN_SETUP_PRESET_BISHEY] = {TRUE, TRUE},
+};
+
+static bool32 RunSetup_MatchesPreset(enum RunSetupPreset preset)
+{
+    return sRunSetupDraft.fullCompatibility == sRunSetupPresets[preset].fullCompatibility
+        && sRunSetupDraft.reusableTMs == sRunSetupPresets[preset].reusableTMs;
+}
+
+void RunSetup_SetPreset(enum RunSetupPreset preset)
+{
+    if (sRunSetupDraft.state != RUN_SETUP_DRAFT || (u32)preset >= RUN_SETUP_PRESET_COUNT)
+        return;
+    sRunSetupDraft.fullCompatibility = sRunSetupPresets[preset].fullCompatibility;
+    sRunSetupDraft.reusableTMs = sRunSetupPresets[preset].reusableTMs;
+    sRunSetupDraft.preferredPreset = preset;
+}
+
+enum RunSetupPreset RunSetup_GetPreset(void)
+{
+    // Retain the chosen name when presets have identical settings.
+    if (RunSetup_MatchesPreset(sRunSetupDraft.preferredPreset))
+        return sRunSetupDraft.preferredPreset;
+    for (u32 preset = 0; preset < RUN_SETUP_PRESET_COUNT; preset++)
+    {
+        if (RunSetup_MatchesPreset(preset))
+            return preset;
+    }
+    return RUN_SETUP_PRESET_CUSTOM;
+}
 
 void RunSetup_Begin(void)
 {
     sRunSetupDraft.fullCompatibility = FALSE;
     sRunSetupDraft.reusableTMs = FALSE;
     sRunSetupDraft.state = RUN_SETUP_DRAFT;
+    sRunSetupDraft.preferredPreset = RUN_SETUP_PRESET_VANILLA;
 }
 
 void RunSetup_Discard(void)
@@ -89,6 +130,12 @@ void RunSetup_ClearDisplayTilemap(void)
     FillBgTilemapBufferRect_Palette0(0, 0, 0, 0, DISPLAY_TILE_WIDTH, DISPLAY_TILE_HEIGHT);
 }
 
+void RunSetup_ClearDisplayGraphics(void)
+{
+    // The introduction uses a different character base, including setup's border tiles.
+    DmaFill16(3, 0, (void *)VRAM, BG_VRAM_SIZE);
+}
+
 bool32 RunSetup_GetFullCompatibility(void)
 {
     return sRunSetupDraft.fullCompatibility;
@@ -109,4 +156,17 @@ void RunSetup_SetReusableTMs(bool32 enabled)
 {
     if (sRunSetupDraft.state == RUN_SETUP_DRAFT)
         sRunSetupDraft.reusableTMs = enabled;
+}
+
+u32 RunSetup_GetScrollTop(u32 selection, u32 top, u32 count)
+{
+    if (count <= RUN_SETUP_VISIBLE_ROWS)
+        return 0;
+    if (top > count - RUN_SETUP_VISIBLE_ROWS)
+        top = count - RUN_SETUP_VISIBLE_ROWS;
+    if (selection < top)
+        return selection;
+    if (selection >= top + RUN_SETUP_VISIBLE_ROWS)
+        return selection - RUN_SETUP_VISIBLE_ROWS + 1;
+    return top;
 }

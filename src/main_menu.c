@@ -106,7 +106,7 @@
  *  - Back discards the draft and returns to the main menu.
  * Task_RunSetup_ProcessConfirmationInput
  *  - Back returns to setup with the draft intact.
- *  - Continue confirms the draft and advances to Task_NewGameBirchSpeech_Init.
+ *  - A confirms the draft and advances to Task_NewGameBirchSpeech_Init.
  *
  * Task_HandleMainMenuBPressed
  *  - Clean up the main menu and go back to CB2_InitTitleScreen.
@@ -206,10 +206,7 @@ static void Task_RunSetup_ProcessConfirmationInput(u8);
 static void Task_RunSetup_FadeOut(u8);
 static void DrawRunSetupScreen(u8);
 static void DrawRunSetupConfirmationScreen(u8);
-static void DrawRunSetupCursor(u8, u8);
-static void DrawRunSetupFullCompatibility(void);
-static void DrawRunSetupReusableTMs(void);
-static void DrawRunSetupHelp(u8 selection);
+static void DrawRunSetupList(u8 taskId, bool32 review);
 static void Task_NewGameBirchSpeech_Init(u8);
 static void Task_DisplayMainMenuInvalidActionError(u8);
 static void AddBirchSpeechObjects(u8);
@@ -263,22 +260,6 @@ static void MainMenu_FormatSavegamePlayer(void);
 static void MainMenu_FormatSavegamePokedex(void);
 static void MainMenu_FormatSavegameTime(void);
 static void MainMenu_FormatSavegameBadges(void);
-
-enum
-{
-    RUN_SETUP_ITEM_FULL_COMPATIBILITY,
-    RUN_SETUP_ITEM_REUSABLE_TMS,
-    RUN_SETUP_ITEM_CONTINUE,
-    RUN_SETUP_ITEM_BACK,
-    RUN_SETUP_ITEM_COUNT,
-};
-
-enum
-{
-    RUN_SETUP_CONFIRM_CONTINUE,
-    RUN_SETUP_CONFIRM_BACK,
-    RUN_SETUP_CONFIRM_COUNT,
-};
 
 // .rodata
 
@@ -426,14 +407,18 @@ static const struct WindowTemplate sWindowTemplates_MainMenu[] =
     DUMMY_WIN_TEMPLATE
 };
 
+#define RUN_SETUP_WINDOW_WIDTH 28
+#define RUN_SETUP_WINDOW_HEIGHT 18
+#define RUN_SETUP_BORDER_TILE (1 + RUN_SETUP_WINDOW_WIDTH * RUN_SETUP_WINDOW_HEIGHT)
+
 static const struct WindowTemplate sWindowTemplates_RunSetup[] =
 {
     {
         .bg = 0,
         .tilemapLeft = 1,
-        .tilemapTop = 2,
-        .width = 28,
-        .height = 16,
+        .tilemapTop = 1,
+        .width = RUN_SETUP_WINDOW_WIDTH,
+        .height = RUN_SETUP_WINDOW_HEIGHT,
         .paletteNum = 15,
         .baseBlock = 1
     },
@@ -478,20 +463,57 @@ static const u16 sMainMenuTextPal[] = INCGFX_U16("graphics/interface/main_menu_t
 static const u8 sTextColor_Headers[] = {TEXT_DYNAMIC_COLOR_1, TEXT_DYNAMIC_COLOR_2, TEXT_DYNAMIC_COLOR_3};
 static const u8 sTextColor_MenuInfo[] = {TEXT_DYNAMIC_COLOR_1, TEXT_COLOR_WHITE, TEXT_DYNAMIC_COLOR_3};
 
-static const u8 sText_RunSetupTitle[] = _("RUN SETUP");
-static const u8 sText_RunSetupFullCompatibility[] = _("FULL COMPATIBILITY");
-static const u8 sText_RunSetupReusableTMs[] = _("REUSABLE TMs");
-static const u8 sText_RunSetupReusableTMsHelp[] = _("TEACH TM MOVES WITHOUT\nUSING UP THE TM.");
-static const u8 sText_RunSetupContinue[] = _("CONTINUE");
-static const u8 sText_RunSetupBack[] = _("BACK");
-static const u8 sText_RunSetupOff[] = _("OFF");
-static const u8 sText_RunSetupOn[] = _("ON");
-static const u8 sText_RunSetupHelp[] = _("ALL POKéMON MAY LEARN ALL\nTM, HM, AND TUTOR MOVES.");
-static const u8 sText_RunSetupConfirmTitle[] = _("CONFIRM RUN SETUP");
-static const u8 sText_RunSetupConfirmPrompt[] = _("BEGIN THIS RUN?");
+static const u8 sText_RunSetupPreset[] = _("Preset");
+static const u8 sText_RunSetupPresetHelp[] = _("Choose a preset. This replaces\nall current run settings.");
+static const u8 sText_RunSetupVanilla[] = _("Vanilla");
+static const u8 sText_RunSetupNuzlocke[] = _("Nuzlocke");
+static const u8 sText_RunSetupBishey[] = _("Bishey");
+static const u8 sText_RunSetupCustom[] = _("Custom");
+static const u8 *const sRunSetupPresetNames[] =
+{
+    [RUN_SETUP_PRESET_VANILLA] = sText_RunSetupVanilla,
+    [RUN_SETUP_PRESET_NUZLOCKE] = sText_RunSetupNuzlocke,
+    [RUN_SETUP_PRESET_BISHEY] = sText_RunSetupBishey,
+    [RUN_SETUP_PRESET_CUSTOM] = sText_RunSetupCustom,
+};
+static const u8 sText_RunSetupTitle[] = _("Run Setup");
+static const u8 sText_RunSetupFullCompatibility[] = _("Full compatibility");
+static const u8 sText_RunSetupReusableTMs[] = _("Reusable TMs");
+static const u8 sText_RunSetupReusableTMsHelp[] = _("Teach TM moves without\nusing up the TM.");
+static const u8 sText_RunSetupOff[] = _("Off");
+static const u8 sText_RunSetupOn[] = _("On");
+static const u8 sText_RunSetupHelp[] = _("All Pokémon can learn every\nTM, HM, and tutor move.");
+static const u8 sText_RunSetupConfirmTitle[] = _("Confirm Setup");
+static const u8 sText_RunSetupConfirmPrompt[] = _("Begin with these rules?\nThey are fixed for this run.");
+static const u8 sText_RunSetupControls[] = _("A: Change  START: Begin  B: Back");
+static const u8 sText_RunSetupConfirmControls[] = _("A: Confirm  B: Back");
+static const u8 sText_RunSetupUp[] = _("{UP_ARROW}");
+static const u8 sText_RunSetupDown[] = _("{DOWN_ARROW}");
+static const u8 sText_RunSetupLeft[] = _("{LEFT_ARROW}");
+static const u8 sText_RunSetupRight[] = _("{RIGHT_ARROW}");
+static const u8 sRunSetupTextColors[2][3] =
+{
+    {10, 2, 3},
+    {9, 2, 0},
+};
+static const u8 sRunSetupAccentColors[2][3] =
+{
+    {10, 8, 0},
+    {9, 8, 0},
+};
 
-static const u8 sRunSetupCursorY[RUN_SETUP_ITEM_COUNT] = {25, 41, 65, 81};
-static const u8 sRunSetupConfirmCursorY[RUN_SETUP_CONFIRM_COUNT] = {73, 89};
+static const struct
+{
+    const u8 *label;
+    const u8 *help;
+    bool32 (*getValue)(void);
+    void (*setValue)(bool32);
+} sRunSetupSettings[] =
+{
+    {sText_RunSetupFullCompatibility, sText_RunSetupHelp, RunSetup_GetFullCompatibility, RunSetup_SetFullCompatibility},
+    {sText_RunSetupReusableTMs, sText_RunSetupReusableTMsHelp, RunSetup_GetReusableTMs, RunSetup_SetReusableTMs},
+};
+
 
 static const struct BgTemplate sMainMenuBgTemplates[] = {
     {
@@ -1351,14 +1373,18 @@ static void HighlightSelectedMainMenuItem(enum PartyMenuType menuType, u8 select
 
 #define tRunSetupSelection data[0]
 #define tRunSetupStartIntro data[1]
+#define tRunSetupTop data[2]
+#define tRunSetupDraftSelection data[3]
 
 static void Task_RunSetup_Init(u8 taskId)
 {
     RunSetup_PrepareDisplay();
     InitWindows(sWindowTemplates_RunSetup);
+    LoadMainMenuWindowFrameTiles(0, RUN_SETUP_BORDER_TILE);
     DeactivateAllTextPrinters();
     FillBgTilemapBufferRect_Palette0(0, 0, 0, 0, DISPLAY_TILE_WIDTH, DISPLAY_TILE_HEIGHT);
-    gTasks[taskId].tRunSetupSelection = RUN_SETUP_ITEM_FULL_COMPATIBILITY;
+    gTasks[taskId].tRunSetupSelection = 0;
+    gTasks[taskId].tRunSetupTop = 0;
     gTasks[taskId].tRunSetupStartIntro = FALSE;
     DrawRunSetupScreen(taskId);
     BeginNormalPaletteFade(PALETTES_ALL, 0, 16, 0, RGB_BLACK);
@@ -1373,33 +1399,17 @@ static void Task_RunSetup_FadeIn(u8 taskId)
 
 static void Task_RunSetup_ProcessInput(u8 taskId)
 {
-    u8 previousSelection = gTasks[taskId].tRunSetupSelection;
+    u16 selection = gTasks[taskId].tRunSetupSelection;
 
-    if (JOY_NEW(A_BUTTON))
+    if (JOY_NEW(START_BUTTON))
     {
         PlaySE(SE_SELECT);
-        switch (gTasks[taskId].tRunSetupSelection)
-        {
-        case RUN_SETUP_ITEM_FULL_COMPATIBILITY:
-            RunSetup_SetFullCompatibility(!RunSetup_GetFullCompatibility());
-            DrawRunSetupFullCompatibility();
-            break;
-        case RUN_SETUP_ITEM_REUSABLE_TMS:
-            RunSetup_SetReusableTMs(!RunSetup_GetReusableTMs());
-            DrawRunSetupReusableTMs();
-            break;
-        case RUN_SETUP_ITEM_CONTINUE:
-            RunSetup_EnterConfirmation();
-            gTasks[taskId].tRunSetupSelection = RUN_SETUP_CONFIRM_CONTINUE;
-            DrawRunSetupConfirmationScreen(taskId);
-            gTasks[taskId].func = Task_RunSetup_ProcessConfirmationInput;
-            break;
-        case RUN_SETUP_ITEM_BACK:
-            RunSetup_Discard();
-            BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
-            gTasks[taskId].func = Task_RunSetup_FadeOut;
-            break;
-        }
+        RunSetup_EnterConfirmation();
+        gTasks[taskId].tRunSetupDraftSelection = selection;
+        gTasks[taskId].tRunSetupSelection = 0;
+        gTasks[taskId].tRunSetupTop = 0;
+        DrawRunSetupConfirmationScreen(taskId);
+        gTasks[taskId].func = Task_RunSetup_ProcessConfirmationInput;
     }
     else if (JOY_NEW(B_BUTTON))
     {
@@ -1408,88 +1418,69 @@ static void Task_RunSetup_ProcessInput(u8 taskId)
         BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
         gTasks[taskId].func = Task_RunSetup_FadeOut;
     }
-    else if (JOY_NEW(DPAD_UP))
-    {
-        if (gTasks[taskId].tRunSetupSelection > 0)
-            gTasks[taskId].tRunSetupSelection--;
-        else
-            gTasks[taskId].tRunSetupSelection = RUN_SETUP_ITEM_BACK;
-    }
-    else if (JOY_NEW(DPAD_DOWN))
-    {
-        if (gTasks[taskId].tRunSetupSelection < RUN_SETUP_ITEM_BACK)
-            gTasks[taskId].tRunSetupSelection++;
-        else
-            gTasks[taskId].tRunSetupSelection = RUN_SETUP_ITEM_FULL_COMPATIBILITY;
-    }
-    else if ((gTasks[taskId].tRunSetupSelection == RUN_SETUP_ITEM_FULL_COMPATIBILITY
-           || gTasks[taskId].tRunSetupSelection == RUN_SETUP_ITEM_REUSABLE_TMS)
-          && JOY_NEW(DPAD_LEFT | DPAD_RIGHT))
+    else if (JOY_NEW(A_BUTTON | DPAD_LEFT | DPAD_RIGHT))
     {
         PlaySE(SE_SELECT);
-        if (gTasks[taskId].tRunSetupSelection == RUN_SETUP_ITEM_FULL_COMPATIBILITY)
+        if (selection == 0)
         {
-            RunSetup_SetFullCompatibility(!RunSetup_GetFullCompatibility());
-            DrawRunSetupFullCompatibility();
-        }
-        else
-        {
-            RunSetup_SetReusableTMs(!RunSetup_GetReusableTMs());
-            DrawRunSetupReusableTMs();
-        }
-    }
+            enum RunSetupPreset preset = RunSetup_GetPreset();
 
-    if (previousSelection != gTasks[taskId].tRunSetupSelection
-     && gTasks[taskId].func == Task_RunSetup_ProcessInput)
+            if (JOY_NEW(DPAD_LEFT))
+                preset = preset == 0 ? RUN_SETUP_PRESET_COUNT - 1 : preset - 1;
+            else
+                preset = preset >= RUN_SETUP_PRESET_COUNT - 1 ? 0 : preset + 1;
+            RunSetup_SetPreset(preset);
+        }
+        else
+        {
+            sRunSetupSettings[selection - 1].setValue(!sRunSetupSettings[selection - 1].getValue());
+        }
+        DrawRunSetupScreen(taskId);
+    }
+    else if (JOY_REPEAT(DPAD_UP | DPAD_DOWN))
     {
+        if (JOY_REPEAT(DPAD_UP))
+            selection = selection == 0 ? ARRAY_COUNT(sRunSetupSettings) : selection - 1;
+        else
+            selection = (selection + 1) % (ARRAY_COUNT(sRunSetupSettings) + 1);
+        gTasks[taskId].tRunSetupSelection = selection;
         PlaySE(SE_SELECT);
-        DrawRunSetupHelp(gTasks[taskId].tRunSetupSelection);
-        DrawRunSetupCursor(sRunSetupCursorY[previousSelection], sRunSetupCursorY[gTasks[taskId].tRunSetupSelection]);
+        DrawRunSetupScreen(taskId);
     }
 }
 
 static void Task_RunSetup_ProcessConfirmationInput(u8 taskId)
 {
-    u8 previousSelection = gTasks[taskId].tRunSetupSelection;
+    u16 selection = gTasks[taskId].tRunSetupSelection;
 
-    if (JOY_NEW(A_BUTTON))
-    {
-        PlaySE(SE_SELECT);
-        if (gTasks[taskId].tRunSetupSelection == RUN_SETUP_CONFIRM_CONTINUE)
-        {
-            RunSetup_Confirm();
-            gTasks[taskId].tRunSetupStartIntro = TRUE;
-            RunSetup_ClearDisplayTilemap();
-            CopyBgTilemapBufferToVram(0);
-            BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
-            gTasks[taskId].func = Task_RunSetup_FadeOut;
-        }
-        else
-        {
-            RunSetup_ReturnToDraft();
-            gTasks[taskId].tRunSetupSelection = RUN_SETUP_ITEM_CONTINUE;
-            DrawRunSetupScreen(taskId);
-            gTasks[taskId].func = Task_RunSetup_ProcessInput;
-        }
-    }
-    else if (JOY_NEW(B_BUTTON))
+    if (JOY_NEW(B_BUTTON))
     {
         PlaySE(SE_SELECT);
         RunSetup_ReturnToDraft();
-        gTasks[taskId].tRunSetupSelection = RUN_SETUP_ITEM_CONTINUE;
+        gTasks[taskId].tRunSetupSelection = gTasks[taskId].tRunSetupDraftSelection;
+        gTasks[taskId].tRunSetupTop = 0;
         DrawRunSetupScreen(taskId);
         gTasks[taskId].func = Task_RunSetup_ProcessInput;
     }
-    else if (JOY_NEW(DPAD_UP | DPAD_DOWN))
-    {
-        gTasks[taskId].tRunSetupSelection ^= 1;
-    }
-
-    if (previousSelection != gTasks[taskId].tRunSetupSelection
-     && gTasks[taskId].func == Task_RunSetup_ProcessConfirmationInput)
+    else if (JOY_NEW(A_BUTTON))
     {
         PlaySE(SE_SELECT);
-        DrawRunSetupCursor(sRunSetupConfirmCursorY[previousSelection], sRunSetupConfirmCursorY[gTasks[taskId].tRunSetupSelection]);
+        RunSetup_Confirm();
+        gTasks[taskId].tRunSetupStartIntro = TRUE;
+        RunSetup_ClearDisplayTilemap();
+        CopyBgTilemapBufferToVram(0);
+        BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
+        gTasks[taskId].func = Task_RunSetup_FadeOut;
+    }
+    else if (JOY_REPEAT(DPAD_UP | DPAD_DOWN))
+    {
+        if (JOY_REPEAT(DPAD_UP))
+            selection = selection == 0 ? ARRAY_COUNT(sRunSetupSettings) : selection - 1;
+        else
+            selection = (selection + 1) % (ARRAY_COUNT(sRunSetupSettings) + 1);
+        gTasks[taskId].tRunSetupSelection = selection;
+        PlaySE(SE_SELECT);
+        DrawRunSetupConfirmationScreen(taskId);
     }
 }
 
@@ -1500,6 +1491,7 @@ static void Task_RunSetup_FadeOut(u8 taskId)
         FreeAllWindowBuffers();
         if (gTasks[taskId].tRunSetupStartIntro)
         {
+            RunSetup_ClearDisplayGraphics();
             gPlttBufferUnfaded[0] = RGB_BLACK;
             gPlttBufferFaded[0] = RGB_BLACK;
             gTasks[taskId].func = Task_NewGameBirchSpeech_Init;
@@ -1514,74 +1506,88 @@ static void Task_RunSetup_FadeOut(u8 taskId)
 
 static void DrawRunSetupScreen(u8 taskId)
 {
-    FillWindowPixelBuffer(0, PIXEL_FILL(0xA));
-    AddTextPrinterParameterized3(0, FONT_NORMAL, GetStringCenterAlignXOffset(FONT_NORMAL, sText_RunSetupTitle, 224), 1, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupTitle);
-    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 25, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupFullCompatibility);
-    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 65, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupContinue);
-    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 81, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupBack);
-    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 41, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupReusableTMs);
-    DrawRunSetupReusableTMs();
-    DrawRunSetupHelp(gTasks[taskId].tRunSetupSelection);
-    DrawRunSetupFullCompatibility();
-    DrawRunSetupCursor(sRunSetupCursorY[gTasks[taskId].tRunSetupSelection], sRunSetupCursorY[gTasks[taskId].tRunSetupSelection]);
-    PutWindowTilemap(0);
-    DrawMainMenuWindowBorder(&sWindowTemplates_RunSetup[0], MAIN_MENU_BORDER_TILE);
-    CopyWindowToVram(0, COPYWIN_FULL);
+    DrawRunSetupList(taskId, FALSE);
 }
 
 static void DrawRunSetupConfirmationScreen(u8 taskId)
 {
-    const u8 *fullCompatibility = RunSetup_GetFullCompatibility() ? sText_RunSetupOn : sText_RunSetupOff;
+    DrawRunSetupList(taskId, TRUE);
+}
 
-    FillWindowPixelBuffer(0, PIXEL_FILL(0xA));
-    AddTextPrinterParameterized3(0, FONT_NORMAL, GetStringCenterAlignXOffset(FONT_NORMAL, sText_RunSetupConfirmTitle, 224), 1, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupConfirmTitle);
-    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 25, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupFullCompatibility);
-    AddTextPrinterParameterized3(0, FONT_NORMAL, GetStringRightAlignXOffset(FONT_NORMAL, fullCompatibility, 216), 25, sTextColor_Headers, TEXT_SKIP_DRAW, fullCompatibility);
-    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 41, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupReusableTMs);
-    DrawRunSetupReusableTMs();
-    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 57, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupConfirmPrompt);
-    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 73, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupContinue);
-    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 89, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupBack);
-    DrawRunSetupCursor(sRunSetupConfirmCursorY[gTasks[taskId].tRunSetupSelection], sRunSetupConfirmCursorY[gTasks[taskId].tRunSetupSelection]);
+static void DrawRunSetupList(u8 taskId, bool32 review)
+{
+    u32 selection = gTasks[taskId].tRunSetupSelection;
+    u32 count = ARRAY_COUNT(sRunSetupSettings);
+    u32 top = RunSetup_GetScrollTop(selection == 0 ? 0 : selection - 1, gTasks[taskId].tRunSetupTop, count);
+    bool32 presetSelected = selection == 0;
+    const u8 *presetName = sRunSetupPresetNames[RunSetup_GetPreset()];
+    u32 presetX = GetStringRightAlignXOffset(FONT_NORMAL, presetName, 198);
+    const u8 *help = review ? sText_RunSetupConfirmPrompt : presetSelected ? sText_RunSetupPresetHelp : sRunSetupSettings[selection - 1].help;
+    const u8 *controls = review ? sText_RunSetupConfirmControls : sText_RunSetupControls;
+    u8 position[16];
+    u8 *str;
+
+    gTasks[taskId].tRunSetupTop = top;
+
+    FillWindowPixelBuffer(0, PIXEL_FILL(10));
+    AddTextPrinterParameterized3(0, FONT_NORMAL, 8, 0, sRunSetupAccentColors[0], TEXT_SKIP_DRAW, review ? sText_RunSetupConfirmTitle : sText_RunSetupTitle);
+    if (!presetSelected)
+    {
+        str = ConvertIntToDecimalStringN(position, selection, STR_CONV_MODE_LEFT_ALIGN, 3);
+        *str++ = CHAR_SLASH;
+        ConvertIntToDecimalStringN(str, count, STR_CONV_MODE_LEFT_ALIGN, 3);
+        AddTextPrinterParameterized3(0, FONT_SMALL, GetStringRightAlignXOffset(FONT_SMALL, position, 216), 2, sRunSetupTextColors[0], TEXT_SKIP_DRAW, position);
+    }
+    if (presetSelected)
+    {
+        FillWindowPixelRect(0, PIXEL_FILL(9), 2, 19, 212, 16);
+        AddTextPrinterParameterized3(0, FONT_NORMAL, 4, 19, sRunSetupAccentColors[1], TEXT_SKIP_DRAW, gText_SelectorArrow3);
+    }
+    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 19, sRunSetupTextColors[presetSelected], TEXT_SKIP_DRAW, sText_RunSetupPreset);
+    AddTextPrinterParameterized3(0, FONT_NORMAL, presetX, 19, sRunSetupAccentColors[presetSelected], TEXT_SKIP_DRAW, presetName);
+    if (presetSelected && !review)
+    {
+        AddTextPrinterParameterized3(0, FONT_SMALL, presetX - 12, 21, sRunSetupAccentColors[1], TEXT_SKIP_DRAW, sText_RunSetupLeft);
+        AddTextPrinterParameterized3(0, FONT_SMALL, 204, 21, sRunSetupAccentColors[1], TEXT_SKIP_DRAW, sText_RunSetupRight);
+    }
+    FillWindowPixelRect(0, PIXEL_FILL(3), 4, 35, 216, 1);
+
+    for (u32 row = 0; row < RUN_SETUP_VISIBLE_ROWS && top + row < count; row++)
+    {
+        u32 index = top + row;
+        u32 y = 37 + row * 16;
+        bool32 selected = index + 1 == selection;
+        const u8 *label = sRunSetupSettings[index].label;
+        bool32 enabled = sRunSetupSettings[index].getValue();
+        const u8 *value = enabled ? sText_RunSetupOn : sText_RunSetupOff;
+        const u8 *colors = enabled ? sRunSetupAccentColors[selected] : sRunSetupTextColors[selected];
+
+        if (selected)
+        {
+            FillWindowPixelRect(0, PIXEL_FILL(9), 2, y, 212, 16);
+            AddTextPrinterParameterized3(0, FONT_NORMAL, 4, y, sRunSetupAccentColors[1], TEXT_SKIP_DRAW, gText_SelectorArrow3);
+        }
+        AddTextPrinterParameterized3(0, FONT_NORMAL, 16, y, sRunSetupTextColors[selected], TEXT_SKIP_DRAW, label);
+        AddTextPrinterParameterized3(0, FONT_NORMAL, GetStringRightAlignXOffset(FONT_NORMAL, value, 208), y, colors, TEXT_SKIP_DRAW, value);
+    }
+    if (top > 0)
+        AddTextPrinterParameterized3(0, FONT_SMALL, 216, 37, sRunSetupAccentColors[0], TEXT_SKIP_DRAW, sText_RunSetupUp);
+    if (top + RUN_SETUP_VISIBLE_ROWS < count)
+        AddTextPrinterParameterized3(0, FONT_SMALL, 216, 85, sRunSetupAccentColors[0], TEXT_SKIP_DRAW, sText_RunSetupDown);
+
+    FillWindowPixelRect(0, PIXEL_FILL(3), 4, 101, 216, 1);
+    AddTextPrinterParameterized3(0, FONT_SMALL, 8, 103, sRunSetupTextColors[0], TEXT_SKIP_DRAW, help);
+    FillWindowPixelRect(0, PIXEL_FILL(3), 4, 130, 216, 1);
+    AddTextPrinterParameterized3(0, FONT_SMALL, 4, 132, sRunSetupAccentColors[0], TEXT_SKIP_DRAW, controls);
+    PutWindowTilemap(0);
+    DrawMainMenuWindowBorder(&sWindowTemplates_RunSetup[0], RUN_SETUP_BORDER_TILE);
     CopyWindowToVram(0, COPYWIN_FULL);
-}
-
-static void DrawRunSetupCursor(u8 oldY, u8 newY)
-{
-    FillWindowPixelRect(0, PIXEL_FILL(0xA), 4, oldY, 8, 16);
-    AddTextPrinterParameterized3(0, FONT_NORMAL, 4, newY, sTextColor_Headers, TEXT_SKIP_DRAW, gText_SelectorArrow3);
-    CopyWindowToVram(0, COPYWIN_GFX);
-}
-
-static void DrawRunSetupFullCompatibility(void)
-{
-    const u8 *text = RunSetup_GetFullCompatibility() ? sText_RunSetupOn : sText_RunSetupOff;
-
-    FillWindowPixelRect(0, PIXEL_FILL(0xA), 184, 25, 32, 16);
-    AddTextPrinterParameterized3(0, FONT_NORMAL, GetStringRightAlignXOffset(FONT_NORMAL, text, 216), 25, sTextColor_Headers, TEXT_SKIP_DRAW, text);
-    CopyWindowToVram(0, COPYWIN_GFX);
-}
-
-static void DrawRunSetupReusableTMs(void)
-{
-    const u8 *text = RunSetup_GetReusableTMs() ? sText_RunSetupOn : sText_RunSetupOff;
-
-    FillWindowPixelRect(0, PIXEL_FILL(0xA), 184, 41, 32, 16);
-    AddTextPrinterParameterized3(0, FONT_NORMAL, GetStringRightAlignXOffset(FONT_NORMAL, text, 216), 41, sTextColor_Headers, TEXT_SKIP_DRAW, text);
-    CopyWindowToVram(0, COPYWIN_GFX);
-}
-
-static void DrawRunSetupHelp(u8 selection)
-{
-    FillWindowPixelRect(0, PIXEL_FILL(0xA), 16, 97, 208, 31);
-    if (selection == RUN_SETUP_ITEM_FULL_COMPATIBILITY)
-        AddTextPrinterParameterized3(0, FONT_SMALL, 16, 97, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupHelp);
-    else if (selection == RUN_SETUP_ITEM_REUSABLE_TMS)
-        AddTextPrinterParameterized3(0, FONT_SMALL, 16, 97, sTextColor_Headers, TEXT_SKIP_DRAW, sText_RunSetupReusableTMsHelp);
 }
 
 #undef tRunSetupSelection
 #undef tRunSetupStartIntro
+#undef tRunSetupTop
+#undef tRunSetupDraftSelection
 
 #define tPlayerSpriteId data[2]
 #define tBG1HOFS data[4]

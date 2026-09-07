@@ -1731,6 +1731,7 @@ void BattleMainCB2(void)
 {
     AnimateSprites();
     BuildOamBuffer();
+    UpdateTextPrinterDisplayTimers();
     RunTextPrinters();
     UpdatePaletteFade();
     RunTasks();
@@ -1975,6 +1976,7 @@ static void CB2_EndLinkBattle(void)
     EndLinkBattleInSteps();
     AnimateSprites();
     BuildOamBuffer();
+    UpdateTextPrinterDisplayTimers();
     RunTextPrinters();
     UpdatePaletteFade();
     RunTasks();
@@ -2171,6 +2173,7 @@ static void CB2_AskRecordBattle(void)
     AskRecordBattle();
     AnimateSprites();
     BuildOamBuffer();
+    UpdateTextPrinterDisplayTimers();
     RunTextPrinters();
     UpdatePaletteFade();
     RunTasks();

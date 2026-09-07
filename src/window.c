@@ -1,6 +1,7 @@
 #include "global.h"
 #include "window.h"
 #include "malloc.h"
+#include "text.h"
 #include "bg.h"
 #include "blit.h"
 #include "decompress.h"
@@ -245,6 +246,7 @@ int AddWindowWithoutTileMap(const struct WindowTemplate *template)
 
 void RemoveWindow(u32 windowId)
 {
+    DeactivateSingleTextPrinter(windowId, WINDOW_TEXT_PRINTER);
     u32 bgLayer = gWindows[windowId].window.bg;
 
     if (gWindowTileAutoAllocEnabled == TRUE)
@@ -284,6 +286,8 @@ void RemoveAllWindowsOnBg(u32 bgId)
 
 void FreeAllWindowBuffers(void)
 {
+    for (u32 windowId = 0; windowId < WINDOWS_MAX; windowId++)
+        DeactivateSingleTextPrinter(windowId, WINDOW_TEXT_PRINTER);
     int i;
 
     for (i = 0; i < NUM_BACKGROUNDS; ++i)

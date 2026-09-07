@@ -3854,6 +3854,7 @@ void BattlePutTextOnWindow(const u8 *text, u8 windowId)
 {
     const struct BattleWindowText *textInfo = sBattleTextOnWindowsInfo[gBattleScripting.windowsType];
     bool32 copyToVram;
+    bool32 protectDisplay;
     struct TextPrinterTemplate printerTemplate;
     u8 speed;
 
@@ -3864,9 +3865,12 @@ void BattlePutTextOnWindow(const u8 *text, u8 windowId)
     }
     else
     {
-        FillWindowPixelBuffer(windowId, textInfo[windowId].fillValue);
         copyToVram = TRUE;
     }
+
+    protectDisplay = (windowId == B_WIN_MSG || windowId == ARENA_WIN_JUDGMENT_TEXT || windowId == B_WIN_OAK_OLD_MAN);
+    if (copyToVram && !protectDisplay)
+        FillWindowPixelBuffer(windowId, textInfo[windowId].fillValue);
 
     printerTemplate.currentChar = text;
     printerTemplate.type = WINDOW_TEXT_PRINTER;
@@ -3925,7 +3929,15 @@ void BattlePutTextOnWindow(const u8 *text, u8 windowId)
         gTextFlags.canABSpeedUpPrint = 0;
     }
 
-    AddTextPrinter(&printerTemplate, speed, NULL);
+    if (protectDisplay)
+    {
+        bool32 added = AddTextPrinterWithMinimumDisplayTime(&printerTemplate, speed, B_MIN_TEXT_DISPLAY_FRAMES, copyToVram);
+        fatal_assertf(added, "Could not queue battle text");
+    }
+    else
+    {
+        AddTextPrinter(&printerTemplate, speed, NULL);
+    }
 
     if (copyToVram)
     {

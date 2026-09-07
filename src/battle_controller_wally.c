@@ -296,7 +296,7 @@ static void WallyHandleTrainerSlide(enum BattlerId battler)
 
 static void HandleChooseActionAfterDma3(enum BattlerId battler)
 {
-    if (!IsDma3ManagerBusyWithBgCopy())
+    if (!IsDma3ManagerBusyWithBgCopy() && IsTextWindowDisplayComplete(B_WIN_MSG))
     {
         gBattle_BG0_X = 0;
         gBattle_BG0_Y = DISPLAY_HEIGHT;

@@ -57,6 +57,9 @@ static void FreeFinishedTextPrinters(void);
 static void SpriteCB_TextCursor(struct Sprite *sprite);
 
 static EWRAM_DATA struct TextPrinter *sFirstTextPrinter = NULL;
+static EWRAM_DATA u8 sWindowDisplayFrames[WINDOWS_MAX] = {0};
+static EWRAM_DATA u32 sDisplayFrame = 0;
+static EWRAM_DATA u32 sLastAdvanceFrame = 0;
 
 static EWRAM_DATA u16 sFontHalfRowLookupTable[0x100];
 static EWRAM_DATA union TextColor sLastTextColor;
@@ -365,6 +368,7 @@ bool32 IsPlayerTextSpeedInstant(void)
 
 void DeactivateAllTextPrinters(void)
 {
+    memset(sWindowDisplayFrames, 0, sizeof(sWindowDisplayFrames));
     struct TextPrinter *currentPrinter = sFirstTextPrinter;
     while (currentPrinter != NULL)
     {
@@ -537,6 +541,87 @@ bool32 AddTextPrinter(struct TextPrinterTemplate *printerTemplate, u8 speed, voi
     return TRUE;
 }
 
+// Called once per battle frame, independently of accelerated rendering.
+void UpdateTextPrinterDisplayTimers(void)
+{
+    sDisplayFrame++;
+    if (gDisableTextPrinters || gPaletteFade.active)
+        return;
+    for (u32 i = 0; i < WINDOWS_MAX; i++)
+    {
+        if (sWindowDisplayFrames[i] != 0)
+            sWindowDisplayFrames[i]--;
+    }
+}
+
+bool32 IsTextWindowDisplayComplete(u32 windowId)
+{
+    return sWindowDisplayFrames[windowId] == 0 && !IsTextPrinterActiveOnWindow(windowId);
+}
+
+bool32 AddTextPrinterWithMinimumDisplayTime(struct TextPrinterTemplate *template, u8 speed, u8 minFrames, bool32 clearWindow)
+{
+    if (!gFonts || template->type != WINDOW_TEXT_PRINTER)
+        return FALSE;
+
+    u8 *text = Alloc(StringLength(template->currentChar) + 1);
+    if (text == NULL)
+        return FALSE;
+    StringCopy(text, template->currentChar);
+
+    struct TextPrinter *printer = AllocateTextPrinter();
+    if (printer == NULL)
+    {
+        Free(text);
+        return FALSE;
+    }
+    *printer = (struct TextPrinter){0};
+    printer->printerTemplate = *template;
+    printer->printerTemplate.currentChar = text;
+    printer->ownedText = text;
+    printer->displayFlags = gTextFlags;
+    printer->textSpeed = (speed == 0 || speed == TEXT_SKIP_DRAW) ? 0 : speed - 1;
+    printer->minDisplayFrames = minFrames;
+    printer->clearWindow = clearWindow;
+    printer->printImmediately = speed == 0 || speed == TEXT_SKIP_DRAW;
+    printer->state = RENDER_STATE_WAIT_WINDOW;
+    printer->active = TRUE;
+    printer->isInUse = TRUE;
+    gDisableTextPrinters = FALSE;
+    return TRUE;
+}
+
+static void MarkTextPageReady(struct TextPrinter *printer)
+{
+    if (printer->ownedText != NULL && printer->pageHasText && !printer->pageReady)
+    {
+        printer->pageReady = TRUE;
+        sWindowDisplayFrames[printer->printerTemplate.windowId] = printer->minDisplayFrames;
+    }
+}
+
+static bool32 StartPendingTextPrinter(struct TextPrinter *printer)
+{
+    u32 windowId = printer->printerTemplate.windowId;
+    for (struct TextPrinter *previous = sFirstTextPrinter; previous != printer; previous = previous->nextPrinter)
+    {
+        if (previous->active && previous->printerTemplate.type == WINDOW_TEXT_PRINTER
+         && previous->printerTemplate.windowId == windowId)
+            return FALSE;
+    }
+    if (sWindowDisplayFrames[windowId] != 0)
+        return FALSE;
+
+    if (printer->clearWindow)
+    {
+        FillWindowPixelBuffer(windowId, PIXEL_FILL(printer->printerTemplate.color.background));
+        CopyWindowToVram(windowId, COPYWIN_GFX);
+    }
+    GenerateFontHalfRowLookupTable(printer->printerTemplate.color);
+    printer->state = RENDER_STATE_HANDLE_CHAR;
+    return TRUE;
+}
+
 void RunTextPrinters(void)
 {
     bool32 isInstantText = IsPlayerTextSpeedInstant();
@@ -556,6 +641,7 @@ void RunTextPrinters(void)
         {
             if (currentPrinter->active)
             {
+                isInstantText = IsPlayerTextSpeedInstant() || currentPrinter->printImmediately;
                 for (u32 repeat = 0; repeat < textRepeats || isInstantText; repeat++)
                 {
                     u32 renderState = RenderFont(currentPrinter);
@@ -614,7 +700,8 @@ bool32 IsTextPrinterActiveOnWindow(u32 windowId)
         if (currentPrinter->printerTemplate.type == WINDOW_TEXT_PRINTER
          && currentPrinter->printerTemplate.windowId == windowId)
         {
-            return currentPrinter->active;
+            if (currentPrinter->active)
+                return TRUE;
         }
         currentPrinter = currentPrinter->nextPrinter;
     }
@@ -642,13 +729,37 @@ bool32 IsTextPrinterActiveOnSprite(u32 spriteId)
 static u32 RenderFont(struct TextPrinter *textPrinter)
 {
     u32 ret;
+    TextFlags savedFlags = gTextFlags;
     u16 (*fontFunction)(struct TextPrinter *x) = gFonts[textPrinter->printerTemplate.fontId].fontFunction;
 
+    if (textPrinter->ownedText != NULL)
+    {
+        if (textPrinter->state == RENDER_STATE_WAIT_WINDOW && !StartPendingTextPrinter(textPrinter))
+            return RENDER_UPDATE;
+        gTextFlags = textPrinter->displayFlags;
+        GenerateFontHalfRowLookupTable(textPrinter->printerTemplate.color);
+    }
     do
     {
         ret = fontFunction(textPrinter);
     } while (ret == RENDER_REPEAT);
 
+    if (textPrinter->ownedText != NULL)
+    {
+        if (ret == RENDER_PRINT)
+        {
+            textPrinter->pageHasText = TRUE;
+            textPrinter->pageReady = FALSE;
+            sWindowDisplayFrames[textPrinter->printerTemplate.windowId] = 0;
+        }
+        else if (ret == RENDER_FINISH || textPrinter->state == RENDER_STATE_WAIT
+              || textPrinter->state == RENDER_STATE_CLEAR || textPrinter->state == RENDER_STATE_SCROLL_START
+              || textPrinter->state == RENDER_STATE_PAUSE || textPrinter->state == RENDER_STATE_WAIT_SE)
+        {
+            MarkTextPageReady(textPrinter);
+        }
+        gTextFlags = savedFlags;
+    }
     return ret;
 }
 
@@ -1267,9 +1378,42 @@ void SetResultWithButtonPress(bool32 *result)
     }
 }
 
+static bool32 WaitForProtectedTextPage(struct TextPrinter *printer, bool32 drawArrow)
+{
+    bool32 autoAdvance = gTextFlags.autoScroll || AUTO_SCROLL_TEXT;
+
+    MarkTextPageReady(printer);
+    if ((!gTextFlags.autoScroll || AUTO_SCROLL_TEXT)
+     && JOY_NEW(A_BUTTON | B_BUTTON) && sLastAdvanceFrame != sDisplayFrame)
+    {
+        printer->advanceRequested = TRUE;
+        sLastAdvanceFrame = sDisplayFrame;
+    }
+    if (autoAdvance && !printer->advanceRequested && TextPrinterWaitAutoMode(printer))
+        printer->advanceRequested = TRUE;
+
+    if (sWindowDisplayFrames[printer->printerTemplate.windowId] != 0)
+        return FALSE;
+    if (GetPlayerTextSpeed() == OPTIONS_TEXT_SPEED_AUTO)
+        return TRUE;
+    if (printer->advanceRequested)
+    {
+        printer->advanceRequested = FALSE;
+        if (!autoAdvance)
+            PlaySE(SE_SELECT);
+        return TRUE;
+    }
+    if (drawArrow && !autoAdvance)
+        TextPrinterDrawDownArrow(printer);
+    return FALSE;
+}
+
 bool32 TextPrinterWaitWithDownArrow(struct TextPrinter *textPrinter)
 {
     bool32 result = FALSE;
+
+    if (textPrinter->ownedText != NULL)
+        return WaitForProtectedTextPage(textPrinter, TRUE);
 
     if (GetPlayerTextSpeed() == OPTIONS_TEXT_SPEED_AUTO)
         return TRUE;
@@ -1292,6 +1436,9 @@ bool32 TextPrinterWaitWithDownArrow(struct TextPrinter *textPrinter)
 bool32 TextPrinterWait(struct TextPrinter *textPrinter)
 {
     bool32 result = FALSE;
+
+    if (textPrinter->ownedText != NULL)
+        return WaitForProtectedTextPage(textPrinter, FALSE);
 
     if (GetPlayerTextSpeed() == OPTIONS_TEXT_SPEED_AUTO)
         return TRUE;
@@ -1643,6 +1790,8 @@ static u16 RenderText(struct TextPrinter *textPrinter)
     case RENDER_STATE_CLEAR:
         if (textPrinter->printerTemplate.type == WINDOW_TEXT_PRINTER && TextPrinterWaitWithDownArrow(textPrinter))
         {
+            textPrinter->pageHasText = FALSE;
+            textPrinter->pageReady = FALSE;
             FillWindowPixelBuffer(textPrinter->printerTemplate.windowId, PIXEL_FILL(textPrinter->printerTemplate.color.background));
             textPrinter->printerTemplate.currentX = textPrinter->printerTemplate.x;
             textPrinter->printerTemplate.currentY = textPrinter->printerTemplate.y;
@@ -1652,6 +1801,8 @@ static u16 RenderText(struct TextPrinter *textPrinter)
     case RENDER_STATE_SCROLL_START:
         if (TextPrinterWaitWithDownArrow(textPrinter))
         {
+            textPrinter->pageHasText = FALSE;
+            textPrinter->pageReady = FALSE;
             textPrinter->utilityCounter = 0;
             TextPrinterClearDownArrow(textPrinter);
             textPrinter->scrollDistance = gFonts[textPrinter->printerTemplate.fontId].maxLetterHeight + textPrinter->printerTemplate.lineSpacing;
@@ -2729,6 +2880,7 @@ static void FreeFinishedTextPrinters(void)
         {
             struct TextPrinter *printer = sFirstTextPrinter;
             sFirstTextPrinter = sFirstTextPrinter->nextPrinter;
+            Free(printer->ownedText);
             Free(printer);
         }
         else
@@ -2749,6 +2901,7 @@ static void FreeFinishedTextPrinters(void)
         if (!currentPrinter->isInUse)
         {
             prevPrinter->nextPrinter = currentPrinter->nextPrinter;
+            Free(currentPrinter->ownedText);
             Free(currentPrinter);
             currentPrinter = prevPrinter->nextPrinter;
         }
@@ -2851,6 +3004,8 @@ void DestroyTextCursorSprite(u8 spriteId)
 
 void DeactivateSingleTextPrinter(u32 id, enum TextPrinterType type)
 {
+    if (type == WINDOW_TEXT_PRINTER)
+        sWindowDisplayFrames[id] = 0;
     struct TextPrinter *currentPrinter = sFirstTextPrinter;
     bool32 foundPrinter = FALSE;
     //  This loop cannot exit early because a single window/sprite group can have multiple printers attached to it
@@ -2862,7 +3017,7 @@ void DeactivateSingleTextPrinter(u32 id, enum TextPrinterType type)
             if (currentPrinter->printerTemplate.type == WINDOW_TEXT_PRINTER && currentPrinter->printerTemplate.windowId == id)
             {
                 currentPrinter->isInUse = FALSE;
-                currentPrinter = NULL;
+                currentPrinter = currentPrinter->nextPrinter;
                 foundPrinter = TRUE;
             }
             else

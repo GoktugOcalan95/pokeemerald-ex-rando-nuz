@@ -50,6 +50,7 @@ enum {
     RENDER_STATE_SCROLL,
     RENDER_STATE_WAIT_SE,
     RENDER_STATE_PAUSE,
+    RENDER_STATE_WAIT_WINDOW,
 };
 
 enum {
@@ -111,6 +112,13 @@ struct TextPrinterTemplate
 
 typedef void (*TextPrinterCallback)(struct TextPrinterTemplate *printerTemplate, u16 renderCmd);
 
+typedef struct {
+    bool8 canABSpeedUpPrint:1;
+    bool8 useAlternateDownArrow:1;
+    bool8 autoScroll:1;
+    bool8 forceMidTextSpeed:1;
+} TextFlags;
+
 struct TextPrinter
 {
     struct TextPrinterTemplate printerTemplate;
@@ -133,7 +141,14 @@ struct TextPrinter
     u8 minLetterSpacing;
 
     u8 textSpeed;
-    u8 padding[3];
+    u8 minDisplayFrames;
+    bool8 pageHasText;
+    bool8 pageReady;
+    bool8 advanceRequested;
+    bool8 clearWindow;
+    bool8 printImmediately;
+    TextFlags displayFlags;
+    u8 *ownedText;
 
     struct TextPrinter *nextPrinter;
 
@@ -165,13 +180,6 @@ struct GlyphWidthFunc
     u32 (*func)(u16 glyphId, bool32 isJapanese);
 };
 
-typedef struct {
-    bool8 canABSpeedUpPrint:1;
-    bool8 useAlternateDownArrow:1;
-    bool8 autoScroll:1;
-    bool8 forceMidTextSpeed:1;
-} TextFlags;
-
 struct TextGlyph
 {
     u32 gfxBufferTop[16];
@@ -185,6 +193,9 @@ extern bool8 gDisableTextPrinters;
 extern struct TextGlyph gCurGlyph;
 
 void DeactivateAllTextPrinters(void);
+void UpdateTextPrinterDisplayTimers(void);
+bool32 IsTextWindowDisplayComplete(u32 windowId);
+bool32 AddTextPrinterWithMinimumDisplayTime(struct TextPrinterTemplate *template, u8 speed, u8 minFrames, bool32 clearWindow);
 void DeactivateSingleTextPrinter(u32 id, enum TextPrinterType type);
 u16 AddTextPrinterParameterized(u8 windowId, u8 fontId, const u8 *str, u8 x, u8 y, u8 speed, TextPrinterCallback callback);
 u16 AddSpriteTextPrinterParameterized(u8 spriteId, u8 fontId, const u8 *str, u8 x, u8 y, u8 speed, TextPrinterCallback callback);

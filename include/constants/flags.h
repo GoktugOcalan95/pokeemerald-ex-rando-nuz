@@ -53,7 +53,7 @@
 
 #define FLAG_RUN_RULE_FULL_COMPATIBILITY 0x20
 #define FLAG_DEBUG_NO_ENCOUNTER 0x21
-#define FLAG_UNUSED_0x022    0x22 // Unused Flag
+#define FLAG_RUN_RULE_REUSABLE_TMS 0x22
 #define FLAG_UNUSED_0x023    0x23 // Unused Flag
 #define FLAG_UNUSED_0x024    0x24 // Unused Flag
 #define FLAG_UNUSED_0x025    0x25 // Unused Flag

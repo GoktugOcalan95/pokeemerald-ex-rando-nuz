@@ -71,11 +71,14 @@ TEST("Run setup drafts start with defaults after discard")
 {
     RunSetup_Begin();
     RunSetup_SetFullCompatibility(TRUE);
+    RunSetup_SetReusableTMs(TRUE);
     EXPECT(RunSetup_GetFullCompatibility());
+    EXPECT(RunSetup_GetReusableTMs());
 
     RunSetup_Discard();
     RunSetup_Begin();
     EXPECT(!RunSetup_GetFullCompatibility());
+    EXPECT(!RunSetup_GetReusableTMs());
     RunSetup_Discard();
 }
 
@@ -83,38 +86,83 @@ TEST("Run setup confirmation Back retains the draft")
 {
     RunSetup_Begin();
     RunSetup_SetFullCompatibility(TRUE);
+    RunSetup_SetReusableTMs(TRUE);
     RunSetup_EnterConfirmation();
     RunSetup_ReturnToDraft();
 
     EXPECT(RunSetup_GetFullCompatibility());
+    EXPECT(RunSetup_GetReusableTMs());
     RunSetup_Discard();
 }
 
 TEST("Run setup draft does not change the loaded save")
 {
     FlagSet(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    FlagSet(FLAG_RUN_RULE_REUSABLE_TMS);
     RunSetup_Begin();
     EXPECT(!RunSetup_GetFullCompatibility());
+    EXPECT(!RunSetup_GetReusableTMs());
     RunSetup_EnterConfirmation();
     RunSetup_Confirm();
 
     EXPECT(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY));
+    EXPECT(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS));
     RunSetup_Discard();
     FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
 }
 
 TEST("Run setup applies a confirmed draft to the new save")
 {
     FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
     RunSetup_Begin();
     RunSetup_SetFullCompatibility(TRUE);
+    RunSetup_SetReusableTMs(TRUE);
     RunSetup_EnterConfirmation();
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
 
     EXPECT(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY));
+    EXPECT(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS));
 
     InitEventData();
     RunSetup_ApplyToNewGame();
     EXPECT(!FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY));
+    EXPECT(!FlagGet(FLAG_RUN_RULE_REUSABLE_TMS));
+}
+
+TEST("Run setup applies reusable TMs independently of full compatibility")
+{
+    bool32 reusableTMs;
+    bool32 fullCompatibility;
+
+    PARAMETRIZE { reusableTMs = FALSE; fullCompatibility = FALSE; }
+    PARAMETRIZE { reusableTMs = FALSE; fullCompatibility = TRUE; }
+    PARAMETRIZE { reusableTMs = TRUE; fullCompatibility = FALSE; }
+    PARAMETRIZE { reusableTMs = TRUE; fullCompatibility = TRUE; }
+
+    FlagSet(FLAG_RUN_RULE_REUSABLE_TMS);
+    FlagSet(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    RunSetup_Begin();
+    RunSetup_SetReusableTMs(reusableTMs);
+    RunSetup_SetFullCompatibility(fullCompatibility);
+    RunSetup_EnterConfirmation();
+    RunSetup_SetReusableTMs(!reusableTMs);
+    RunSetup_Confirm();
+    RunSetup_ApplyToNewGame();
+
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), reusableTMs);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), fullCompatibility);
+    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
+    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+}
+
+TEST("Run setup does not apply unconfirmed reusable TMs")
+{
+    RunSetup_Begin();
+    RunSetup_SetReusableTMs(TRUE);
+    RunSetup_EnterConfirmation();
+    RunSetup_ApplyToNewGame();
+    EXPECT(!FlagGet(FLAG_RUN_RULE_REUSABLE_TMS));
 }

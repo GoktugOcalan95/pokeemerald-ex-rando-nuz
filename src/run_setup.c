@@ -16,6 +16,7 @@ enum RunSetupState
 struct RunSetupDraft
 {
     bool8 fullCompatibility;
+    bool8 reusableTMs;
     enum RunSetupState state:8;
 };
 
@@ -24,6 +25,7 @@ static EWRAM_DATA struct RunSetupDraft sRunSetupDraft = {0};
 void RunSetup_Begin(void)
 {
     sRunSetupDraft.fullCompatibility = FALSE;
+    sRunSetupDraft.reusableTMs = FALSE;
     sRunSetupDraft.state = RUN_SETUP_DRAFT;
 }
 
@@ -60,6 +62,11 @@ void RunSetup_ApplyToNewGame(void)
     else
         FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
 
+    if (sRunSetupDraft.state == RUN_SETUP_CONFIRMED && sRunSetupDraft.reusableTMs)
+        FlagSet(FLAG_RUN_RULE_REUSABLE_TMS);
+    else
+        FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
+
     RunSetup_Discard();
 #endif
 }
@@ -91,4 +98,15 @@ void RunSetup_SetFullCompatibility(bool32 enabled)
 {
     if (sRunSetupDraft.state == RUN_SETUP_DRAFT)
         sRunSetupDraft.fullCompatibility = enabled;
+}
+
+bool32 RunSetup_GetReusableTMs(void)
+{
+    return sRunSetupDraft.reusableTMs;
+}
+
+void RunSetup_SetReusableTMs(bool32 enabled)
+{
+    if (sRunSetupDraft.state == RUN_SETUP_DRAFT)
+        sRunSetupDraft.reusableTMs = enabled;
 }

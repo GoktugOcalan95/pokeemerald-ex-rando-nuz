@@ -12,4 +12,7 @@ void RunSetup_ClearDisplayTilemap(void);
 bool32 RunSetup_GetFullCompatibility(void);
 void RunSetup_SetFullCompatibility(bool32 enabled);
 
+bool32 RunSetup_GetReusableTMs(void);
+void RunSetup_SetReusableTMs(bool32 enabled);
+
 #endif // GUARD_RUN_SETUP_H

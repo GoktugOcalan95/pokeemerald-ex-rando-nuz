@@ -18,6 +18,7 @@
 #include "shop_criteria.h"
 #include "constants/battle.h"
 #include "constants/items.h"
+#include "constants/flags.h"
 #include "constants/moves.h"
 #include "constants/item_effects.h"
 #include "constants/hold_effects.h"
@@ -868,6 +869,11 @@ const u8 *GetItemDescription(enum Item itemId)
 
 u8 GetItemImportance(enum Item itemId)
 {
+#if !IS_FRLG
+    if (itemId >= ITEM_TM01 && itemId < ITEM_HM01 && FlagGet(FLAG_RUN_RULE_REUSABLE_TMS))
+        return TRUE;
+#endif
+
     return gItemsInfo[SanitizeItemId(itemId)].importance;
 }
 

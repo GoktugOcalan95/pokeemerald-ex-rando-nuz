@@ -436,3 +436,68 @@ TEST("Run setup opponent HP percentage participates in preset matching")
     EXPECT(!RunSetup_GetOpponentHPPercentage());
     RunSetup_Discard();
 }
+
+TEST("Run setup level caps is independent and locked during confirmation")
+{
+    bool32 enabled;
+    bool32 otherRules;
+
+    PARAMETRIZE { enabled = FALSE; otherRules = FALSE; }
+    PARAMETRIZE { enabled = FALSE; otherRules = TRUE; }
+    PARAMETRIZE { enabled = TRUE; otherRules = FALSE; }
+    PARAMETRIZE { enabled = TRUE; otherRules = TRUE; }
+
+    FlagSet(FLAG_RUN_RULE_LEVEL_CAPS);
+    RunSetup_Begin();
+    RunSetup_SetLevelCaps(enabled);
+    RunSetup_SetFullCompatibility(otherRules);
+    RunSetup_SetReusableTMs(otherRules);
+    EXPECT(FlagGet(FLAG_RUN_RULE_LEVEL_CAPS));
+    RunSetup_EnterConfirmation();
+    RunSetup_SetLevelCaps(!enabled);
+    EXPECT_EQ(RunSetup_GetLevelCaps(), enabled);
+    RunSetup_ReturnToDraft();
+    EXPECT_EQ(RunSetup_GetLevelCaps(), enabled);
+    RunSetup_EnterConfirmation();
+    RunSetup_Confirm();
+    RunSetup_SetLevelCaps(!enabled);
+    RunSetup_ApplyToNewGame();
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_LEVEL_CAPS), enabled);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), otherRules);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), otherRules);
+    FlagClear(FLAG_RUN_RULE_LEVEL_CAPS);
+    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
+}
+
+TEST("Run setup rejects unconfirmed level caps and clears stale rule flags")
+{
+    FlagSet(FLAG_RUN_RULE_LEVEL_CAPS);
+    RunSetup_Begin();
+    RunSetup_SetLevelCaps(TRUE);
+    RunSetup_EnterConfirmation();
+    RunSetup_ApplyToNewGame();
+    EXPECT(!FlagGet(FLAG_RUN_RULE_LEVEL_CAPS));
+    RunSetup_SetLevelCaps(TRUE);
+    EXPECT(!RunSetup_GetLevelCaps());
+}
+
+TEST("Run setup level caps participates in preset matching")
+{
+    enum RunSetupPreset preset;
+
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; }
+
+    RunSetup_Begin();
+    RunSetup_SetPreset(preset);
+    RunSetup_SetLevelCaps(TRUE);
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
+    RunSetup_SetLevelCaps(FALSE);
+    EXPECT_EQ(RunSetup_GetPreset(), preset);
+    RunSetup_SetLevelCaps(TRUE);
+    RunSetup_SetPreset(preset);
+    EXPECT(!RunSetup_GetLevelCaps());
+    RunSetup_Discard();
+}

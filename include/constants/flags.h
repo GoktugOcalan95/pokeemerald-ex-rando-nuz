@@ -56,7 +56,7 @@
 #define FLAG_RUN_RULE_REUSABLE_TMS 0x22
 #define FLAG_RUN_RULE_NO_EV_GAIN 0x23
 #define FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE 0x24
-#define FLAG_UNUSED_0x025    0x25 // Unused Flag
+#define FLAG_RUN_RULE_LEVEL_CAPS 0x25
 #define FLAG_UNUSED_0x026    0x26 // Unused Flag
 #define FLAG_UNUSED_0x027    0x27 // Unused Flag
 #define FLAG_UNUSED_0x028    0x28 // Unused Flag

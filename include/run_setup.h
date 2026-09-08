@@ -37,4 +37,7 @@ void RunSetup_SetNoEVGain(bool32 enabled);
 bool32 RunSetup_GetOpponentHPPercentage(void);
 void RunSetup_SetOpponentHPPercentage(bool32 enabled);
 
+bool32 RunSetup_GetLevelCaps(void);
+void RunSetup_SetLevelCaps(bool32 enabled);
+
 #endif // GUARD_RUN_SETUP_H

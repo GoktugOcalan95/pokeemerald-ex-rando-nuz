@@ -385,6 +385,8 @@ static u8 GetNumLevelsGainedFromSteps(struct DaycareMon *daycareMon)
     u8 levelAfter;
 
     levelBefore = GetLevelFromBoxMonExp(&daycareMon->mon);
+    if (levelBefore >= GetCurrentLevelCap())
+        return 0;
     levelAfter = GetLevelAfterDaycareSteps(&daycareMon->mon, daycareMon->steps);
     if (levelAfter > GetCurrentLevelCap())
         levelAfter = GetCurrentLevelCap();
@@ -1409,7 +1411,7 @@ static void DaycarePrintMonLvl(struct DayCare *daycare, u8 windowId, u32 daycare
     u8 intText[8];
 
     StringCopy(lvlText, gText_Lv);
-    level = GetLevelAfterDaycareSteps(&daycare->mons[daycareSlotId].mon, daycare->mons[daycareSlotId].steps);
+    level = GetLevelFromBoxMonExp(&daycare->mons[daycareSlotId].mon) + GetNumLevelsGainedFromSteps(&daycare->mons[daycareSlotId]);
     ConvertIntToDecimalStringN(intText, level, STR_CONV_MODE_LEFT_ALIGN, 3);
     StringAppend(lvlText, intText);
     x = GetStringRightAlignXOffset(FONT_NORMAL, lvlText, 112);

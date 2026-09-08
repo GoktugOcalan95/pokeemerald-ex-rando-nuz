@@ -478,6 +478,8 @@ static const u8 *const sRunSetupPresetNames[] =
 };
 static const u8 sText_RunSetupTitle[] = _("Run Setup");
 static const u8 sText_RunSetupFullCompatibility[] = _("Full compatibility");
+static const u8 sText_RunSetupLevelCaps[] = _("Level caps");
+static const u8 sText_RunSetupLevelCapsHelp[] = _("Limit leveling until the next badge.\nLast Gym: Lv. 58 until Champion.");
 static const u8 sText_RunSetupOpponentHPPercentage[] = _("Opponent HP %");
 static const u8 sText_RunSetupOpponentHPPercentageHelp[] = _("Show opponent HP percentages.\nDoubles: START swaps bars/numbers.");
 static const u8 sText_RunSetupNoEVGain[] = _("No EV gain");
@@ -518,6 +520,7 @@ static const struct
     {sText_RunSetupReusableTMs, sText_RunSetupReusableTMsHelp, RunSetup_GetReusableTMs, RunSetup_SetReusableTMs},
     {sText_RunSetupNoEVGain, sText_RunSetupNoEVGainHelp, RunSetup_GetNoEVGain, RunSetup_SetNoEVGain},
     {sText_RunSetupOpponentHPPercentage, sText_RunSetupOpponentHPPercentageHelp, RunSetup_GetOpponentHPPercentage, RunSetup_SetOpponentHPPercentage},
+    {sText_RunSetupLevelCaps, sText_RunSetupLevelCapsHelp, RunSetup_GetLevelCaps, RunSetup_SetLevelCaps},
 };
 
 

@@ -4,6 +4,19 @@
 #include "caps.h"
 #include "pokemon.h"
 
+bool32 AreLevelCapsEnabled(void)
+{
+#if IS_FRLG
+    return FALSE;
+#else
+    return FlagGet(FLAG_RUN_RULE_LEVEL_CAPS);
+#endif
+}
+
+u32 GetExpCapType(void)
+{
+    return AreLevelCapsEnabled() ? EXP_CAP_HARD : B_EXP_CAP_TYPE;
+}
 
 u32 GetCurrentLevelCap(void)
 {
@@ -22,7 +35,7 @@ u32 GetCurrentLevelCap(void)
 
     u32 i;
 
-    if (B_LEVEL_CAP_TYPE == LEVEL_CAP_FLAG_LIST)
+    if (AreLevelCapsEnabled() || B_LEVEL_CAP_TYPE == LEVEL_CAP_FLAG_LIST)
     {
         for (i = 0; i < ARRAY_COUNT(sLevelCapFlagMap); i++)
         {
@@ -46,7 +59,7 @@ u32 GetSoftLevelCapExpValue(u32 level, u32 expValue)
     u32 levelDifference;
     u32 currentLevelCap = GetCurrentLevelCap();
 
-    if (B_EXP_CAP_TYPE == EXP_CAP_NONE)
+    if (GetExpCapType() == EXP_CAP_NONE)
         return expValue;
 
     if (level < currentLevelCap)
@@ -64,11 +77,11 @@ u32 GetSoftLevelCapExpValue(u32 level, u32 expValue)
             return expValue;
         }
     }
-    else if (B_EXP_CAP_TYPE == EXP_CAP_HARD)
+    else if (GetExpCapType() == EXP_CAP_HARD)
     {
         return 0;
     }
-    else if (B_EXP_CAP_TYPE == EXP_CAP_SOFT)
+    else if (GetExpCapType() == EXP_CAP_SOFT)
     {
         levelDifference = level - currentLevelCap;
         if (levelDifference > ARRAY_COUNT(sExpScalingDown) - 1)

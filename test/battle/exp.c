@@ -267,3 +267,47 @@ WILD_BATTLE_TEST("No EV gain blocks battle EV awards without blocking experience
         FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
     }
 }
+
+WILD_BATTLE_TEST("Level caps clamp battle EXP including bonuses and Exp Share, and preserve overleveled Pokemon")
+{
+    bool32 enabled;
+    u8 level;
+
+    for (u32 rule = FALSE; rule <= TRUE; rule++)
+    {
+        PARAMETRIZE { enabled = rule; level = 14; }
+        PARAMETRIZE { enabled = rule; level = 15; }
+        PARAMETRIZE { enabled = rule; level = 20; }
+    }
+
+    GIVEN {
+        for (u32 flag = FLAG_BADGE01_GET; flag <= FLAG_BADGE08_GET; flag++)
+            FlagClear(flag);
+        FlagClear(FLAG_IS_CHAMPION);
+        if (enabled)
+            FlagSet(FLAG_RUN_RULE_LEVEL_CAPS);
+        else
+            FlagClear(FLAG_RUN_RULE_LEVEL_CAPS);
+        PLAYER(SPECIES_WOBBUFFET) { Level(level); Item(ITEM_LUCKY_EGG); OTName("Test"); }
+        PLAYER(SPECIES_WOBBUFFET) { Level(level); Item(ITEM_EXP_SHARE); }
+        OPPONENT(SPECIES_BLISSEY) { Level(50); HP(1); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_SCRATCH); }
+    } THEN {
+        for (u32 slot = 0; slot < 2; slot++)
+        {
+            struct Pokemon *mon = &gParties[B_TRAINER_PLAYER][slot];
+            enum GrowthRate growthRate = gSpeciesInfo[GetMonData(mon, MON_DATA_SPECIES)].growthRate;
+            if (enabled)
+            {
+                EXPECT_EQ(GetMonData(mon, MON_DATA_LEVEL), (level < 15 ? 15 : level));
+                EXPECT_EQ(GetMonData(mon, MON_DATA_EXP), gExperienceTables[growthRate][(level < 15 ? 15 : level)]);
+            }
+            else
+            {
+                EXPECT_GT(GetMonData(mon, MON_DATA_EXP), gExperienceTables[growthRate][level]);
+            }
+        }
+        FlagClear(FLAG_RUN_RULE_LEVEL_CAPS);
+    }
+}

@@ -480,6 +480,8 @@ static const u8 sText_RunSetupTitle[] = _("Run Setup");
 static const u8 sText_RunSetupFullCompatibility[] = _("Full compatibility");
 static const u8 sText_RunSetupSetupMovePP[] = _("Setup move PP");
 static const u8 sText_RunSetupSetupMovePPHelp[] = _("Limit selected setup moves to 1 PP.\nApplies to both sides; healing works.");
+static const u8 sText_RunSetupInstantCatch[] = _("Instant catch");
+static const u8 sText_RunSetupInstantCatchHelp[] = _("Guarantee valid wild catches with\na short animation. Balls are used.");
 static const u8 sText_RunSetupFrostbite[] = _("Frostbite");
 static const u8 sText_RunSetupFrostbiteHelp[] = _("Replace Freeze: act, half special\ndamage, lose 1/16 HP each turn.");
 static const u8 sText_RunSetupLevelCaps[] = _("Level caps");
@@ -526,6 +528,7 @@ static const struct
     {sText_RunSetupOpponentHPPercentage, sText_RunSetupOpponentHPPercentageHelp, RunSetup_GetOpponentHPPercentage, RunSetup_SetOpponentHPPercentage},
     {sText_RunSetupLevelCaps, sText_RunSetupLevelCapsHelp, RunSetup_GetLevelCaps, RunSetup_SetLevelCaps},
     {sText_RunSetupFrostbite, sText_RunSetupFrostbiteHelp, RunSetup_GetFrostbite, RunSetup_SetFrostbite},
+    {sText_RunSetupInstantCatch, sText_RunSetupInstantCatchHelp, RunSetup_GetInstantCatch, RunSetup_SetInstantCatch},
     {sText_RunSetupSetupMovePP, sText_RunSetupSetupMovePPHelp, RunSetup_GetSetupMovePP, RunSetup_SetSetupMovePP},
 };
 

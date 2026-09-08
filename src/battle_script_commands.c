@@ -8167,6 +8167,15 @@ static void SetBallThrowShakes(void)
     gBattleSpritesDataPtr->animationData->isCriticalCapture = FALSE;
     gBattleSpritesDataPtr->animationData->criticalCaptureSuccess = FALSE;
 
+#if !IS_FRLG
+    if (FlagGet(FLAG_RUN_RULE_INSTANT_CATCH))
+    {
+        gBattleSpritesDataPtr->animationData->isCriticalCapture = TRUE;
+        FinalizeCapture();
+        return;
+    }
+#endif
+
     // Master Ball check occurs before critical capture check
     if (odds == CAPTURE_GUARANTEED || IsVictoryCatchGuaranteed())
     {

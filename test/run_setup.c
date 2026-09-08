@@ -679,3 +679,92 @@ TEST("Run setup SetupMovePP survives saving and loading")
     EXPECT_EQ(FlagGet(FLAG_RUN_RULE_SETUP_MOVE_PP), enabled);
     FlagClear(FLAG_RUN_RULE_SETUP_MOVE_PP);
 }
+
+
+TEST("Run setup InstantCatch is independent and locked during confirmation")
+{
+    bool32 enabled;
+    bool32 otherRules;
+
+    PARAMETRIZE { enabled = FALSE; otherRules = FALSE; }
+    PARAMETRIZE { enabled = FALSE; otherRules = TRUE; }
+    PARAMETRIZE { enabled = TRUE; otherRules = FALSE; }
+    PARAMETRIZE { enabled = TRUE; otherRules = TRUE; }
+
+    FlagSet(FLAG_RUN_RULE_INSTANT_CATCH);
+    RunSetup_Begin();
+    RunSetup_SetInstantCatch(enabled);
+    RunSetup_SetFullCompatibility(otherRules);
+    RunSetup_SetReusableTMs(otherRules);
+    EXPECT(FlagGet(FLAG_RUN_RULE_INSTANT_CATCH));
+    RunSetup_EnterConfirmation();
+    RunSetup_SetInstantCatch(!enabled);
+    EXPECT_EQ(RunSetup_GetInstantCatch(), enabled);
+    RunSetup_ReturnToDraft();
+    EXPECT_EQ(RunSetup_GetInstantCatch(), enabled);
+    RunSetup_EnterConfirmation();
+    RunSetup_Confirm();
+    RunSetup_SetInstantCatch(!enabled);
+    RunSetup_ApplyToNewGame();
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_INSTANT_CATCH), enabled);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), otherRules);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), otherRules);
+    FlagClear(FLAG_RUN_RULE_INSTANT_CATCH);
+    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
+}
+
+TEST("Run setup rejects unconfirmed InstantCatch and clears stale rule flags")
+{
+    FlagSet(FLAG_RUN_RULE_INSTANT_CATCH);
+    RunSetup_Begin();
+    RunSetup_SetInstantCatch(TRUE);
+    RunSetup_EnterConfirmation();
+    RunSetup_ApplyToNewGame();
+    EXPECT(!FlagGet(FLAG_RUN_RULE_INSTANT_CATCH));
+    RunSetup_SetInstantCatch(TRUE);
+    EXPECT(!RunSetup_GetInstantCatch());
+}
+
+TEST("Run setup InstantCatch participates in preset matching")
+{
+    enum RunSetupPreset preset;
+
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; }
+
+    RunSetup_Begin();
+    RunSetup_SetPreset(preset);
+    RunSetup_SetInstantCatch(TRUE);
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
+    RunSetup_SetInstantCatch(FALSE);
+    EXPECT_EQ(RunSetup_GetPreset(), preset);
+    RunSetup_SetInstantCatch(TRUE);
+    RunSetup_SetPreset(preset);
+    EXPECT(!RunSetup_GetInstantCatch());
+    RunSetup_Discard();
+}
+
+TEST("Run setup InstantCatch survives saving and loading")
+{
+    bool32 enabled;
+
+    PARAMETRIZE { enabled = FALSE; }
+    PARAMETRIZE { enabled = TRUE; }
+
+    RunSetup_Begin();
+    RunSetup_SetInstantCatch(enabled);
+    RunSetup_EnterConfirmation();
+    RunSetup_Confirm();
+    RunSetup_ApplyToNewGame();
+    Save_ResetSaveCounters();
+    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
+    if (enabled)
+        FlagClear(FLAG_RUN_RULE_INSTANT_CATCH);
+    else
+        FlagSet(FLAG_RUN_RULE_INSTANT_CATCH);
+    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_INSTANT_CATCH), enabled);
+    FlagClear(FLAG_RUN_RULE_INSTANT_CATCH);
+}

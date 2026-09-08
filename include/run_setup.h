@@ -46,4 +46,7 @@ void RunSetup_SetFrostbite(bool32 enabled);
 bool32 RunSetup_GetSetupMovePP(void);
 void RunSetup_SetSetupMovePP(bool32 enabled);
 
+bool32 RunSetup_GetInstantCatch(void);
+void RunSetup_SetInstantCatch(bool32 enabled);
+
 #endif // GUARD_RUN_SETUP_H

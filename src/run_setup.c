@@ -21,6 +21,7 @@ struct RunSetupDraft
     bool8 opponentHPPercentage;
     bool8 levelCaps;
     bool8 frostbite;
+    bool8 instantCatch;
     bool8 setupMovePP;
     enum RunSetupState state:8;
     enum RunSetupPreset preferredPreset:8;
@@ -36,12 +37,13 @@ static const struct
     bool8 opponentHPPercentage;
     bool8 levelCaps;
     bool8 frostbite;
+    bool8 instantCatch;
     bool8 setupMovePP;
 } sRunSetupPresets[RUN_SETUP_PRESET_COUNT] =
 {
-    [RUN_SETUP_PRESET_VANILLA] = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
-    [RUN_SETUP_PRESET_NUZLOCKE] = {TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
-    [RUN_SETUP_PRESET_BISHEY] = {TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    [RUN_SETUP_PRESET_VANILLA] = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    [RUN_SETUP_PRESET_NUZLOCKE] = {TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    [RUN_SETUP_PRESET_BISHEY] = {TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
 };
 
 static bool32 RunSetup_MatchesPreset(enum RunSetupPreset preset)
@@ -52,7 +54,8 @@ static bool32 RunSetup_MatchesPreset(enum RunSetupPreset preset)
         && sRunSetupDraft.opponentHPPercentage == sRunSetupPresets[preset].opponentHPPercentage
         && sRunSetupDraft.levelCaps == sRunSetupPresets[preset].levelCaps
         && sRunSetupDraft.frostbite == sRunSetupPresets[preset].frostbite
-        && sRunSetupDraft.setupMovePP == sRunSetupPresets[preset].setupMovePP;
+        && sRunSetupDraft.setupMovePP == sRunSetupPresets[preset].setupMovePP
+        && sRunSetupDraft.instantCatch == sRunSetupPresets[preset].instantCatch;
 }
 
 void RunSetup_SetPreset(enum RunSetupPreset preset)
@@ -65,6 +68,7 @@ void RunSetup_SetPreset(enum RunSetupPreset preset)
     sRunSetupDraft.opponentHPPercentage = sRunSetupPresets[preset].opponentHPPercentage;
     sRunSetupDraft.levelCaps = sRunSetupPresets[preset].levelCaps;
     sRunSetupDraft.frostbite = sRunSetupPresets[preset].frostbite;
+    sRunSetupDraft.instantCatch = sRunSetupPresets[preset].instantCatch;
     sRunSetupDraft.setupMovePP = sRunSetupPresets[preset].setupMovePP;
     sRunSetupDraft.preferredPreset = preset;
 }
@@ -90,6 +94,7 @@ void RunSetup_Begin(void)
     sRunSetupDraft.opponentHPPercentage = FALSE;
     sRunSetupDraft.levelCaps = FALSE;
     sRunSetupDraft.frostbite = FALSE;
+    sRunSetupDraft.instantCatch = FALSE;
     sRunSetupDraft.setupMovePP = FALSE;
     sRunSetupDraft.state = RUN_SETUP_DRAFT;
     sRunSetupDraft.preferredPreset = RUN_SETUP_PRESET_VANILLA;
@@ -157,6 +162,11 @@ void RunSetup_ApplyToNewGame(void)
         FlagSet(FLAG_RUN_RULE_SETUP_MOVE_PP);
     else
         FlagClear(FLAG_RUN_RULE_SETUP_MOVE_PP);
+
+    if (sRunSetupDraft.state == RUN_SETUP_CONFIRMED && sRunSetupDraft.instantCatch)
+        FlagSet(FLAG_RUN_RULE_INSTANT_CATCH);
+    else
+        FlagClear(FLAG_RUN_RULE_INSTANT_CATCH);
 
     RunSetup_Discard();
 #endif
@@ -274,4 +284,15 @@ void RunSetup_SetSetupMovePP(bool32 enabled)
 {
     if (sRunSetupDraft.state == RUN_SETUP_DRAFT)
         sRunSetupDraft.setupMovePP = enabled;
+}
+
+bool32 RunSetup_GetInstantCatch(void)
+{
+    return sRunSetupDraft.instantCatch;
+}
+
+void RunSetup_SetInstantCatch(bool32 enabled)
+{
+    if (sRunSetupDraft.state == RUN_SETUP_DRAFT)
+        sRunSetupDraft.instantCatch = enabled;
 }

@@ -1,5 +1,12 @@
 #include "global.h"
 #include "battle.h"
+#include "bg.h"
+#include "dma3.h"
+#include "main.h"
+#include "strings.h"
+#include "task.h"
+#include "text.h"
+#include "window.h"
 #include "party_menu.h"
 #include "pokemon.h"
 #include "test/test.h"
@@ -44,4 +51,69 @@ TEST("Full multi partner party menu wraps cancel up to partner party count")
     gPartyMenu.layout = PARTY_LAYOUT_MULTI_FULL_PARTNER;
 
     EXPECT_EQ(Test_UpdatePartySelectionSingleLayout(PARTY_SIZE + 1, TEST_MENU_DIR_UP, FALSE, 0), 1);
+}
+
+TEST("Party menu messages remain readable in Auto and wait for input in Instant")
+{
+    u32 speed;
+    u32 savedSpeed = gSaveBlock2Ptr->optionsTextSpeed;
+    u8 taskId;
+    static const struct BgTemplate bg = { .bg = 0, .charBaseIndex = 0, .mapBaseIndex = 30 };
+    static const struct WindowTemplate windows[] =
+    {
+        { .bg = 0, .width = 1, .height = 1, .baseBlock = 1 },
+        { .bg = 0, .width = 1, .height = 1, .baseBlock = 2 },
+        { .bg = 0, .width = 1, .height = 1, .baseBlock = 3 },
+        { .bg = 0, .width = 1, .height = 1, .baseBlock = 4 },
+        { .bg = 0, .width = 1, .height = 1, .baseBlock = 5 },
+        { .bg = 0, .width = 1, .height = 1, .baseBlock = 6 },
+        { .bg = 0, .tilemapLeft = 1, .tilemapTop = 1, .width = 26, .height = 4, .baseBlock = 128 },
+        DUMMY_WIN_TEMPLATE,
+    };
+
+    PARAMETRIZE { speed = OPTIONS_TEXT_SPEED_AUTO; }
+    PARAMETRIZE { speed = OPTIONS_TEXT_SPEED_INSTANT; }
+
+    DeactivateAllTextPrinters();
+    ClearDma3Requests();
+    ResetBgsAndClearDma3BusyFlags(FALSE);
+    InitBgFromTemplate(&bg);
+    InitWindows(windows);
+    SetDefaultFontsPointer();
+    gSaveBlock2Ptr->optionsTextSpeed = speed;
+    gTextFlags = (TextFlags){0};
+    gMain.newKeys = 0;
+    gMain.heldKeys = 0;
+    taskId = DisplayPartyMenuMessage(gText_WontHaveEffect, TRUE);
+
+    for (u32 frame = 0; frame < 48; frame++)
+    {
+        EXPECT(IsPartyMenuTextPrinterActive());
+        gTasks[taskId].func(taskId);
+        ProcessDma3Requests();
+    }
+    EXPECT(IsPartyMenuTextPrinterActive());
+    if (speed == OPTIONS_TEXT_SPEED_INSTANT)
+    {
+        for (u32 frame = 0; frame < 60; frame++)
+        {
+            gTasks[taskId].func(taskId);
+            EXPECT(IsPartyMenuTextPrinterActive());
+        }
+        gMain.newKeys = A_BUTTON;
+    }
+    for (u32 frame = 0; frame < 16 && IsPartyMenuTextPrinterActive(); frame++)
+    {
+        gTasks[taskId].func(taskId);
+        ProcessDma3Requests();
+    }
+    EXPECT(!IsPartyMenuTextPrinterActive());
+
+    DeactivateAllTextPrinters();
+    FreeAllWindowBuffers();
+    ResetBgsAndClearDma3BusyFlags(FALSE);
+    gTextFlags = (TextFlags){0};
+    gMain.newKeys = 0;
+    gMain.heldKeys = 0;
+    gSaveBlock2Ptr->optionsTextSpeed = savedSpeed;
 }

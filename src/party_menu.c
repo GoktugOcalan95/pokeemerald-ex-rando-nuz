@@ -2008,6 +2008,8 @@ u8 *GetMonNickname(struct Pokemon *mon, u8 *dest)
 }
 
 #define tKeepOpen  data[0]
+#define tAutoDisplayFrames data[1]
+#define PARTY_MENU_AUTO_DISPLAY_FRAMES 48
 
 u8 DisplayPartyMenuMessage(const u8 *str, bool8 keepOpen)
 {
@@ -2016,6 +2018,8 @@ u8 DisplayPartyMenuMessage(const u8 *str, bool8 keepOpen)
     PrintMessage(str);
     taskId = CreateTask(Task_PrintAndWaitForText, 1);
     gTasks[taskId].tKeepOpen = keepOpen;
+    if (GetPlayerTextSpeed() == OPTIONS_TEXT_SPEED_AUTO)
+        gTasks[taskId].tAutoDisplayFrames = PARTY_MENU_AUTO_DISPLAY_FRAMES;
     return taskId;
 }
 
@@ -2023,6 +2027,11 @@ static void Task_PrintAndWaitForText(u8 taskId)
 {
     if (RunTextPrintersRetIsActive(WIN_MSG) != TRUE)
     {
+        if (gTasks[taskId].tAutoDisplayFrames != 0)
+        {
+            gTasks[taskId].tAutoDisplayFrames--;
+            return;
+        }
         if (gTasks[taskId].tKeepOpen == FALSE)
         {
             ClearStdWindowAndFrameToTransparent(WIN_MSG, FALSE);
@@ -2033,6 +2042,7 @@ static void Task_PrintAndWaitForText(u8 taskId)
 }
 
 #undef tKeepOpen
+#undef tAutoDisplayFrames
 
 bool8 IsPartyMenuTextPrinterActive(void)
 {

@@ -604,6 +604,58 @@
       "trainer_sight_or_berry_tree_id": "ITEM_REVIVE",
       "script": "Common_EventScript_FindItem",
       "flag": "FLAG_ITEM_ROUTE_120_REVIVE"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 9,
+      "y": 1,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_RARE_CANDY",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ROUTE_120_RARE_CANDY_1"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 31,
+      "y": 11,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_REVIVE",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ROUTE_120_REVIVE"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 0,
+      "y": 86,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_RARE_CANDY",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ROUTE_120_RARE_CANDY_2"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 24,
+      "y": 42,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_ZINC",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ROUTE_120_ZINC"
     }
   ],
   "warp_events": [
@@ -822,38 +874,6 @@
       "y": 23,
       "elevation": 0,
       "secret_base_id": "SECRET_BASE_SHRUB2_3"
-    },
-    {
-      "type": "hidden_item",
-      "x": 9,
-      "y": 1,
-      "elevation": 3,
-      "item": "ITEM_RARE_CANDY",
-      "flag": "FLAG_HIDDEN_ITEM_ROUTE_120_RARE_CANDY_1"
-    },
-    {
-      "type": "hidden_item",
-      "x": 31,
-      "y": 11,
-      "elevation": 3,
-      "item": "ITEM_REVIVE",
-      "flag": "FLAG_HIDDEN_ITEM_ROUTE_120_REVIVE"
-    },
-    {
-      "type": "hidden_item",
-      "x": 0,
-      "y": 86,
-      "elevation": 3,
-      "item": "ITEM_RARE_CANDY",
-      "flag": "FLAG_HIDDEN_ITEM_ROUTE_120_RARE_CANDY_2"
-    },
-    {
-      "type": "hidden_item",
-      "x": 24,
-      "y": 42,
-      "elevation": 3,
-      "item": "ITEM_ZINC",
-      "flag": "FLAG_HIDDEN_ITEM_ROUTE_120_ZINC"
     },
     {
       "type": "secret_base",

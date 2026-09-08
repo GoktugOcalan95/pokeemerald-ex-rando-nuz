@@ -587,6 +587,58 @@
       "trainer_sight_or_berry_tree_id": "0",
       "script": "0x0",
       "flag": "FLAG_HIDE_ROUTE_119_SCOTT"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 17,
+      "y": 82,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_CALCIUM",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ROUTE_119_CALCIUM"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 38,
+      "y": 63,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_ULTRA_BALL",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ROUTE_119_ULTRA_BALL"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 26,
+      "y": 120,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_FULL_HEAL",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ROUTE_119_FULL_HEAL"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 20,
+      "y": 29,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_MAX_ETHER",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ROUTE_119_MAX_ETHER"
     }
   ],
   "warp_events": [
@@ -846,22 +898,6 @@
       "secret_base_id": "SECRET_BASE_BLUE_CAVE4_3"
     },
     {
-      "type": "hidden_item",
-      "x": 17,
-      "y": 82,
-      "elevation": 3,
-      "item": "ITEM_CALCIUM",
-      "flag": "FLAG_HIDDEN_ITEM_ROUTE_119_CALCIUM"
-    },
-    {
-      "type": "hidden_item",
-      "x": 38,
-      "y": 63,
-      "elevation": 3,
-      "item": "ITEM_ULTRA_BALL",
-      "flag": "FLAG_HIDDEN_ITEM_ROUTE_119_ULTRA_BALL"
-    },
-    {
       "type": "secret_base",
       "x": 26,
       "y": 81,
@@ -895,22 +931,6 @@
       "y": 2,
       "elevation": 0,
       "secret_base_id": "SECRET_BASE_SHRUB4_3"
-    },
-    {
-      "type": "hidden_item",
-      "x": 26,
-      "y": 120,
-      "elevation": 3,
-      "item": "ITEM_FULL_HEAL",
-      "flag": "FLAG_HIDDEN_ITEM_ROUTE_119_FULL_HEAL"
-    },
-    {
-      "type": "hidden_item",
-      "x": 20,
-      "y": 29,
-      "elevation": 3,
-      "item": "ITEM_MAX_ETHER",
-      "flag": "FLAG_HIDDEN_ITEM_ROUTE_119_MAX_ETHER"
     },
     {
       "type": "sign",

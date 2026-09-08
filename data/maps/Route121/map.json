@@ -410,6 +410,58 @@
       "trainer_sight_or_berry_tree_id": "ITEM_ZINC",
       "script": "Common_EventScript_FindItem",
       "flag": "FLAG_ITEM_ROUTE_121_ZINC"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 23,
+      "y": 10,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_HP_UP",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ROUTE_121_HP_UP"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 58,
+      "y": 3,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_NUGGET",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ROUTE_121_NUGGET"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 72,
+      "y": 5,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_FULL_HEAL",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ROUTE_121_FULL_HEAL"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 68,
+      "y": 8,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_MAX_REVIVE",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ROUTE_121_MAX_REVIVE"
     }
   ],
   "warp_events": [
@@ -503,38 +555,6 @@
       "elevation": 0,
       "player_facing_dir": "BG_EVENT_PLAYER_FACING_ANY",
       "script": "Route121_EventScript_SafariZoneSign"
-    },
-    {
-      "type": "hidden_item",
-      "x": 23,
-      "y": 10,
-      "elevation": 3,
-      "item": "ITEM_HP_UP",
-      "flag": "FLAG_HIDDEN_ITEM_ROUTE_121_HP_UP"
-    },
-    {
-      "type": "hidden_item",
-      "x": 58,
-      "y": 3,
-      "elevation": 3,
-      "item": "ITEM_NUGGET",
-      "flag": "FLAG_HIDDEN_ITEM_ROUTE_121_NUGGET"
-    },
-    {
-      "type": "hidden_item",
-      "x": 72,
-      "y": 5,
-      "elevation": 3,
-      "item": "ITEM_FULL_HEAL",
-      "flag": "FLAG_HIDDEN_ITEM_ROUTE_121_FULL_HEAL"
-    },
-    {
-      "type": "hidden_item",
-      "x": 68,
-      "y": 8,
-      "elevation": 3,
-      "item": "ITEM_MAX_REVIVE",
-      "flag": "FLAG_HIDDEN_ITEM_ROUTE_121_MAX_REVIVE"
     }
   ]
 }

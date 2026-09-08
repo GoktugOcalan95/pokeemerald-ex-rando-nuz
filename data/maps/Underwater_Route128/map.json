@@ -25,7 +25,34 @@
       "direction": "emerge"
     }
   ],
-  "object_events": [],
+  "object_events": [
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 38,
+      "y": 19,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_PROTEIN",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_UNDERWATER_128_PROTEIN"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 69,
+      "y": 18,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_PEARL",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_UNDERWATER_128_PEARL"
+    }
+  ],
   "warp_events": [
     {
       "x": 38,
@@ -36,22 +63,5 @@
     }
   ],
   "coord_events": [],
-  "bg_events": [
-    {
-      "type": "hidden_item",
-      "x": 38,
-      "y": 19,
-      "elevation": 3,
-      "item": "ITEM_PROTEIN",
-      "flag": "FLAG_HIDDEN_ITEM_UNDERWATER_128_PROTEIN"
-    },
-    {
-      "type": "hidden_item",
-      "x": 69,
-      "y": 18,
-      "elevation": 3,
-      "item": "ITEM_PEARL",
-      "flag": "FLAG_HIDDEN_ITEM_UNDERWATER_128_PEARL"
-    }
-  ]
+  "bg_events": []
 }

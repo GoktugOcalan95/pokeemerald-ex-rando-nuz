@@ -102,7 +102,7 @@ AbandonedShip_HiddenFloorRooms_EventScript_Rm4KeySparkle::
 	return
 
 AbandonedShip_HiddenFloorRooms_EventScript_Rm6KeySparkle::
-	dofieldeffectsparkle 1, 2, 0
+	dofieldeffectsparkle 1, 3, 0
 	return
 
 AbandonedShip_HiddenFloorRooms_EventScript_Trash::

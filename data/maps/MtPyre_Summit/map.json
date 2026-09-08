@@ -125,6 +125,32 @@
       "trainer_sight_or_berry_tree_id": "0",
       "script": "0x0",
       "flag": "FLAG_HIDE_MT_PYRE_SUMMIT_MAXIE"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 9,
+      "y": 24,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_ZINC",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_MT_PYRE_SUMMIT_ZINC"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 37,
+      "y": 7,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_RARE_CANDY",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_MT_PYRE_SUMMIT_RARE_CANDY"
     }
   ],
   "warp_events": [
@@ -206,22 +232,5 @@
       "script": "MtPyre_Summit_EventScript_ArchieMaxieTrigger2"
     }
   ],
-  "bg_events": [
-    {
-      "type": "hidden_item",
-      "x": 9,
-      "y": 25,
-      "elevation": 0,
-      "item": "ITEM_ZINC",
-      "flag": "FLAG_HIDDEN_ITEM_MT_PYRE_SUMMIT_ZINC"
-    },
-    {
-      "type": "hidden_item",
-      "x": 37,
-      "y": 7,
-      "elevation": 3,
-      "item": "ITEM_RARE_CANDY",
-      "flag": "FLAG_HIDDEN_ITEM_MT_PYRE_SUMMIT_RARE_CANDY"
-    }
-  ]
+  "bg_events": []
 }

@@ -2,3 +2,12 @@ Common_EventScript_FindItem::
 	callnative GetItemBallIdAndAmountFromTemplate
 	finditem VAR_RESULT VAR_0x8009
 	end
+
+Common_EventScript_FindVisibleHiddenItem::
+	callnative GetItemBallIdAndAmountFromTemplate
+	finditem VAR_RESULT VAR_0x8009
+	goto_if_ne VAR_0x8007, TRUE, Common_EventScript_EndVisibleHiddenItem
+	copyvar VAR_0x8005, VAR_0x8000
+	special TryPutTreasureInvestigatorsOnAir
+Common_EventScript_EndVisibleHiddenItem:
+	end

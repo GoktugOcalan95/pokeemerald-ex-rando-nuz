@@ -27,6 +27,58 @@
       "trainer_sight_or_berry_tree_id": "ITEM_HP_UP",
       "script": "Common_EventScript_FindItem",
       "flag": "FLAG_ITEM_ARTISAN_CAVE_B1F_HP_UP"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 32,
+      "y": 28,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_ZINC",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ARTISAN_CAVE_B1F_ZINC"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 27,
+      "y": 9,
+      "elevation": 4,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_CALCIUM",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ARTISAN_CAVE_B1F_CALCIUM"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 8,
+      "y": 5,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_PROTEIN",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ARTISAN_CAVE_B1F_PROTEIN"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 18,
+      "y": 43,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_IRON",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ARTISAN_CAVE_B1F_IRON"
     }
   ],
   "warp_events": [
@@ -46,38 +98,5 @@
     }
   ],
   "coord_events": [],
-  "bg_events": [
-    {
-      "type": "hidden_item",
-      "x": 32,
-      "y": 29,
-      "elevation": 0,
-      "item": "ITEM_ZINC",
-      "flag": "FLAG_HIDDEN_ITEM_ARTISAN_CAVE_B1F_ZINC"
-    },
-    {
-      "type": "hidden_item",
-      "x": 27,
-      "y": 8,
-      "elevation": 0,
-      "item": "ITEM_CALCIUM",
-      "flag": "FLAG_HIDDEN_ITEM_ARTISAN_CAVE_B1F_CALCIUM"
-    },
-    {
-      "type": "hidden_item",
-      "x": 7,
-      "y": 5,
-      "elevation": 0,
-      "item": "ITEM_PROTEIN",
-      "flag": "FLAG_HIDDEN_ITEM_ARTISAN_CAVE_B1F_PROTEIN"
-    },
-    {
-      "type": "hidden_item",
-      "x": 19,
-      "y": 43,
-      "elevation": 0,
-      "item": "ITEM_IRON",
-      "flag": "FLAG_HIDDEN_ITEM_ARTISAN_CAVE_B1F_IRON"
-    }
-  ]
+  "bg_events": []
 }

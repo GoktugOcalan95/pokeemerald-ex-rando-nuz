@@ -640,6 +640,45 @@
       "trainer_sight_or_berry_tree_id": "0",
       "script": "Route111_EventScript_RockSmashTipFatMan",
       "flag": "FLAG_HIDE_ROUTE_111_ROCK_SMASH_TIP_GUY"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 25,
+      "y": 70,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_STARDUST",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ROUTE_111_STARDUST"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 19,
+      "y": 55,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_PROTEIN",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ROUTE_111_PROTEIN"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 34,
+      "y": 66,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_RARE_CANDY",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_ROUTE_111_RARE_CANDY"
     }
   ],
   "warp_events": [
@@ -1064,14 +1103,6 @@
       "secret_base_id": "SECRET_BASE_YELLOW_CAVE4_3"
     },
     {
-      "type": "hidden_item",
-      "x": 26,
-      "y": 70,
-      "elevation": 0,
-      "item": "ITEM_STARDUST",
-      "flag": "FLAG_HIDDEN_ITEM_ROUTE_111_STARDUST"
-    },
-    {
       "type": "secret_base",
       "x": 27,
       "y": 27,
@@ -1099,22 +1130,6 @@
       "y": 19,
       "elevation": 0,
       "secret_base_id": "SECRET_BASE_TREE1_1"
-    },
-    {
-      "type": "hidden_item",
-      "x": 19,
-      "y": 55,
-      "elevation": 0,
-      "item": "ITEM_PROTEIN",
-      "flag": "FLAG_HIDDEN_ITEM_ROUTE_111_PROTEIN"
-    },
-    {
-      "type": "hidden_item",
-      "x": 35,
-      "y": 66,
-      "elevation": 0,
-      "item": "ITEM_RARE_CANDY",
-      "flag": "FLAG_HIDDEN_ITEM_ROUTE_111_RARE_CANDY"
     },
     {
       "type": "sign",

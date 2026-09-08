@@ -159,6 +159,7 @@ Route110_TrickHouseEnd_EventScript_CompletedPuzzle8::
 	msgbox Route110_TrickHouseEnd_Text_LeavingOnJourney, MSGBOX_DEFAULT
 	call Route110_TrickHouseEnd_EventScript_TrickMasterExit
 	special ResetTrickHouseNuggetFlag
+	addobject LOCALID_TRICK_HOUSE_NUGGET
 	release
 	end
 

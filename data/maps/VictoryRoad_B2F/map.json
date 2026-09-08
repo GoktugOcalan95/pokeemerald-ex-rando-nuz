@@ -105,6 +105,32 @@
       "trainer_sight_or_berry_tree_id": "2",
       "script": "VictoryRoad_B2F_EventScript_Felix",
       "flag": "0"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 28,
+      "y": 5,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_ELIXIR",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_VICTORY_ROAD_B2F_ELIXIR"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 37,
+      "y": 1,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_MAX_REPEL",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_VICTORY_ROAD_B2F_MAX_REPEL"
     }
   ],
   "warp_events": [
@@ -138,22 +164,5 @@
     }
   ],
   "coord_events": [],
-  "bg_events": [
-    {
-      "type": "hidden_item",
-      "x": 28,
-      "y": 5,
-      "elevation": 3,
-      "item": "ITEM_ELIXIR",
-      "flag": "FLAG_HIDDEN_ITEM_VICTORY_ROAD_B2F_ELIXIR"
-    },
-    {
-      "type": "hidden_item",
-      "x": 37,
-      "y": 1,
-      "elevation": 3,
-      "item": "ITEM_MAX_REPEL",
-      "flag": "FLAG_HIDDEN_ITEM_VICTORY_ROAD_B2F_MAX_REPEL"
-    }
-  ]
+  "bg_events": []
 }

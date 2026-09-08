@@ -28,6 +28,19 @@
       "trainer_sight_or_berry_tree_id": "0",
       "script": "0x0",
       "flag": "FLAG_HIDE_HO_OH"
+    },
+    {
+      "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
+      "x": 12,
+      "y": 9,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",
+      "movement_range_x": 1,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "ITEM_SACRED_ASH",
+      "script": "Common_EventScript_FindVisibleHiddenItem",
+      "flag": "FLAG_HIDDEN_ITEM_NAVEL_ROCK_TOP_SACRED_ASH"
     }
   ],
   "warp_events": [
@@ -50,14 +63,5 @@
       "script": "NavelRock_Top_EventScript_HoOh"
     }
   ],
-  "bg_events": [
-    {
-      "type": "hidden_item",
-      "x": 12,
-      "y": 9,
-      "elevation": 3,
-      "item": "ITEM_SACRED_ASH",
-      "flag": "FLAG_HIDDEN_ITEM_NAVEL_ROCK_TOP_SACRED_ASH"
-    }
-  ]
+  "bg_events": []
 }

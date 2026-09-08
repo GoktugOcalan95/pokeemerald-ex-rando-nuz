@@ -1,4 +1,5 @@
 #include "global.h"
+#include "frostbite.h"
 #include "battle_z_move.h"
 #include "malloc.h"
 #include "battle.h"
@@ -3627,7 +3628,7 @@ bool32 ShouldBurn(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Abi
 
 bool32 ShouldFreezeOrFrostbite(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum Ability abilityDef)
 {
-    if (!B_USE_FROSTBITE)
+    if (!IsFrostbiteEnabled())
     {
         if (CanBeFrozen(battlerAtk, battlerDef, abilityDef))
         {

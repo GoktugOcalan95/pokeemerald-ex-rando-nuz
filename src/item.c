@@ -1,4 +1,5 @@
 #include "global.h"
+#include "frostbite.h"
 #include "item.h"
 #include "berry.h"
 #include "pokeball.h"
@@ -864,7 +865,8 @@ u32 GetItemHoldEffectParam(enum Item itemId)
 
 const u8 *GetItemDescription(enum Item itemId)
 {
-    return gItemsInfo[SanitizeItemId(itemId)].description;
+    itemId = SanitizeItemId(itemId);
+    return GetFrostbiteItemDescription(itemId, gItemsInfo[itemId].description);
 }
 
 u8 GetItemImportance(enum Item itemId)

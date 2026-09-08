@@ -3,6 +3,7 @@
 #include "event_data.h"
 #include "gpu_regs.h"
 #include "run_setup.h"
+#include "save.h"
 #include "test/test.h"
 #include "constants/flags.h"
 
@@ -500,4 +501,92 @@ TEST("Run setup level caps participates in preset matching")
     RunSetup_SetPreset(preset);
     EXPECT(!RunSetup_GetLevelCaps());
     RunSetup_Discard();
+}
+
+TEST("Run setup Frostbite is independent and locked during confirmation")
+{
+    bool32 enabled;
+    bool32 otherRules;
+
+    PARAMETRIZE { enabled = FALSE; otherRules = FALSE; }
+    PARAMETRIZE { enabled = FALSE; otherRules = TRUE; }
+    PARAMETRIZE { enabled = TRUE; otherRules = FALSE; }
+    PARAMETRIZE { enabled = TRUE; otherRules = TRUE; }
+
+    FlagSet(FLAG_RUN_RULE_FROSTBITE);
+    RunSetup_Begin();
+    RunSetup_SetFrostbite(enabled);
+    RunSetup_SetFullCompatibility(otherRules);
+    RunSetup_SetReusableTMs(otherRules);
+    EXPECT(FlagGet(FLAG_RUN_RULE_FROSTBITE));
+    RunSetup_EnterConfirmation();
+    RunSetup_SetFrostbite(!enabled);
+    EXPECT_EQ(RunSetup_GetFrostbite(), enabled);
+    RunSetup_ReturnToDraft();
+    EXPECT_EQ(RunSetup_GetFrostbite(), enabled);
+    RunSetup_EnterConfirmation();
+    RunSetup_Confirm();
+    RunSetup_SetFrostbite(!enabled);
+    RunSetup_ApplyToNewGame();
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FROSTBITE), enabled);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), otherRules);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), otherRules);
+    FlagClear(FLAG_RUN_RULE_FROSTBITE);
+    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
+}
+
+TEST("Run setup rejects unconfirmed Frostbite and clears stale rule flags")
+{
+    FlagSet(FLAG_RUN_RULE_FROSTBITE);
+    RunSetup_Begin();
+    RunSetup_SetFrostbite(TRUE);
+    RunSetup_EnterConfirmation();
+    RunSetup_ApplyToNewGame();
+    EXPECT(!FlagGet(FLAG_RUN_RULE_FROSTBITE));
+    RunSetup_SetFrostbite(TRUE);
+    EXPECT(!RunSetup_GetFrostbite());
+}
+
+TEST("Run setup Frostbite participates in preset matching")
+{
+    enum RunSetupPreset preset;
+
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; }
+
+    RunSetup_Begin();
+    RunSetup_SetPreset(preset);
+    RunSetup_SetFrostbite(TRUE);
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
+    RunSetup_SetFrostbite(FALSE);
+    EXPECT_EQ(RunSetup_GetPreset(), preset);
+    RunSetup_SetFrostbite(TRUE);
+    RunSetup_SetPreset(preset);
+    EXPECT(!RunSetup_GetFrostbite());
+    RunSetup_Discard();
+}
+
+TEST("Run setup Frostbite survives saving and loading")
+{
+    bool32 enabled;
+
+    PARAMETRIZE { enabled = FALSE; }
+    PARAMETRIZE { enabled = TRUE; }
+
+    RunSetup_Begin();
+    RunSetup_SetFrostbite(enabled);
+    RunSetup_EnterConfirmation();
+    RunSetup_Confirm();
+    RunSetup_ApplyToNewGame();
+    Save_ResetSaveCounters();
+    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
+    if (enabled)
+        FlagClear(FLAG_RUN_RULE_FROSTBITE);
+    else
+        FlagSet(FLAG_RUN_RULE_FROSTBITE);
+    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FROSTBITE), enabled);
+    FlagClear(FLAG_RUN_RULE_FROSTBITE);
 }

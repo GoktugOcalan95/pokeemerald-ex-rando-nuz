@@ -1,4 +1,5 @@
 #include "global.h"
+#include "frostbite.h"
 #include "battle.h"
 #include "battle_set_effect.h"
 #include "battle_util.h"
@@ -1420,6 +1421,9 @@ static void (*const sSetEffectHandlers[])(struct BattleCalcValues *cv, struct Se
 void SetMoveEffect(struct BattleCalcValues *cv, struct SetEffect *se)
 {
     bool32 affectsUser = (cv->battlerAtk == se->effectBattler);
+
+    if (se->moveEffect == MOVE_EFFECT_FREEZE && IsFrostbiteEnabled())
+        se->moveEffect = MOVE_EFFECT_FROSTBITE;
 
     if (gSpecialStatuses[cv->battlerAtk].parentalBondState == PARENTAL_BOND_1ST_HIT
      && IsBattlerAlive(se->effectBattler)

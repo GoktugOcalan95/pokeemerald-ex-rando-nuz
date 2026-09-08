@@ -1,4 +1,5 @@
 #include "global.h"
+#include "frostbite.h"
 #include "main.h"
 #include "battle.h"
 #include "battle_anim.h"
@@ -3533,7 +3534,7 @@ static void PrintMonAbilityName(void)
 static void PrintMonAbilityDescription(void)
 {
     enum Ability ability = GetAbilityBySpecies(sMonSummaryScreen->summary.species, sMonSummaryScreen->summary.abilityNum);
-    PrintTextOnWindowToFit(AddWindowFromTemplateList(sPageInfoTemplate, PSS_DATA_WINDOW_INFO_ABILITY), gAbilitiesInfo[ability].description, 0, 17, 0, 0);
+    PrintTextOnWindowToFit(AddWindowFromTemplateList(sPageInfoTemplate, PSS_DATA_WINDOW_INFO_ABILITY), GetAbilityDescription(ability), 0, 17, 0, 0);
 }
 
 static void BufferMonTrainerMemo(void)

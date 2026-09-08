@@ -20,6 +20,7 @@ struct RunSetupDraft
     bool8 noEVGain;
     bool8 opponentHPPercentage;
     bool8 levelCaps;
+    bool8 frostbite;
     enum RunSetupState state:8;
     enum RunSetupPreset preferredPreset:8;
 };
@@ -33,11 +34,12 @@ static const struct
     bool8 noEVGain;
     bool8 opponentHPPercentage;
     bool8 levelCaps;
+    bool8 frostbite;
 } sRunSetupPresets[RUN_SETUP_PRESET_COUNT] =
 {
-    [RUN_SETUP_PRESET_VANILLA] = {FALSE, FALSE, FALSE, FALSE, FALSE},
-    [RUN_SETUP_PRESET_NUZLOCKE] = {TRUE, TRUE, FALSE, FALSE, FALSE},
-    [RUN_SETUP_PRESET_BISHEY] = {TRUE, TRUE, FALSE, FALSE, FALSE},
+    [RUN_SETUP_PRESET_VANILLA] = {FALSE, FALSE, FALSE, FALSE, FALSE, FALSE},
+    [RUN_SETUP_PRESET_NUZLOCKE] = {TRUE, TRUE, FALSE, FALSE, FALSE, FALSE},
+    [RUN_SETUP_PRESET_BISHEY] = {TRUE, TRUE, FALSE, FALSE, FALSE, FALSE},
 };
 
 static bool32 RunSetup_MatchesPreset(enum RunSetupPreset preset)
@@ -46,7 +48,8 @@ static bool32 RunSetup_MatchesPreset(enum RunSetupPreset preset)
         && sRunSetupDraft.reusableTMs == sRunSetupPresets[preset].reusableTMs
         && sRunSetupDraft.noEVGain == sRunSetupPresets[preset].noEVGain
         && sRunSetupDraft.opponentHPPercentage == sRunSetupPresets[preset].opponentHPPercentage
-        && sRunSetupDraft.levelCaps == sRunSetupPresets[preset].levelCaps;
+        && sRunSetupDraft.levelCaps == sRunSetupPresets[preset].levelCaps
+        && sRunSetupDraft.frostbite == sRunSetupPresets[preset].frostbite;
 }
 
 void RunSetup_SetPreset(enum RunSetupPreset preset)
@@ -58,6 +61,7 @@ void RunSetup_SetPreset(enum RunSetupPreset preset)
     sRunSetupDraft.noEVGain = sRunSetupPresets[preset].noEVGain;
     sRunSetupDraft.opponentHPPercentage = sRunSetupPresets[preset].opponentHPPercentage;
     sRunSetupDraft.levelCaps = sRunSetupPresets[preset].levelCaps;
+    sRunSetupDraft.frostbite = sRunSetupPresets[preset].frostbite;
     sRunSetupDraft.preferredPreset = preset;
 }
 
@@ -81,6 +85,7 @@ void RunSetup_Begin(void)
     sRunSetupDraft.noEVGain = FALSE;
     sRunSetupDraft.opponentHPPercentage = FALSE;
     sRunSetupDraft.levelCaps = FALSE;
+    sRunSetupDraft.frostbite = FALSE;
     sRunSetupDraft.state = RUN_SETUP_DRAFT;
     sRunSetupDraft.preferredPreset = RUN_SETUP_PRESET_VANILLA;
 }
@@ -137,6 +142,11 @@ void RunSetup_ApplyToNewGame(void)
         FlagSet(FLAG_RUN_RULE_LEVEL_CAPS);
     else
         FlagClear(FLAG_RUN_RULE_LEVEL_CAPS);
+
+    if (sRunSetupDraft.state == RUN_SETUP_CONFIRMED && sRunSetupDraft.frostbite)
+        FlagSet(FLAG_RUN_RULE_FROSTBITE);
+    else
+        FlagClear(FLAG_RUN_RULE_FROSTBITE);
 
     RunSetup_Discard();
 #endif
@@ -232,4 +242,15 @@ void RunSetup_SetLevelCaps(bool32 enabled)
 {
     if (sRunSetupDraft.state == RUN_SETUP_DRAFT)
         sRunSetupDraft.levelCaps = enabled;
+}
+
+bool32 RunSetup_GetFrostbite(void)
+{
+    return sRunSetupDraft.frostbite;
+}
+
+void RunSetup_SetFrostbite(bool32 enabled)
+{
+    if (sRunSetupDraft.state == RUN_SETUP_DRAFT)
+        sRunSetupDraft.frostbite = enabled;
 }

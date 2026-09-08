@@ -478,6 +478,8 @@ static const u8 *const sRunSetupPresetNames[] =
 };
 static const u8 sText_RunSetupTitle[] = _("Run Setup");
 static const u8 sText_RunSetupFullCompatibility[] = _("Full compatibility");
+static const u8 sText_RunSetupFrostbite[] = _("Frostbite");
+static const u8 sText_RunSetupFrostbiteHelp[] = _("Replace Freeze: act, half special\ndamage, lose 1/16 HP each turn.");
 static const u8 sText_RunSetupLevelCaps[] = _("Level caps");
 static const u8 sText_RunSetupLevelCapsHelp[] = _("Limit leveling until the next badge.\nLast Gym: Lv. 58 until Champion.");
 static const u8 sText_RunSetupOpponentHPPercentage[] = _("Opponent HP %");
@@ -521,6 +523,7 @@ static const struct
     {sText_RunSetupNoEVGain, sText_RunSetupNoEVGainHelp, RunSetup_GetNoEVGain, RunSetup_SetNoEVGain},
     {sText_RunSetupOpponentHPPercentage, sText_RunSetupOpponentHPPercentageHelp, RunSetup_GetOpponentHPPercentage, RunSetup_SetOpponentHPPercentage},
     {sText_RunSetupLevelCaps, sText_RunSetupLevelCapsHelp, RunSetup_GetLevelCaps, RunSetup_SetLevelCaps},
+    {sText_RunSetupFrostbite, sText_RunSetupFrostbiteHelp, RunSetup_GetFrostbite, RunSetup_SetFrostbite},
 };
 
 

@@ -2,6 +2,7 @@
 #define GUARD_MOVES_H
 
 #include "config_changes.h"
+#include "frostbite.h"
 #include "contest_effect.h"
 #include "constants/battle.h"
 #include "constants/battle_factory.h"
@@ -266,7 +267,7 @@ static inline const u8 *GetMoveDescription(enum Move moveId)
     moveId = SanitizeMoveId(moveId);
     if (GetMoveEffect(moveId) == EFFECT_PLACEHOLDER)
         return gNotDoneYetDescription;
-    return gMovesInfo[moveId].description;
+    return GetFrostbiteMoveDescription(moveId, gMovesInfo[moveId].description);
 }
 
 static inline enum Type GetMoveType(enum Move moveId)

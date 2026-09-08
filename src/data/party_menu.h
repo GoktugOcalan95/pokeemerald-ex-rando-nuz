@@ -824,8 +824,8 @@ struct
 };
 
 static const u8 sPartyMenuAction_SummarySwitchCancel[] = {MENU_SUMMARY, MENU_SWITCH, MENU_CANCEL1};
-static const u8 sPartyMenuAction_ShiftSummaryCancel[] = {MENU_SHIFT, MENU_SUMMARY, MENU_CANCEL1};
-static const u8 sPartyMenuAction_SendOutSummaryCancel[] = {MENU_SEND_OUT, MENU_SUMMARY, MENU_CANCEL1};
+static const u8 sPartyMenuAction_SummaryShiftCancel[] = {MENU_SUMMARY, MENU_SHIFT, MENU_CANCEL1};
+static const u8 sPartyMenuAction_SummarySendOutCancel[] = {MENU_SUMMARY, MENU_SEND_OUT, MENU_CANCEL1};
 static const u8 sPartyMenuAction_SummaryCancel[] = {MENU_SUMMARY, MENU_CANCEL1};
 static const u8 sPartyMenuAction_EnterSummaryCancel[] = {MENU_ENTER, MENU_SUMMARY, MENU_CANCEL1};
 static const u8 sPartyMenuAction_NoEntrySummaryCancel[] = {MENU_NO_ENTRY, MENU_SUMMARY, MENU_CANCEL1};
@@ -845,8 +845,8 @@ static const u8 *const sPartyMenuActions[] =
 {
     [ACTIONS_NONE]          = NULL,
     [ACTIONS_SWITCH]        = sPartyMenuAction_SummarySwitchCancel,
-    [ACTIONS_SHIFT]         = sPartyMenuAction_ShiftSummaryCancel,
-    [ACTIONS_SEND_OUT]      = sPartyMenuAction_SendOutSummaryCancel,
+    [ACTIONS_SHIFT]         = sPartyMenuAction_SummaryShiftCancel,
+    [ACTIONS_SEND_OUT]      = sPartyMenuAction_SummarySendOutCancel,
     [ACTIONS_ENTER]         = sPartyMenuAction_EnterSummaryCancel,
     [ACTIONS_NO_ENTRY]      = sPartyMenuAction_NoEntrySummaryCancel,
     [ACTIONS_STORE]         = sPartyMenuAction_StoreSummaryCancel,
@@ -865,8 +865,8 @@ static const u8 sPartyMenuActionCounts[] =
 {
     [ACTIONS_NONE]          = 0,
     [ACTIONS_SWITCH]        = ARRAY_COUNT(sPartyMenuAction_SummarySwitchCancel),
-    [ACTIONS_SHIFT]         = ARRAY_COUNT(sPartyMenuAction_ShiftSummaryCancel),
-    [ACTIONS_SEND_OUT]      = ARRAY_COUNT(sPartyMenuAction_SendOutSummaryCancel),
+    [ACTIONS_SHIFT]         = ARRAY_COUNT(sPartyMenuAction_SummaryShiftCancel),
+    [ACTIONS_SEND_OUT]      = ARRAY_COUNT(sPartyMenuAction_SummarySendOutCancel),
     [ACTIONS_ENTER]         = ARRAY_COUNT(sPartyMenuAction_EnterSummaryCancel),
     [ACTIONS_NO_ENTRY]      = ARRAY_COUNT(sPartyMenuAction_NoEntrySummaryCancel),
     [ACTIONS_STORE]         = ARRAY_COUNT(sPartyMenuAction_StoreSummaryCancel),

@@ -13,6 +13,22 @@ bool32 AreLevelCapsEnabled(void)
 #endif
 }
 
+bool32 RaiseMonToLevelCap(struct Pokemon *mon)
+{
+    enum Species species = GetMonData(mon, MON_DATA_SPECIES);
+    u32 cap = GetCurrentLevelCap();
+    u32 exp;
+
+    if (!AreLevelCapsEnabled() || species == SPECIES_NONE
+     || GetMonData(mon, MON_DATA_IS_EGG) || GetMonData(mon, MON_DATA_LEVEL) >= cap)
+        return FALSE;
+
+    exp = gExperienceTables[gSpeciesInfo[species].growthRate][cap];
+    SetMonData(mon, MON_DATA_EXP, &exp);
+    CalculateMonStats(mon);
+    return TRUE;
+}
+
 u32 GetExpCapType(void)
 {
     return AreLevelCapsEnabled() ? EXP_CAP_HARD : B_EXP_CAP_TYPE;

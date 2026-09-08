@@ -590,3 +590,92 @@ TEST("Run setup Frostbite survives saving and loading")
     EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FROSTBITE), enabled);
     FlagClear(FLAG_RUN_RULE_FROSTBITE);
 }
+
+
+TEST("Run setup SetupMovePP is independent and locked during confirmation")
+{
+    bool32 enabled;
+    bool32 otherRules;
+
+    PARAMETRIZE { enabled = FALSE; otherRules = FALSE; }
+    PARAMETRIZE { enabled = FALSE; otherRules = TRUE; }
+    PARAMETRIZE { enabled = TRUE; otherRules = FALSE; }
+    PARAMETRIZE { enabled = TRUE; otherRules = TRUE; }
+
+    FlagSet(FLAG_RUN_RULE_SETUP_MOVE_PP);
+    RunSetup_Begin();
+    RunSetup_SetSetupMovePP(enabled);
+    RunSetup_SetFullCompatibility(otherRules);
+    RunSetup_SetReusableTMs(otherRules);
+    EXPECT(FlagGet(FLAG_RUN_RULE_SETUP_MOVE_PP));
+    RunSetup_EnterConfirmation();
+    RunSetup_SetSetupMovePP(!enabled);
+    EXPECT_EQ(RunSetup_GetSetupMovePP(), enabled);
+    RunSetup_ReturnToDraft();
+    EXPECT_EQ(RunSetup_GetSetupMovePP(), enabled);
+    RunSetup_EnterConfirmation();
+    RunSetup_Confirm();
+    RunSetup_SetSetupMovePP(!enabled);
+    RunSetup_ApplyToNewGame();
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_SETUP_MOVE_PP), enabled);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), otherRules);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), otherRules);
+    FlagClear(FLAG_RUN_RULE_SETUP_MOVE_PP);
+    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
+}
+
+TEST("Run setup rejects unconfirmed SetupMovePP and clears stale rule flags")
+{
+    FlagSet(FLAG_RUN_RULE_SETUP_MOVE_PP);
+    RunSetup_Begin();
+    RunSetup_SetSetupMovePP(TRUE);
+    RunSetup_EnterConfirmation();
+    RunSetup_ApplyToNewGame();
+    EXPECT(!FlagGet(FLAG_RUN_RULE_SETUP_MOVE_PP));
+    RunSetup_SetSetupMovePP(TRUE);
+    EXPECT(!RunSetup_GetSetupMovePP());
+}
+
+TEST("Run setup SetupMovePP participates in preset matching")
+{
+    enum RunSetupPreset preset;
+
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; }
+
+    RunSetup_Begin();
+    RunSetup_SetPreset(preset);
+    RunSetup_SetSetupMovePP(TRUE);
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
+    RunSetup_SetSetupMovePP(FALSE);
+    EXPECT_EQ(RunSetup_GetPreset(), preset);
+    RunSetup_SetSetupMovePP(TRUE);
+    RunSetup_SetPreset(preset);
+    EXPECT(!RunSetup_GetSetupMovePP());
+    RunSetup_Discard();
+}
+
+TEST("Run setup SetupMovePP survives saving and loading")
+{
+    bool32 enabled;
+
+    PARAMETRIZE { enabled = FALSE; }
+    PARAMETRIZE { enabled = TRUE; }
+
+    RunSetup_Begin();
+    RunSetup_SetSetupMovePP(enabled);
+    RunSetup_EnterConfirmation();
+    RunSetup_Confirm();
+    RunSetup_ApplyToNewGame();
+    Save_ResetSaveCounters();
+    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
+    if (enabled)
+        FlagClear(FLAG_RUN_RULE_SETUP_MOVE_PP);
+    else
+        FlagSet(FLAG_RUN_RULE_SETUP_MOVE_PP);
+    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_SETUP_MOVE_PP), enabled);
+    FlagClear(FLAG_RUN_RULE_SETUP_MOVE_PP);
+}

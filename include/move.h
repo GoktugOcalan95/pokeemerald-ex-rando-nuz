@@ -3,6 +3,7 @@
 
 #include "config_changes.h"
 #include "frostbite.h"
+#include "setup_move_pp.h"
 #include "contest_effect.h"
 #include "constants/battle.h"
 #include "constants/battle_factory.h"
@@ -300,7 +301,10 @@ static inline enum MoveTarget GetMoveTarget(enum Move moveId)
 
 static inline u32 GetMovePP(enum Move moveId)
 {
-    return gMovesInfo[SanitizeMoveId(moveId)].pp;
+    moveId = SanitizeMoveId(moveId);
+    if (IsSetupMovePPLimited(moveId))
+        return 1;
+    return gMovesInfo[moveId].pp;
 }
 
 static inline enum ZEffect GetMoveZEffect(enum Move moveId)

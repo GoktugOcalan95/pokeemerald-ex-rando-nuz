@@ -3,6 +3,8 @@
 
 #include "battle_controllers.h"
 
+bool32 ShouldDisplayOpponentHPPercentage(void);
+
 // used for sBattlerCoords and sBattlerHealthboxCoords
 enum BattleCoordTypes
 {

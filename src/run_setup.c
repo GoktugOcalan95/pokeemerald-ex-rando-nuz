@@ -18,6 +18,7 @@ struct RunSetupDraft
     bool8 fullCompatibility;
     bool8 reusableTMs;
     bool8 noEVGain;
+    bool8 opponentHPPercentage;
     enum RunSetupState state:8;
     enum RunSetupPreset preferredPreset:8;
 };
@@ -29,18 +30,20 @@ static const struct
     bool8 fullCompatibility;
     bool8 reusableTMs;
     bool8 noEVGain;
+    bool8 opponentHPPercentage;
 } sRunSetupPresets[RUN_SETUP_PRESET_COUNT] =
 {
-    [RUN_SETUP_PRESET_VANILLA] = {FALSE, FALSE, FALSE},
-    [RUN_SETUP_PRESET_NUZLOCKE] = {TRUE, TRUE, FALSE},
-    [RUN_SETUP_PRESET_BISHEY] = {TRUE, TRUE, FALSE},
+    [RUN_SETUP_PRESET_VANILLA] = {FALSE, FALSE, FALSE, FALSE},
+    [RUN_SETUP_PRESET_NUZLOCKE] = {TRUE, TRUE, FALSE, FALSE},
+    [RUN_SETUP_PRESET_BISHEY] = {TRUE, TRUE, FALSE, FALSE},
 };
 
 static bool32 RunSetup_MatchesPreset(enum RunSetupPreset preset)
 {
     return sRunSetupDraft.fullCompatibility == sRunSetupPresets[preset].fullCompatibility
         && sRunSetupDraft.reusableTMs == sRunSetupPresets[preset].reusableTMs
-        && sRunSetupDraft.noEVGain == sRunSetupPresets[preset].noEVGain;
+        && sRunSetupDraft.noEVGain == sRunSetupPresets[preset].noEVGain
+        && sRunSetupDraft.opponentHPPercentage == sRunSetupPresets[preset].opponentHPPercentage;
 }
 
 void RunSetup_SetPreset(enum RunSetupPreset preset)
@@ -50,6 +53,7 @@ void RunSetup_SetPreset(enum RunSetupPreset preset)
     sRunSetupDraft.fullCompatibility = sRunSetupPresets[preset].fullCompatibility;
     sRunSetupDraft.reusableTMs = sRunSetupPresets[preset].reusableTMs;
     sRunSetupDraft.noEVGain = sRunSetupPresets[preset].noEVGain;
+    sRunSetupDraft.opponentHPPercentage = sRunSetupPresets[preset].opponentHPPercentage;
     sRunSetupDraft.preferredPreset = preset;
 }
 
@@ -71,6 +75,7 @@ void RunSetup_Begin(void)
     sRunSetupDraft.fullCompatibility = FALSE;
     sRunSetupDraft.reusableTMs = FALSE;
     sRunSetupDraft.noEVGain = FALSE;
+    sRunSetupDraft.opponentHPPercentage = FALSE;
     sRunSetupDraft.state = RUN_SETUP_DRAFT;
     sRunSetupDraft.preferredPreset = RUN_SETUP_PRESET_VANILLA;
 }
@@ -117,6 +122,11 @@ void RunSetup_ApplyToNewGame(void)
         FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
     else
         FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
+
+    if (sRunSetupDraft.state == RUN_SETUP_CONFIRMED && sRunSetupDraft.opponentHPPercentage)
+        FlagSet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE);
+    else
+        FlagClear(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE);
 
     RunSetup_Discard();
 #endif
@@ -190,4 +200,15 @@ u32 RunSetup_GetScrollTop(u32 selection, u32 top, u32 count)
     if (selection >= top + RUN_SETUP_VISIBLE_ROWS)
         return selection - RUN_SETUP_VISIBLE_ROWS + 1;
     return top;
+}
+
+bool32 RunSetup_GetOpponentHPPercentage(void)
+{
+    return sRunSetupDraft.opponentHPPercentage;
+}
+
+void RunSetup_SetOpponentHPPercentage(bool32 enabled)
+{
+    if (sRunSetupDraft.state == RUN_SETUP_DRAFT)
+        sRunSetupDraft.opponentHPPercentage = enabled;
 }

@@ -478,6 +478,8 @@ static const u8 *const sRunSetupPresetNames[] =
 };
 static const u8 sText_RunSetupTitle[] = _("Run Setup");
 static const u8 sText_RunSetupFullCompatibility[] = _("Full compatibility");
+static const u8 sText_RunSetupOpponentHPPercentage[] = _("Opponent HP %");
+static const u8 sText_RunSetupOpponentHPPercentageHelp[] = _("Show opponent HP percentages.\nDoubles: START swaps bars/numbers.");
 static const u8 sText_RunSetupNoEVGain[] = _("No EV gain");
 static const u8 sText_RunSetupNoEVGainHelp[] = _("Prevent EV gain from battles\nand EV-raising items.");
 static const u8 sText_RunSetupReusableTMs[] = _("Reusable TMs");
@@ -515,6 +517,7 @@ static const struct
     {sText_RunSetupFullCompatibility, sText_RunSetupHelp, RunSetup_GetFullCompatibility, RunSetup_SetFullCompatibility},
     {sText_RunSetupReusableTMs, sText_RunSetupReusableTMsHelp, RunSetup_GetReusableTMs, RunSetup_SetReusableTMs},
     {sText_RunSetupNoEVGain, sText_RunSetupNoEVGainHelp, RunSetup_GetNoEVGain, RunSetup_SetNoEVGain},
+    {sText_RunSetupOpponentHPPercentage, sText_RunSetupOpponentHPPercentageHelp, RunSetup_GetOpponentHPPercentage, RunSetup_SetOpponentHPPercentage},
 };
 
 

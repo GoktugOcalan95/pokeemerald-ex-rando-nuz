@@ -34,4 +34,7 @@ void RunSetup_SetReusableTMs(bool32 enabled);
 bool32 RunSetup_GetNoEVGain(void);
 void RunSetup_SetNoEVGain(bool32 enabled);
 
+bool32 RunSetup_GetOpponentHPPercentage(void);
+void RunSetup_SetOpponentHPPercentage(bool32 enabled);
+
 #endif // GUARD_RUN_SETUP_H

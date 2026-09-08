@@ -371,3 +371,68 @@ TEST("Run setup No EV gain participates in preset matching")
     EXPECT_EQ(RunSetup_GetPreset(), preset);
     RunSetup_Discard();
 }
+
+TEST("Run setup opponent HP percentage is independent and locked during confirmation")
+{
+    bool32 enabled;
+    bool32 otherRules;
+
+    PARAMETRIZE { enabled = FALSE; otherRules = FALSE; }
+    PARAMETRIZE { enabled = FALSE; otherRules = TRUE; }
+    PARAMETRIZE { enabled = TRUE; otherRules = FALSE; }
+    PARAMETRIZE { enabled = TRUE; otherRules = TRUE; }
+
+    FlagSet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE);
+    RunSetup_Begin();
+    RunSetup_SetOpponentHPPercentage(enabled);
+    RunSetup_SetFullCompatibility(otherRules);
+    RunSetup_SetReusableTMs(otherRules);
+    EXPECT(FlagGet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE));
+    RunSetup_EnterConfirmation();
+    RunSetup_SetOpponentHPPercentage(!enabled);
+    EXPECT_EQ(RunSetup_GetOpponentHPPercentage(), enabled);
+    RunSetup_ReturnToDraft();
+    EXPECT_EQ(RunSetup_GetOpponentHPPercentage(), enabled);
+    RunSetup_EnterConfirmation();
+    RunSetup_Confirm();
+    RunSetup_SetOpponentHPPercentage(!enabled);
+    RunSetup_ApplyToNewGame();
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE), enabled);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), otherRules);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), otherRules);
+    FlagClear(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE);
+    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
+}
+
+TEST("Run setup rejects unconfirmed opponent HP percentage and clears stale rule flags")
+{
+    FlagSet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE);
+    RunSetup_Begin();
+    RunSetup_SetOpponentHPPercentage(TRUE);
+    RunSetup_EnterConfirmation();
+    RunSetup_ApplyToNewGame();
+    EXPECT(!FlagGet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE));
+    RunSetup_SetOpponentHPPercentage(TRUE);
+    EXPECT(!RunSetup_GetOpponentHPPercentage());
+}
+
+TEST("Run setup opponent HP percentage participates in preset matching")
+{
+    enum RunSetupPreset preset;
+
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; }
+
+    RunSetup_Begin();
+    RunSetup_SetPreset(preset);
+    RunSetup_SetOpponentHPPercentage(TRUE);
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
+    RunSetup_SetOpponentHPPercentage(FALSE);
+    EXPECT_EQ(RunSetup_GetPreset(), preset);
+    RunSetup_SetOpponentHPPercentage(TRUE);
+    RunSetup_SetPreset(preset);
+    EXPECT(!RunSetup_GetOpponentHPPercentage());
+    RunSetup_Discard();
+}

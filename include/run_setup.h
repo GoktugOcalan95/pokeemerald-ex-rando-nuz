@@ -31,4 +31,7 @@ void RunSetup_SetFullCompatibility(bool32 enabled);
 bool32 RunSetup_GetReusableTMs(void);
 void RunSetup_SetReusableTMs(bool32 enabled);
 
+bool32 RunSetup_GetNoEVGain(void);
+void RunSetup_SetNoEVGain(bool32 enabled);
+
 #endif // GUARD_RUN_SETUP_H

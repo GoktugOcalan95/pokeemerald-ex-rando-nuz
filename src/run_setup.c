@@ -17,6 +17,7 @@ struct RunSetupDraft
 {
     bool8 fullCompatibility;
     bool8 reusableTMs;
+    bool8 noEVGain;
     enum RunSetupState state:8;
     enum RunSetupPreset preferredPreset:8;
 };
@@ -27,17 +28,19 @@ static const struct
 {
     bool8 fullCompatibility;
     bool8 reusableTMs;
+    bool8 noEVGain;
 } sRunSetupPresets[RUN_SETUP_PRESET_COUNT] =
 {
-    [RUN_SETUP_PRESET_VANILLA] = {FALSE, FALSE},
-    [RUN_SETUP_PRESET_NUZLOCKE] = {TRUE, TRUE},
-    [RUN_SETUP_PRESET_BISHEY] = {TRUE, TRUE},
+    [RUN_SETUP_PRESET_VANILLA] = {FALSE, FALSE, FALSE},
+    [RUN_SETUP_PRESET_NUZLOCKE] = {TRUE, TRUE, FALSE},
+    [RUN_SETUP_PRESET_BISHEY] = {TRUE, TRUE, FALSE},
 };
 
 static bool32 RunSetup_MatchesPreset(enum RunSetupPreset preset)
 {
     return sRunSetupDraft.fullCompatibility == sRunSetupPresets[preset].fullCompatibility
-        && sRunSetupDraft.reusableTMs == sRunSetupPresets[preset].reusableTMs;
+        && sRunSetupDraft.reusableTMs == sRunSetupPresets[preset].reusableTMs
+        && sRunSetupDraft.noEVGain == sRunSetupPresets[preset].noEVGain;
 }
 
 void RunSetup_SetPreset(enum RunSetupPreset preset)
@@ -46,6 +49,7 @@ void RunSetup_SetPreset(enum RunSetupPreset preset)
         return;
     sRunSetupDraft.fullCompatibility = sRunSetupPresets[preset].fullCompatibility;
     sRunSetupDraft.reusableTMs = sRunSetupPresets[preset].reusableTMs;
+    sRunSetupDraft.noEVGain = sRunSetupPresets[preset].noEVGain;
     sRunSetupDraft.preferredPreset = preset;
 }
 
@@ -66,6 +70,7 @@ void RunSetup_Begin(void)
 {
     sRunSetupDraft.fullCompatibility = FALSE;
     sRunSetupDraft.reusableTMs = FALSE;
+    sRunSetupDraft.noEVGain = FALSE;
     sRunSetupDraft.state = RUN_SETUP_DRAFT;
     sRunSetupDraft.preferredPreset = RUN_SETUP_PRESET_VANILLA;
 }
@@ -107,6 +112,11 @@ void RunSetup_ApplyToNewGame(void)
         FlagSet(FLAG_RUN_RULE_REUSABLE_TMS);
     else
         FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
+
+    if (sRunSetupDraft.state == RUN_SETUP_CONFIRMED && sRunSetupDraft.noEVGain)
+        FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
+    else
+        FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
 
     RunSetup_Discard();
 #endif
@@ -156,6 +166,17 @@ void RunSetup_SetReusableTMs(bool32 enabled)
 {
     if (sRunSetupDraft.state == RUN_SETUP_DRAFT)
         sRunSetupDraft.reusableTMs = enabled;
+}
+
+bool32 RunSetup_GetNoEVGain(void)
+{
+    return sRunSetupDraft.noEVGain;
+}
+
+void RunSetup_SetNoEVGain(bool32 enabled)
+{
+    if (sRunSetupDraft.state == RUN_SETUP_DRAFT)
+        sRunSetupDraft.noEVGain = enabled;
 }
 
 u32 RunSetup_GetScrollTop(u32 selection, u32 top, u32 count)

@@ -478,6 +478,8 @@ static const u8 *const sRunSetupPresetNames[] =
 };
 static const u8 sText_RunSetupTitle[] = _("Run Setup");
 static const u8 sText_RunSetupFullCompatibility[] = _("Full compatibility");
+static const u8 sText_RunSetupNoEVGain[] = _("No EV gain");
+static const u8 sText_RunSetupNoEVGainHelp[] = _("Prevent EV gain from battles\nand EV-raising items.");
 static const u8 sText_RunSetupReusableTMs[] = _("Reusable TMs");
 static const u8 sText_RunSetupReusableTMsHelp[] = _("Teach TM moves without\nusing up the TM.");
 static const u8 sText_RunSetupOff[] = _("Off");
@@ -512,6 +514,7 @@ static const struct
 {
     {sText_RunSetupFullCompatibility, sText_RunSetupHelp, RunSetup_GetFullCompatibility, RunSetup_SetFullCompatibility},
     {sText_RunSetupReusableTMs, sText_RunSetupReusableTMsHelp, RunSetup_GetReusableTMs, RunSetup_SetReusableTMs},
+    {sText_RunSetupNoEVGain, sText_RunSetupNoEVGainHelp, RunSetup_GetNoEVGain, RunSetup_SetNoEVGain},
 };
 
 

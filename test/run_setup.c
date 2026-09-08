@@ -72,13 +72,16 @@ TEST("Run setup drafts start with defaults after discard")
     RunSetup_Begin();
     RunSetup_SetFullCompatibility(TRUE);
     RunSetup_SetReusableTMs(TRUE);
+    RunSetup_SetNoEVGain(TRUE);
     EXPECT(RunSetup_GetFullCompatibility());
     EXPECT(RunSetup_GetReusableTMs());
+    EXPECT(RunSetup_GetNoEVGain());
 
     RunSetup_Discard();
     RunSetup_Begin();
     EXPECT(!RunSetup_GetFullCompatibility());
     EXPECT(!RunSetup_GetReusableTMs());
+    EXPECT(!RunSetup_GetNoEVGain());
     RunSetup_Discard();
 }
 
@@ -204,7 +207,9 @@ TEST("Run setup presets replace the draft without changing the loaded save")
     EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_VANILLA);
     RunSetup_SetFullCompatibility(!enabled);
     RunSetup_SetReusableTMs(!enabled);
+    RunSetup_SetNoEVGain(TRUE);
     RunSetup_SetPreset(preset);
+    EXPECT(!RunSetup_GetNoEVGain());
     EXPECT_EQ(RunSetup_GetFullCompatibility(), enabled);
     EXPECT_EQ(RunSetup_GetReusableTMs(), enabled);
     EXPECT_EQ(RunSetup_GetPreset(), preset);
@@ -303,4 +308,66 @@ TEST("Run setup clears background graphics before Birch changes character base")
     EXPECT(cleared);
     EXPECT_EQ(sprites[0], 0x5678);
     sprites[0] = previousSpritePixel;
+}
+
+TEST("Run setup No EV gain is independent and locked during confirmation")
+{
+    bool32 enabled;
+    bool32 otherRules;
+
+    PARAMETRIZE { enabled = FALSE; otherRules = FALSE; }
+    PARAMETRIZE { enabled = FALSE; otherRules = TRUE; }
+    PARAMETRIZE { enabled = TRUE; otherRules = FALSE; }
+    PARAMETRIZE { enabled = TRUE; otherRules = TRUE; }
+
+    FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
+    RunSetup_Begin();
+    RunSetup_SetNoEVGain(enabled);
+    RunSetup_SetFullCompatibility(otherRules);
+    RunSetup_SetReusableTMs(otherRules);
+    EXPECT(FlagGet(FLAG_RUN_RULE_NO_EV_GAIN));
+    RunSetup_EnterConfirmation();
+    RunSetup_SetNoEVGain(!enabled);
+    EXPECT_EQ(RunSetup_GetNoEVGain(), enabled);
+    RunSetup_ReturnToDraft();
+    EXPECT_EQ(RunSetup_GetNoEVGain(), enabled);
+    RunSetup_EnterConfirmation();
+    RunSetup_Confirm();
+    RunSetup_SetNoEVGain(!enabled);
+    RunSetup_ApplyToNewGame();
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_NO_EV_GAIN), enabled);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), otherRules);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), otherRules);
+    FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
+    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
+}
+
+TEST("Run setup rejects unconfirmed No EV gain and clears stale rule flags")
+{
+    FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
+    RunSetup_Begin();
+    RunSetup_SetNoEVGain(TRUE);
+    RunSetup_EnterConfirmation();
+    RunSetup_ApplyToNewGame();
+    EXPECT(!FlagGet(FLAG_RUN_RULE_NO_EV_GAIN));
+    RunSetup_SetNoEVGain(TRUE);
+    EXPECT(!RunSetup_GetNoEVGain());
+}
+
+TEST("Run setup No EV gain participates in preset matching")
+{
+    enum RunSetupPreset preset;
+
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; }
+
+    RunSetup_Begin();
+    RunSetup_SetPreset(preset);
+    RunSetup_SetNoEVGain(TRUE);
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
+    RunSetup_SetNoEVGain(FALSE);
+    EXPECT_EQ(RunSetup_GetPreset(), preset);
+    RunSetup_Discard();
 }

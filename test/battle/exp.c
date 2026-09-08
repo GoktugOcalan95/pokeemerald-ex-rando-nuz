@@ -1,5 +1,7 @@
 #include "global.h"
+#include "event_data.h"
 #include "test/battle.h"
+#include "constants/flags.h"
 
 WILD_BATTLE_TEST("Pokemon gain experience after catching a Pokemon (Gen6+)")
 {
@@ -232,5 +234,36 @@ AI_ONE_VS_TWO_BATTLE_TEST("Both opponent's Pokemon give experience in battle aga
         TURN { }
     } THEN {
         EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][0], MON_DATA_EXP), expectedXp);
+    }
+}
+
+WILD_BATTLE_TEST("No EV gain blocks battle EV awards without blocking experience")
+{
+    bool32 enabled;
+    u8 level;
+
+    PARAMETRIZE { enabled = FALSE; level = 50; }
+    PARAMETRIZE { enabled = TRUE; level = 50; }
+    PARAMETRIZE { enabled = FALSE; level = MAX_LEVEL; }
+    PARAMETRIZE { enabled = TRUE; level = MAX_LEVEL; }
+
+    GIVEN {
+        WITH_CONFIG(B_MAX_LEVEL_EV_GAINS, GEN_5);
+        if (enabled)
+            FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
+        else
+            FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
+        PLAYER(SPECIES_WOBBUFFET) { Level(level); }
+        PLAYER(SPECIES_WYNAUT) { Level(40); Item(ITEM_EXP_SHARE); }
+        OPPONENT(SPECIES_CATERPIE) { Level(10); HP(1); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_SCRATCH); }
+    } THEN {
+        EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][0], MON_DATA_HP_EV), enabled ? 0 : gSpeciesInfo[SPECIES_CATERPIE].evYield_HP);
+        EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][1], MON_DATA_HP_EV), enabled ? 0 : gSpeciesInfo[SPECIES_CATERPIE].evYield_HP);
+        if (level < MAX_LEVEL)
+            EXPECT_GT(GetMonData(&gParties[B_TRAINER_PLAYER][0], MON_DATA_EXP), gExperienceTables[gSpeciesInfo[SPECIES_WOBBUFFET].growthRate][level]);
+        EXPECT_GT(GetMonData(&gParties[B_TRAINER_PLAYER][1], MON_DATA_EXP), gExperienceTables[gSpeciesInfo[SPECIES_WYNAUT].growthRate][40]);
+        FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
     }
 }

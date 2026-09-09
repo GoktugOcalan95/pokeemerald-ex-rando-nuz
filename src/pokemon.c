@@ -1,4 +1,5 @@
 #include "global.h"
+#include "storage_level_cap.h"
 #include "malloc.h"
 #include "apprentice.h"
 #include "battle.h"
@@ -4216,7 +4217,7 @@ bool32 DoesMonMeetAdditionalConditions(struct Pokemon *mon, const struct Evoluti
         case IF_SPECIES_IN_PARTY:
             for (j = 0; j < PARTY_SIZE; j++)
             {
-                if (GetMonData(&gParties[B_TRAINER_PLAYER][j], MON_DATA_SPECIES) == params[i].arg1)
+                if (GetMonData(GetEvolutionPartyMon(j), MON_DATA_SPECIES) == params[i].arg1)
                 {
                     currentCondition = TRUE;
                     break;
@@ -4244,7 +4245,7 @@ bool32 DoesMonMeetAdditionalConditions(struct Pokemon *mon, const struct Evoluti
         case IF_TYPE_IN_PARTY:
             for (j = 0; j < PARTY_SIZE; j++)
             {
-                enum Species currSpecies = GetMonData(&gParties[B_TRAINER_PLAYER][j], MON_DATA_SPECIES);
+                enum Species currSpecies = GetMonData(GetEvolutionPartyMon(j), MON_DATA_SPECIES);
                 if (GetSpeciesType(currSpecies, 0) == params[i].arg1
                  || GetSpeciesType(currSpecies, 1) == params[i].arg1)
                 {
@@ -4360,7 +4361,7 @@ bool32 DoesMonMeetAdditionalConditions(struct Pokemon *mon, const struct Evoluti
                 currentCondition = TRUE;
             break;
         case IF_MIN_OVERWORLD_STEPS:
-            if (mon == GetFirstLiveMon() && gFollowerSteps >= params[i].arg1)
+            if (!StorageLevelCap_IsBoxed() && mon == GetFirstLiveMon() && gFollowerSteps >= params[i].arg1)
                 currentCondition = TRUE;
             break;
         case IF_BAG_ITEM_COUNT:

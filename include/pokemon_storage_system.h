@@ -72,4 +72,9 @@ void ChooseMonFromStorage();
 u32 CountPartyNonEggMons(void);
 void RemoveSelectedPcMon(struct Pokemon *mon);
 
+#if TESTING
+bool32 Test_StorageFrameStopsAfterTeardown(void);
+u32 Test_StorageLevelCapMenu(bool32 inParty, bool32 carrying, bool32 egg);
+#endif
+
 #endif // GUARD_POKEMON_STORAGE_SYSTEM_H

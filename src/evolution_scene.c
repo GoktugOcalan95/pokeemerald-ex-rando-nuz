@@ -1,4 +1,5 @@
 #include "global.h"
+#include "storage_level_cap.h"
 #include "malloc.h"
 #include "battle.h"
 #include "battle_message.h"
@@ -550,6 +551,9 @@ static void CB2_TradeEvolutionSceneUpdate(void)
 
 static void CreateShedinja(enum Species preEvoSpecies, enum Species postEvoSpecies, struct Pokemon *mon)
 {
+    struct Pokemon boxedShedinja;
+    bool32 boxed = StorageLevelCap_IsBoxed();
+    struct BoxPokemon *destination = boxed ? StorageLevelCap_GetSplitEvolutionSlot() : NULL;
     u32 data = 0;
     enum Item ball = ITEM_POKE_BALL;
     const struct Evolution *evolutions = GetSpeciesEvolutions(preEvoSpecies);
@@ -561,35 +565,36 @@ static void CreateShedinja(enum Species preEvoSpecies, enum Species postEvoSpeci
     {
         if (evolutions[i].method == EVO_SPLIT_FROM_EVO
          && evolutions[i].param == postEvoSpecies
-         && gPartiesCount[B_TRAINER_PLAYER] < PARTY_SIZE
+         && (boxed ? destination != NULL : gPartiesCount[B_TRAINER_PLAYER] < PARTY_SIZE)
          && DoesMonMeetAdditionalConditions(mon, evolutions[i].params, NULL, PARTY_SIZE, NULL, CHECK_EVO))
         {
             s32 j;
-            struct Pokemon *shedinja = &gParties[B_TRAINER_PLAYER][gPartiesCount[B_TRAINER_PLAYER]];
+            struct Pokemon *shedinja = boxed ? &boxedShedinja : &gParties[B_TRAINER_PLAYER][gPartiesCount[B_TRAINER_PLAYER]];
 
-            CopyMon(&gParties[B_TRAINER_PLAYER][gPartiesCount[B_TRAINER_PLAYER]], mon, sizeof(struct Pokemon));
-            SetMonData(&gParties[B_TRAINER_PLAYER][gPartiesCount[B_TRAINER_PLAYER]], MON_DATA_SPECIES, &evolutions[i].targetSpecies);
-            SetMonData(&gParties[B_TRAINER_PLAYER][gPartiesCount[B_TRAINER_PLAYER]], MON_DATA_NICKNAME, GetSpeciesName(evolutions[i].targetSpecies));
-            SetMonData(&gParties[B_TRAINER_PLAYER][gPartiesCount[B_TRAINER_PLAYER]], MON_DATA_HELD_ITEM, &data);
-            SetMonData(&gParties[B_TRAINER_PLAYER][gPartiesCount[B_TRAINER_PLAYER]], MON_DATA_MARKINGS, &data);
+            CopyMon(shedinja, mon, sizeof(struct Pokemon));
+            SetMonData(shedinja, MON_DATA_SPECIES, &evolutions[i].targetSpecies);
+            SetMonData(shedinja, MON_DATA_NICKNAME, GetSpeciesName(evolutions[i].targetSpecies));
+            SetMonData(shedinja, MON_DATA_HELD_ITEM, &data);
+            SetMonData(shedinja, MON_DATA_MARKINGS, &data);
             if (P_SHEDINJA_BALL >= GEN_4)
             {
                 enum PokeBall ballData = GetItemSecondaryId(ball);
-                SetMonData(&gParties[B_TRAINER_PLAYER][gPartiesCount[B_TRAINER_PLAYER]], MON_DATA_POKEBALL, &ballData);
+                SetMonData(shedinja, MON_DATA_POKEBALL, &ballData);
                 RemoveBagItem(ball, 1);
             }
 
             for (j = MON_DATA_COOL_RIBBON; j < MON_DATA_COOL_RIBBON + CONTEST_CATEGORIES_COUNT; j++)
-                SetMonData(&gParties[B_TRAINER_PLAYER][gPartiesCount[B_TRAINER_PLAYER]], j, &data);
+                SetMonData(shedinja, j, &data);
             for (j = MON_DATA_CHAMPION_RIBBON; j <= MON_DATA_WORLD_RIBBON; j++)
-                SetMonData(&gParties[B_TRAINER_PLAYER][gPartiesCount[B_TRAINER_PLAYER]], j, &data);
+                SetMonData(shedinja, j, &data);
 
-            SetMonData(&gParties[B_TRAINER_PLAYER][gPartiesCount[B_TRAINER_PLAYER]], MON_DATA_STATUS, &data);
+            SetMonData(shedinja, MON_DATA_STATUS, &data);
             data = MAIL_NONE;
-            SetMonData(&gParties[B_TRAINER_PLAYER][gPartiesCount[B_TRAINER_PLAYER]], MON_DATA_MAIL, &data);
+            SetMonData(shedinja, MON_DATA_MAIL, &data);
 
-            CalculateMonStats(&gParties[B_TRAINER_PLAYER][gPartiesCount[B_TRAINER_PLAYER]]);
-            CalculatePlayerPartyCount();
+            CalculateMonStats(shedinja);
+            if (!boxed)
+                CalculatePlayerPartyCount();
 
             GetSetPokedexFlag(SpeciesToNationalPokedexNum(evolutions[i].targetSpecies), FLAG_SET_SEEN);
             GetSetPokedexFlag(SpeciesToNationalPokedexNum(evolutions[i].targetSpecies), FLAG_SET_CAUGHT);
@@ -599,9 +604,18 @@ static void CreateShedinja(enum Species preEvoSpecies, enum Species postEvoSpeci
                 && GetMonData(mon, MON_DATA_SPECIES) == SPECIES_NINJASK)
                     SetMonData(shedinja, MON_DATA_NICKNAME, sText_ShedinjaJapaneseName);
 
+            if (boxed)
+                *destination = shedinja->box;
         }
     }
 }
+
+#if TESTING
+void Test_CreateShedinja(enum Species before, enum Species after, struct Pokemon *mon)
+{
+    CreateShedinja(before, after, mon);
+}
+#endif
 
 // States for the main switch in Task_EvolutionScene
 enum {

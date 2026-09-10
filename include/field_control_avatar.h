@@ -23,6 +23,7 @@ struct FieldInput
 };
 
 void GetPlayerPosition(struct MapPosition *);
+bool32 CanUseAutomaticHMInDirection(enum Direction direction);
 void FieldClearPlayerInput(struct FieldInput *pStruct);
 void FieldGetPlayerInput(struct FieldInput *pStruct, u16 keys, u16 heldKeys);
 int ProcessPlayerFieldInput(struct FieldInput *pStruct);

@@ -77,6 +77,7 @@ MauvilleCity_BikeShop_EventScript_AcroControls::
 
 MauvilleCity_BikeShop_EventScript_MachroControls::
 	msgbox_ack MauvilleCity_BikeShop_Text_MachroControls
+	msgbox_ack MauvilleCity_BikeShop_Text_MachroSteering
 	return
 
 MauvilleCity_BikeShop_EventScript_AskSwitchBikes::
@@ -96,6 +97,10 @@ MauvilleCity_BikeShop_EventScript_BikeInPC::
 
 MauvilleCity_BikeShop_Text_ReceivedBike:
 	.string "{PLAYER} received a {STR_VAR_1}!$"
+
+MauvilleCity_BikeShop_Text_MachroSteering:
+	.string "In MACH mode, hold B for help\n"
+	.string "steering around obstacles!$"
 
 MauvilleCity_BikeShop_Text_MachroControls:
 	.string "MACHRO has MACH and ACRO modes.\n"
@@ -267,8 +272,8 @@ MauvilleCity_BikeShop_Text_HowToTurnMachBike:
 	.string "stop very quickly.\p"
 	.string "It gets a little tricky to get around\n"
 	.string "a corner.\p"
-	.string "Release the + Control Pad a little\n"
-	.string "before the corner and slow down.\p"
+	.string "Hold B to steer around obstacles.\n"
+	.string "An opening must be nearby.\p"
 	.string "Want to read a different page?$"
 
 MauvilleCity_BikeShop_Text_SandySlopes:
@@ -310,8 +315,8 @@ MauvilleCity_BikeShop_Text_Jumps:
 
 
 MauvilleCity_BikeShop_Text_MachControls:
-	.string "The MACH BIKE builds speed.\n"
-	.string "Use it to climb muddy slopes!$"
+	.string "MACH builds speed for slopes.\n"
+	.string "Hold B for steering help!$"
 
 MauvilleCity_BikeShop_Text_AcroControls:
 	.string "Hold B to bunny-hop.\n"

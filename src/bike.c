@@ -1,5 +1,7 @@
 #include "global.h"
 #include "bike.h"
+#include "mach_bike_assist.h"
+#include "main.h"
 #include "event_object_movement.h"
 #include "field_player_avatar.h"
 #include "fieldmap.h"
@@ -18,6 +20,7 @@ static enum MachTransition GetMachBikeTransition(enum Direction *);
 static void MachBikeTransition_FaceDirection(enum Direction);
 static void MachBikeTransition_TurnDirection(enum Direction);
 static void MachBikeTransition_TrySpeedUp(enum Direction);
+static bool32 TryMachBikeAssistance(enum Direction, enum Collision);
 static void MachBikeTransition_TrySlowDown(enum Direction);
 static void MovePlayerOnAcroBike(enum Direction, u16, u16);
 static enum AcroTransition CheckMovementInputAcroBike(enum Direction *, u16, u16);
@@ -452,7 +455,8 @@ static void MachBikeTransition_TrySpeedUp(enum Direction direction)
             }
             else
             {
-                // we hit a solid object that is not a ledge, so perform the collision.
+                if (TryMachBikeAssistance(direction, collision))
+                    return;
                 Bike_SetBikeStill();
                 if (collision == COLLISION_OBJECT_EVENT && IsPlayerCollidingWithFarawayIslandMew(direction))
                     PlayerOnBikeCollideWithFarawayIslandMew(direction);
@@ -491,6 +495,8 @@ static void MachBikeTransition_TrySlowDown(enum Direction direction)
         }
         else
         {
+            if (TryMachBikeAssistance(direction, collision))
+                return;
             Bike_SetBikeStill();
             if (collision == COLLISION_OBJECT_EVENT && IsPlayerCollidingWithFarawayIslandMew(direction))
                 PlayerOnBikeCollideWithFarawayIslandMew(direction);
@@ -502,6 +508,18 @@ static void MachBikeTransition_TrySlowDown(enum Direction direction)
     {
         sMachBikeSpeedCallbacks[gPlayerAvatar.bikeFrameCounter](direction);
     }
+}
+
+static bool32 TryMachBikeAssistance(enum Direction direction, enum Collision collision)
+{
+    enum Direction side;
+    if (collision > COLLISION_OBJECT_EVENT)
+        return FALSE;
+    side = GetMachBikeAssistanceDirection(direction, gMain.heldKeys);
+    if (side == DIR_NONE || GetBikeCollision(side) != COLLISION_NONE)
+        return FALSE;
+    sMachBikeSpeedCallbacks[gPlayerAvatar.bikeFrameCounter](side);
+    return TRUE;
 }
 
 // the acro bike requires the input handler to be executed before the transition can.

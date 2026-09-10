@@ -680,31 +680,47 @@ static const u8 *GetInteractedWaterScript(struct MapPosition *unused1, u8 metati
     return NULL;
 }
 
-static bool32 TryAutomaticHM(struct MapPosition *position, u8 metatileBehavior, enum Direction direction)
+static const u8 *GetAutomaticHMScript(struct MapPosition *position, u8 metatileBehavior, enum Direction direction)
 {
     const u8 *script;
 
     // Let Acro tricks finish before interpreting forward input as an HM action.
     if (TestPlayerAvatarFlags(PLAYER_AVATAR_FLAG_ACRO_BIKE)
      && gPlayerAvatar.acroBikeState != ACRO_STATE_NORMAL)
-        return FALSE;
+        return NULL;
 
     script = GetInteractedObjectEventScript(position, metatileBehavior, direction);
     if (script != NULL)
     {
         if (!((script == EventScript_CutTree && IsFieldMoveUnlocked(FIELD_MOVE_CUT))
            || (script == EventScript_RockSmash && IsFieldMoveUnlocked(FIELD_MOVE_ROCK_SMASH))))
-            return FALSE;
+            return NULL;
     }
     else
     {
         script = GetInteractedWaterScript(position, metatileBehavior, direction);
         if (script != EventScript_UseSurf && script != EventScript_UseWaterfall)
-            return FALSE;
+            return NULL;
         if (GetObjectEventIdByXY(position->x, position->y) != OBJECT_EVENTS_COUNT)
-            return FALSE;
+            return NULL;
     }
 
+    return script;
+}
+
+bool32 CanUseAutomaticHMInDirection(enum Direction direction)
+{
+    struct MapPosition position;
+    GetPlayerPosition(&position);
+    MoveCoords(direction, &position.x, &position.y);
+    return GetAutomaticHMScript(&position, MapGridGetMetatileBehaviorAt(position.x, position.y), direction) != NULL;
+}
+
+static bool32 TryAutomaticHM(struct MapPosition *position, u8 metatileBehavior, enum Direction direction)
+{
+    const u8 *script = GetAutomaticHMScript(position, metatileBehavior, direction);
+    if (script == NULL)
+        return FALSE;
     if (TestPlayerAvatarFlags(PLAYER_AVATAR_FLAG_MACH_BIKE | PLAYER_AVATAR_FLAG_ACRO_BIKE))
         BikeClearState(0, 0);
     ScriptContext_SetupScript(script);

@@ -1,4 +1,5 @@
 #include "global.h"
+#include "no_evs.h"
 #include "battle.h"
 #include "battle_ai_main.h"
 #include "battle_ai_util.h"
@@ -158,6 +159,10 @@ void SetUpBattleVarsAndBirchZigzagoon(void)
 void InitBattleControllers(void)
 {
     s32 i;
+
+    for (u32 trainer = 0; trainer < ARRAY_COUNT(gParties); trainer++)
+        for (u32 slot = 0; slot < PARTY_SIZE; slot++)
+            NormalizeMonEVs(&gParties[trainer][slot]);
 
     if (!(gBattleTypeFlags & BATTLE_TYPE_RECORDED))
         RecordedBattle_Init(B_RECORD_MODE_RECORDING);

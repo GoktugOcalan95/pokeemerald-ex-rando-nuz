@@ -237,7 +237,7 @@ AI_ONE_VS_TWO_BATTLE_TEST("Both opponent's Pokemon give experience in battle aga
     }
 }
 
-WILD_BATTLE_TEST("No EV gain blocks battle EV awards without blocking experience")
+WILD_BATTLE_TEST("No EVs blocks battle EV awards without blocking experience")
 {
     bool32 enabled;
     u8 level;

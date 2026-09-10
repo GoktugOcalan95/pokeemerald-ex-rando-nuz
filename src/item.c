@@ -1,4 +1,5 @@
 #include "global.h"
+#include "no_evs.h"
 #include "machro_bike.h"
 #include "frostbite.h"
 #include "item.h"
@@ -988,6 +989,9 @@ ShopCriteriaFunc GetItemShopCriteriaFunc(enum Item itemId)
 bool32 IsItemShopCriteriaFulfilled(enum Item itemId)
 {
     ShopCriteriaFunc func = GetItemShopCriteriaFunc(itemId);
+
+    if (!IsItemAllowedByNoEVs(itemId))
+        return FALSE;
 
     if (!func)
         return TRUE;

@@ -1,4 +1,5 @@
 #include "global.h"
+#include "no_evs.h"
 #include "malloc.h"
 #include "battle_anim.h"
 #include "battle_interface.h"
@@ -1082,6 +1083,8 @@ static bool8 BufferTradeParties(void)
         if (_GetBlockReceivedStatus() == 3)
         {
             Trade_Memcpy(&gParties[B_TRAINER_OPPONENT_A][0], gBlockRecvBuffer[id ^ 1], 2 * sizeof(struct Pokemon));
+            NormalizeMonEVs(&gParties[B_TRAINER_OPPONENT_A][0]);
+            NormalizeMonEVs(&gParties[B_TRAINER_OPPONENT_A][1]);
             TradeResetReceivedFlags();
             sTradeMenu->bufferPartyState++;
         }
@@ -1099,6 +1102,8 @@ static bool8 BufferTradeParties(void)
         if (_GetBlockReceivedStatus() == 3)
         {
             Trade_Memcpy(&gParties[B_TRAINER_OPPONENT_A][2], gBlockRecvBuffer[id ^ 1],  2 * sizeof(struct Pokemon));
+            NormalizeMonEVs(&gParties[B_TRAINER_OPPONENT_A][2]);
+            NormalizeMonEVs(&gParties[B_TRAINER_OPPONENT_A][3]);
             TradeResetReceivedFlags();
             sTradeMenu->bufferPartyState++;
         }
@@ -1116,6 +1121,8 @@ static bool8 BufferTradeParties(void)
         if (_GetBlockReceivedStatus() == 3)
         {
             Trade_Memcpy(&gParties[B_TRAINER_OPPONENT_A][4], gBlockRecvBuffer[id ^ 1], 2 * sizeof(struct Pokemon));
+            NormalizeMonEVs(&gParties[B_TRAINER_OPPONENT_A][4]);
+            NormalizeMonEVs(&gParties[B_TRAINER_OPPONENT_A][5]);
             TradeResetReceivedFlags();
             sTradeMenu->bufferPartyState++;
         }
@@ -3098,6 +3105,8 @@ static void TradeMons(u8 playerPartyIdx, u8 partnerPartyIdx)
         ClearMail(&gSaveBlock1Ptr->mail[playerMail]);
 
     SWAP(*playerMon, *partnerMon, sTradeAnim->tempMon);
+    NormalizeMonEVs(playerMon);
+    NormalizeMonEVs(partnerMon);
 
     // By default, a Pokémon received from a trade will have 70 Friendship.
     // Eggs use Friendship to track egg cycles, so don't set this on Eggs.

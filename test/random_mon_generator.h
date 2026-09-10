@@ -15,6 +15,7 @@ enum
     ITEM_GENERATOR_NONE_POOL,
     ITEM_GENERATOR_HARD_BANNED_POOL,
     ITEM_GENERATOR_HELD_ITEM_FILTER,
+    ITEM_GENERATOR_EV_FILTER,
     RANDOM_ITEM_OPTIONS_COUNT,
 };
 
@@ -135,6 +136,11 @@ static const struct RandomSpeciesGeneratorOptions sRandomSpeciesGeneratorOptions
 
 static const struct RandomItemGeneratorOptions sRandomItemGeneratorOptions[] =
 {
+    [ITEM_GENERATOR_EV_FILTER] =
+    {
+        .heldItemPool = (const enum Item[]){ITEM_HP_UP, ITEM_MACHO_BRACE, ITEM_GLIMMERING_CHARM, ITEM_ADAMANT_MINT},
+        .heldItemPoolCount = 4,
+    },
     [ITEM_GENERATOR_SINGLE_ITEM] =
     {
         .heldItemPool = sRandomItemOption0HeldItemPool,

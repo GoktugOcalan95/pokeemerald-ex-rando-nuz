@@ -1,4 +1,5 @@
 #include "global.h"
+#include "no_evs.h"
 #include "berry.h"
 #include "battle_special.h"
 #include "easy_chat.h"
@@ -336,6 +337,7 @@ bool8 MEScrCmd_givepokemon(struct ScriptContext *ctx)
     else
     {
         memcpy(&gParties[B_TRAINER_PLAYER][PARTY_SIZE - 1], pokemonPtr, sizeof(struct Pokemon));
+        NormalizeMonEVs(&gParties[B_TRAINER_PLAYER][PARTY_SIZE - 1]);
         SetMonData(&gParties[B_TRAINER_PLAYER][PARTY_SIZE - 1], MON_DATA_TERA_UNLOCKED, &((u8){FALSE}));
         memcpy(&mail, mailPtr, sizeof(struct Mail));
 

@@ -22,6 +22,16 @@
 #define TEST_ITEM_GENERATOR_NONE_POOL 2
 #define TEST_ITEM_GENERATOR_HARD_BANNED_POOL 3
 #define TEST_ITEM_GENERATOR_HELD_ITEM_FILTER 4
+#define TEST_ITEM_GENERATOR_EV_FILTER 5
+
+TEST("No EVs filters randomized training rewards while retaining nature mints")
+{
+    const struct FilterFuncArgs args = {FILTER_FUNC_ARG_NONE, FILTER_FUNC_ARG_NONE};
+    FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
+    for (u32 i = 0; i < 32; i++)
+        EXPECT_EQ(GetRandomItem(TEST_ITEM_GENERATOR_EV_FILTER, &args), ITEM_ADAMANT_MINT);
+    FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
+}
 
 static enum Item GetRandomItemForTest(u32 optionId)
 {

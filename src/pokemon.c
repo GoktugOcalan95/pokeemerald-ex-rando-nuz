@@ -1,4 +1,5 @@
 #include "global.h"
+#include "no_evs.h"
 #include "storage_level_cap.h"
 #include "malloc.h"
 #include "apprentice.h"
@@ -1380,6 +1381,7 @@ void CalculateMonStats(struct Pokemon *mon)
 
 void CalculateMonStatsCont(struct Pokemon *mon, bool32 updateSpeedStat)
 {
+    NormalizeBoxMonEVs(&mon->box);
     s32 oldMaxHP = GetMonData(mon, MON_DATA_MAX_HP);
     s32 currentHP = GetMonData(mon, MON_DATA_HP);
     enum Species species = GetMonData(mon, MON_DATA_SPECIES);
@@ -2004,6 +2006,25 @@ static ALWAYS_INLINE struct PokemonSubstruct3 *GetSubstruct3(struct BoxPokemon *
     return &(GetSubstruct(boxMon, boxMon->personality, SUBSTRUCT_TYPE_3)->type3);
 }
 
+bool32 NormalizeBoxMonEVs(struct BoxPokemon *boxMon)
+{
+    struct PokemonSubstruct2 *evs;
+    bool32 changed;
+
+    if (!FlagGet(FLAG_RUN_RULE_NO_EV_GAIN) || !boxMon->hasSpecies || boxMon->isBadEgg)
+        return FALSE;
+    if (CalculateBoxMonChecksumDecrypt(boxMon) != boxMon->checksum)
+    {
+        EncryptBoxMon(boxMon);
+        return FALSE;
+    }
+    evs = GetSubstruct2(boxMon);
+    changed = evs->hpEV || evs->attackEV || evs->defenseEV || evs->speedEV || evs->spAttackEV || evs->spDefenseEV;
+    evs->hpEV = evs->attackEV = evs->defenseEV = evs->speedEV = evs->spAttackEV = evs->spDefenseEV = 0;
+    boxMon->checksum = CalculateBoxMonChecksumReencrypt(boxMon);
+    return changed;
+}
+
 static bool32 IsBadEgg(struct BoxPokemon *boxMon)
 {
     if (boxMon->isBadEgg)
@@ -2590,6 +2611,10 @@ void SetMonData(struct Pokemon *mon, s32 field, const void *dataArg)
 void SetBoxMonData(struct BoxPokemon *boxMon, s32 field, const void *dataArg)
 {
     const u8 *data = dataArg;
+    const u8 zeroEV = 0;
+
+    if (field >= MON_DATA_HP_EV && field <= MON_DATA_SPDEF_EV && FlagGet(FLAG_RUN_RULE_NO_EV_GAIN))
+        data = &zeroEV;
 
     if (field > MON_DATA_ENCRYPT_SEPARATOR)
     {
@@ -2943,6 +2968,10 @@ void SetBoxMonData(struct BoxPokemon *boxMon, s32 field, const void *dataArg)
 void CopyMon(void *dest, void *src, size_t size)
 {
     memcpy(dest, src, size);
+    if (size == sizeof(struct Pokemon))
+        NormalizeMonEVs(dest);
+    else if (size == sizeof(struct BoxPokemon))
+        NormalizeBoxMonEVs(dest);
 }
 
 u8 GiveCapturedMonToPlayer(struct Pokemon *mon)

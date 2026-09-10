@@ -1,4 +1,5 @@
 #include "global.h"
+#include "no_evs.h"
 #include "boss_rewards.h"
 #include "event_data.h"
 #include "item.h"
@@ -320,6 +321,8 @@ static bool32 IsRandomItemAllowed(const struct RandomItemGeneratorOptions *optio
     enum HoldEffect holdEffect = GetItemHoldEffect(item);
 
     if (IsAbilityCustomizationItem(item))
+        return FALSE;
+    if (!IsItemAllowedByNoEVs(item))
         return FALSE;
     if (GetItemPocket(item) == POCKET_KEY_ITEMS)
         return FALSE;

@@ -1,4 +1,5 @@
 #include "global.h"
+#include "no_evs.h"
 #include "agb_flash.h"
 #include "gba/flash_internal.h"
 #include "fieldmap.h"
@@ -893,6 +894,8 @@ u8 LoadGameSave(u8 saveType)
     default:
         status = TryLoadSaveSlot(FULL_SAVE_SLOT, gRamSaveSectorLocations);
         CopyPartyAndObjectsFromSave();
+        if (status == SAVE_STATUS_OK)
+            NormalizeStoredMonEVs();
         gSaveFileStatus = status;
         gGameContinueCallback = NULL;
         break;

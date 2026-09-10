@@ -2686,6 +2686,28 @@ static const u8 *const sScrollableMultichoiceOptions[][MAX_SCROLL_MULTI_LENGTH] 
     }
 };
 
+static u32 BuildScrollableMultichoiceItems(u32 menu, u32 count, struct ListMenuItem *items)
+{
+    u32 shown = 0;
+    for (u32 i = 0; i < count; i++)
+    {
+        if (FlagGet(FLAG_RUN_RULE_NO_EV_GAIN)
+         && ((menu == SCROLL_MULTI_BF_EXCHANGE_CORNER_VITAMIN_VENDOR && i < 6)
+          || (menu == SCROLL_MULTI_BERRY_POWDER_VENDOR && i >= 4 && i <= 9)))
+            continue;
+        items[shown].name = sScrollableMultichoiceOptions[menu][i];
+        items[shown++].id = i;
+    }
+    return shown;
+}
+
+#if TESTING
+u32 Test_BuildScrollableMultichoiceItems(u32 menu, u32 count, struct ListMenuItem *items)
+{
+    return BuildScrollableMultichoiceItems(menu, count, items);
+}
+#endif
+
 static void Task_ShowScrollableMultichoice(u8 taskId)
 {
     u32 width;
@@ -2696,17 +2718,18 @@ static void Task_ShowScrollableMultichoice(u8 taskId)
     LockPlayerFieldControls();
     gScrollableMultichoice_ScrollOffset = 0;
     sScrollableMultichoice_ItemSpriteId = MAX_SPRITES;
-    FillFrontierExchangeCornerWindowAndItemIcon(task->tScrollMultiId, 0);
-    ShowBattleFrontierTutorWindow(task->tScrollMultiId, 0);
     sScrollableMultichoice_ListMenuItem = AllocZeroed(task->tNumItems * sizeof(struct ListMenuItem));
+    task->tNumItems = BuildScrollableMultichoiceItems(task->tScrollMultiId, task->tNumItems, sScrollableMultichoice_ListMenuItem);
+    task->tMaxItemsOnScreen = min(task->tMaxItemsOnScreen, task->tNumItems);
+    task->tHeight = min(task->tHeight, task->tMaxItemsOnScreen * 2);
+    FillFrontierExchangeCornerWindowAndItemIcon(task->tScrollMultiId, sScrollableMultichoice_ListMenuItem[0].id);
+    ShowBattleFrontierTutorWindow(task->tScrollMultiId, sScrollableMultichoice_ListMenuItem[0].id);
     sFrontierExchangeCorner_NeverRead = 0;
     InitScrollableMultichoice();
 
     for (width = 0, i = 0; i < task->tNumItems; i++)
     {
-        const u8 *text = sScrollableMultichoiceOptions[gSpecialVar_0x8004][i];
-        sScrollableMultichoice_ListMenuItem[i].name = text;
-        sScrollableMultichoice_ListMenuItem[i].id = i;
+        const u8 *text = sScrollableMultichoice_ListMenuItem[i].name;
         width = DisplayTextAndGetWidth(text, width);
     }
 
@@ -2769,7 +2792,7 @@ static void ScrollableMultichoice_MoveCursor(s32 itemIndex, bool8 onInit, struct
         struct Task *task = &gTasks[taskId];
         ListMenuGetScrollAndRow(task->tListTaskId, &selection, NULL);
         gScrollableMultichoice_ScrollOffset = selection;
-        ListMenuGetCurrentItemArrayId(task->tListTaskId, &selection);
+        selection = itemIndex;
         HideFrontierExchangeCornerItemIcon(task->tScrollMultiId, sFrontierExchangeCorner_NeverRead);
         FillFrontierExchangeCornerWindowAndItemIcon(task->tScrollMultiId, selection);
         ShowBattleFrontierTutorMoveDescription(task->tScrollMultiId, selection);

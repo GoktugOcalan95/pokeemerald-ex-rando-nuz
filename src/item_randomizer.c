@@ -7,6 +7,7 @@
 #include "no_evs.h"
 #include "run_randomizer.h"
 #include "script.h"
+#include "slateport_shops.h"
 #include "battle_pyramid.h"
 
 static EWRAM_DATA u16 sRewardPool[ITEMS_COUNT] = {0};
@@ -17,12 +18,13 @@ bool32 IsRandomizedRewardItemAllowed(u16 item)
 {
     return item > ITEM_NONE && item < ITEMS_COUNT && gItemsInfo[item].name != NULL
         && GetItemPocket(item) != POCKET_KEY_ITEMS && GetItemPocket(item) != POCKET_TM_HM
+        && !(FlagGet(FLAG_RUN_RULE_ITEMS) && FlagGet(FLAG_RUN_RULE_BAN_SLATEPORT) && IsSlateportPreChampionItem(item))
         && !ItemIsMail(item) && !IsAbilityCustomizationItem(item) && IsItemAllowedByNoEVs(item);
 }
 
 static void PrepareRewardPool(void)
 {
-    u32 rules = FlagGet(FLAG_RUN_RULE_NO_EV_GAIN);
+    u32 rules = FlagGet(FLAG_RUN_RULE_NO_EV_GAIN) | (FlagGet(FLAG_RUN_RULE_BAN_SLATEPORT) << 1);
     if (sRewardPoolCount != 0 && rules == sRewardPoolRules)
         return;
     sRewardPoolCount = 0;

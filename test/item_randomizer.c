@@ -7,6 +7,7 @@
 #include "random.h"
 #include "run_randomizer.h"
 #include "save.h"
+#include "slateport_shops.h"
 #include "test/overworld_script.h"
 #include "test/test.h"
 
@@ -173,4 +174,31 @@ TEST("Item randomizer facility creation preserves authored templates and stable 
     FlagClear(FLAG_RUN_RULE_ITEMS);
     CreateBattleTowerMon(&mon, &authored);
     EXPECT_EQ(GetMonData(&mon, MON_DATA_HELD_ITEM), ITEM_LIGHT_BALL);
+}
+
+TEST("Ban Slateport items uses pre-Champion stock and leaves shops and mints intact")
+{
+    FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
+    FlagClear(FLAG_RUN_RULE_ITEMS);
+    FlagSet(FLAG_RUN_RULE_BAN_SLATEPORT);
+    EXPECT(IsRandomizedRewardItemAllowed(ITEM_THUNDER_STONE));
+    FlagSet(FLAG_RUN_RULE_ITEMS);
+    for (u32 item = 1; item < ITEMS_COUNT; item++)
+        if (IsSlateportPreChampionItem(item))
+            EXPECT(!IsRandomizedRewardItemAllowed(item));
+    EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_MINT));
+    EXPECT(IsRandomizedRewardItemAllowed(ITEM_VENUSAURITE));
+    EXPECT(IsRandomizedRewardItemAllowed(ITEM_FIRE_TERA_SHARD));
+    FlagSet(FLAG_IS_CHAMPION);
+    EXPECT(!IsRandomizedRewardItemAllowed(ITEM_THUNDER_STONE));
+    ClearBag();
+    EXPECT(TryGiveSlateportPurchase(SLATEPORT_SHOP_TM, ITEM_THUNDER_STONE, 1));
+    for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_FACILITY_HELD; domain++)
+        for (u32 source = 0; source < 100; source++)
+            EXPECT(!IsSlateportPreChampionItem(RandomizeItemReward(ITEM_POTION, domain, source, 0)));
+    FlagClear(FLAG_RUN_RULE_BAN_SLATEPORT);
+    EXPECT(IsRandomizedRewardItemAllowed(ITEM_THUNDER_STONE));
+    FlagClear(FLAG_RUN_RULE_ITEMS);
+    FlagClear(FLAG_IS_CHAMPION);
+    ClearBag();
 }

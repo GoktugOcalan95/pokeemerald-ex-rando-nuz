@@ -26,7 +26,7 @@ EventScript_BufferPocketNameAndTryFanfare::
 	end
 
 EventScript_BufferItemsPocket::
-	bufferstdstring STR_VAR_3, STDSTRING_ITEMS
+	callnative BufferItemBagPocketName
 	call_if_eq VAR_0x8007, TRUE, EventScript_PlayFanfareObtainedItem
 	return
 
@@ -245,6 +245,7 @@ EventScript_RestorePrevTextColor::
 	return
 
 Std_PutItemAway::
+	copyvar VAR_0x8006, VAR_0x8000
 	bufferitemnameplural STR_VAR_2, VAR_0x8000, VAR_0x8001
 	checkitemtype VAR_0x8000
 	call EventScript_BufferPutAwayPocketName
@@ -261,7 +262,7 @@ EventScript_BufferPutAwayPocketName::
 	end
 
 EventScript_BufferPutAwayPocketItems::
-	bufferstdstring STR_VAR_3, STDSTRING_ITEMS
+	callnative BufferItemBagPocketName
 	return
 
 EventScript_BufferPutAwayPocketKeyItems::

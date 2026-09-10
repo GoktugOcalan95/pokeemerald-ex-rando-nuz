@@ -162,6 +162,13 @@ bool32 IsSlateportPreChampionItem(u16 item)
     return item < ITEMS_COUNT && (sStockCategories[item] & ((1 << SLATEPORT_SHOP_MEGA) - 1)) != 0;
 }
 
+bool32 IsFunctionalEvolutionOrFormItem(u16 item)
+{
+    InitStockCategories();
+    return item < ITEMS_COUNT && (sStockCategories[item] & ((1 << SLATEPORT_SHOP_EVOLUTION) | (1 << SLATEPORT_SHOP_FORMS)
+        | (1 << SLATEPORT_SHOP_MEGA) | (1 << SLATEPORT_SHOP_Z))) != 0;
+}
+
 static bool32 HasFixedCheapPrice(u16 item)
 {
     InitStockCategories();

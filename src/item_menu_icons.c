@@ -90,12 +90,18 @@ static const union AnimCmd sSpriteAnim_Bag_Berries[] =
 
 static const union AnimCmd *const sBagSpriteAnimTable[] =
 {
-    [POCKET_ITEMS]      = sSpriteAnim_Bag_Items,
-    [POCKET_POKE_BALLS] = sSpriteAnim_Bag_Pokeballs,
-    [POCKET_TM_HM]      = sSpriteAnim_Bag_TMsHMs,
-    [POCKET_BERRIES]    = sSpriteAnim_Bag_Berries,
-    [POCKET_KEY_ITEMS]  = sSpriteAnim_Bag_KeyItems,
-    [POCKET_DUMMY]       = sSpriteAnim_Bag_Closed,
+    [BAG_HELD_ITEMS]      = sSpriteAnim_Bag_Items,
+    [BAG_TRAINING] = sSpriteAnim_Bag_Items,
+    [BAG_OTHER_ITEMS] = sSpriteAnim_Bag_Items,
+    [BAG_EVOLUTION_FORMS] = sSpriteAnim_Bag_Items,
+    [BAG_MEDICINE] = sSpriteAnim_Bag_Items,
+    [BAG_BATTLE_ITEMS] = sSpriteAnim_Bag_Items,
+    [BAG_TREASURES] = sSpriteAnim_Bag_Items,
+    [BAG_POKE_BALLS] = sSpriteAnim_Bag_Pokeballs,
+    [BAG_TM_HM]      = sSpriteAnim_Bag_TMsHMs,
+    [BAG_BERRIES]    = sSpriteAnim_Bag_Berries,
+    [BAG_KEY_ITEMS]  = sSpriteAnim_Bag_KeyItems,
+    [BAG_PC]       = sSpriteAnim_Bag_Closed,
 };
 
 static const union AffineAnimCmd sSpriteAffineAnim_BagNormal[] =
@@ -385,7 +391,7 @@ void SetBagVisualPocketId(u8 bagPocketId, bool8 isSwitchingPockets)
         sprite->y2 = -5;
         sprite->callback = SpriteCB_BagVisualSwitchingPockets;
         sprite->sPocketId = bagPocketId;
-        StartSpriteAnim(sprite, POCKET_DUMMY);
+        StartSpriteAnim(sprite, BAG_PC);
     }
     else
     {

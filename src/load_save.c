@@ -26,8 +26,9 @@ static void ApplyNewEncryptionKeyToAllEncryptedData(u32 encryptionKey);
 
 struct LoadedSaveData
 {
- /*0x0000*/ struct Bag bag;
- /*0x02E8*/ struct Mail mail[MAIL_COUNT];
+    struct Bag bag;
+    u8 bagTail[BAG_SAVE3_BYTES];
+    struct Mail mail[MAIL_COUNT];
 };
 
 // EWRAM DATA
@@ -259,6 +260,7 @@ void LoadPlayerBag(void)
 
     // load player bag.
     memcpy(&gLoadedSaveData.bag, &gSaveBlock1Ptr->bag, sizeof(struct Bag));
+    memcpy(gLoadedSaveData.bagTail, gSaveBlock3Ptr->bagItems, sizeof(gLoadedSaveData.bagTail));
 
     // load mail.
     for (i = 0; i < MAIL_COUNT; i++)
@@ -274,6 +276,7 @@ void SavePlayerBag(void)
 
     // save player bag.
     memcpy(&gSaveBlock1Ptr->bag, &gLoadedSaveData.bag, sizeof(struct Bag));
+    memcpy(gSaveBlock3Ptr->bagItems, gLoadedSaveData.bagTail, sizeof(gLoadedSaveData.bagTail));
 
     // save mail.
     for (i = 0; i < MAIL_COUNT; i++)

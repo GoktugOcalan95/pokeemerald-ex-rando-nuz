@@ -256,6 +256,7 @@ struct NPCFollower
 
 struct SaveBlock3
 {
+    u8 bagItems[BAG_SAVE3_BYTES];
 #if OW_USE_FAKE_RTC
     struct SiiRtcInfo fakeRTC;
 #endif
@@ -1085,11 +1086,7 @@ struct ExternalEventFlags
 
 struct Bag
 {
-    struct ItemSlot items[BAG_ITEMS_COUNT];
-    struct ItemSlot keyItems[BAG_KEYITEMS_COUNT];
-    struct ItemSlot pokeBalls[BAG_POKEBALLS_COUNT];
-    struct ItemSlot TMsHMs[BAG_TMHM_COUNT];
-    struct ItemSlot berries[BAG_BERRIES_COUNT];
+    u8 packedSlots[BAG_SAVE1_BYTES];
 };
 
 struct SaveBlock1

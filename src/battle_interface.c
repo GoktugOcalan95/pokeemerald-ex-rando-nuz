@@ -3018,9 +3018,9 @@ void TryAddLastUsedBallItemSprites(void)
         u16 firstBall;
 
         // we have to compact the bag first bc it is typically only compacted when you open it
-        CompactItemsInBagPocket(POCKET_POKE_BALLS);
+        CompactItemsInBagPocket(BAG_POKE_BALLS);
 
-        firstBall = GetBagItemId(POCKET_POKE_BALLS, 0);
+        firstBall = GetBagItemId(BAG_POKE_BALLS, 0);
         if (firstBall > ITEM_NONE)
             gBallToDisplay = firstBall;
     }

@@ -12,6 +12,23 @@ enum Pocket
     POCKET_DUMMY = POCKETS_COUNT,
 };
 
+enum BagPocketId
+{
+    BAG_HELD_ITEMS,
+    BAG_KEY_ITEMS,
+    BAG_TM_HM,
+    BAG_TRAINING,
+    BAG_OTHER_ITEMS,
+    BAG_EVOLUTION_FORMS,
+    BAG_MEDICINE,
+    BAG_BERRIES,
+    BAG_BATTLE_ITEMS,
+    BAG_POKE_BALLS,
+    BAG_TREASURES,
+    BAG_POCKETS_COUNT,
+    BAG_PC = BAG_POCKETS_COUNT,
+};
+
 #define REPEL_LURE_MASK         (1 << 15)
 #define IS_LAST_USED_LURE(var)  (var & REPEL_LURE_MASK)
 #define REPEL_LURE_STEPS(var)   (var & (REPEL_LURE_MASK - 1))

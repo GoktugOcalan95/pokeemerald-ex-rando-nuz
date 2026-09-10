@@ -23,7 +23,10 @@ ApricornTree_EventScript_WantToPick::
 
 ApricornTree_EventScript_PickApricorn::
 	special ObjectEventInteractionPickApricornTree
+	copyvar VAR_0x800A, VAR_0x8006
+	copyvar VAR_0x8006, VAR_0x8004
 	call EventScript_BufferPocketNameAndTryFanfare
+	copyvar VAR_0x8006, VAR_0x800A
 	goto_if_eq VAR_0x8006, APRICORN_NORMAL_BAG_FULL, ApricornTree_EventScript_PocketFull
 	message ApricornTree_Text_PickedTheApricorn
 .if OW_SHOW_ITEM_DESCRIPTIONS != OW_ITEM_DESCRIPTIONS_OFF

@@ -190,9 +190,8 @@ TEST("Slateport shops reject full bags unavailable categories and No EV stock wi
     EXPECT(!TryGiveSlateportPurchase(SLATEPORT_SHOP_MEGA, ITEM_VENUSAURITE, 1));
     EXPECT(!TryGiveSlateportPurchase(SLATEPORT_SHOP_TERA, ITEM_FIRE_TERA_SHARD, 1));
     EXPECT(!TryGiveSlateportPurchase(SLATEPORT_SHOP_COUNT, ITEM_TERA_ORB, 1));
-    for (u32 item = 1; item < ITEMS_COUNT; item++)
-        if (item != ITEM_TERA_ORB && GetItemPocket(item) == POCKET_KEY_ITEMS)
-            AddBagItem(item, 1);
+    for (u32 slot = 0; slot < gBagPockets[BAG_KEY_ITEMS].capacity; slot++)
+        EXPECT(AddBagItem(ITEM_TOGGLE_REPEL, MAX_BAG_ITEM_CAPACITY));
     EXPECT(!CheckBagHasSpace(ITEM_TERA_ORB, 1));
     EXPECT(!TryGiveSlateportPurchase(SLATEPORT_SHOP_ENERGY, ITEM_TERA_ORB, 1));
     EXPECT(!FlagGet(FLAG_TERA_ORB_CHARGED));

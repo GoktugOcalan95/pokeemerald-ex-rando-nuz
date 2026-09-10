@@ -12215,7 +12215,7 @@ void BS_JumpIfNoBalls(void)
 {
     NATIVE_ARGS(const u8 *jumpInstr);
 
-    if (IsBagPocketNonEmpty(POCKET_POKE_BALLS) && !IsPokemonStorageFull())
+    if (IsBagPocketNonEmpty(BAG_POKE_BALLS) && !IsPokemonStorageFull())
     {
         gBattleStruct->victoryCatchState = VICTORY_CATCH_START;
         gBattlescriptCurrInstr = cmd->nextInstr;

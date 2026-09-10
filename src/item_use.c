@@ -24,6 +24,7 @@
 #include "fldeff.h"
 #include "follower_npc.h"
 #include "item.h"
+#include "bag_categories.h"
 #include "item_menu.h"
 #include "item_use.h"
 #include "mail.h"
@@ -955,8 +956,8 @@ static void RemoveUsedItem(void)
     StringExpandPlaceholders(gStringVar4, gText_PlayerUsedVar2);
     if (CurrentBattlePyramidLocation() == PYRAMID_LOCATION_NONE)
     {
-        UpdatePocketItemList(GetItemPocket(gSpecialVar_ItemId));
-        UpdatePocketListPosition(GetItemPocket(gSpecialVar_ItemId));
+        UpdatePocketItemList(GetBagStoragePocket(gSpecialVar_ItemId));
+        UpdatePocketListPosition(GetBagStoragePocket(gSpecialVar_ItemId));
     }
     else
     {

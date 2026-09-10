@@ -1,4 +1,6 @@
 #include "global.h"
+#include "slateport_shops.h"
+#include "event_data.h"
 #include "bg.h"
 #include "data.h"
 #include "decompress.h"
@@ -109,6 +111,8 @@ struct ShopData
 };
 
 static EWRAM_DATA struct MartInfo sMartInfo = {0};
+static EWRAM_DATA u16 *sSlateportStock = NULL;
+static EWRAM_DATA u8 sSlateportCategory = 0;
 static EWRAM_DATA struct ShopData *sShopData = NULL;
 static EWRAM_DATA struct ListMenuItem *sListMenuItems = NULL;
 static EWRAM_DATA u8 (*sItemNames)[ITEM_NAME_LENGTH + 2] = {0};
@@ -481,6 +485,16 @@ static void Task_ReturnToShopMenu(u8 taskId)
 {
     if (IsWeatherNotFadingIn() == TRUE)
     {
+        if (sSlateportStock != NULL)
+        {
+            Free(sSlateportStock);
+            sSlateportStock = NULL;
+            TryPutSmartShopperOnAir();
+            UnlockPlayerFieldControls();
+            DestroyTask(taskId);
+            ScriptContext_Enable();
+            return;
+        }
         if (sMartInfo.martType == MART_TYPE_DECOR2)
             DisplayItemMessageOnField(taskId, gText_CanIHelpWithAnythingElse, ShowShopMenuAfterExitingBuyOrSellMenu);
         else
@@ -634,6 +648,12 @@ static void BuyMenuPrintItemDescriptionAndShowItemIcon(s32 item, bool8 onInit, s
     BuyMenuPrint(WIN_ITEM_DESCRIPTION, description, 3, 1, 0, COLORID_NORMAL);
 }
 
+static u32 GetShopItemPrice(u16 item)
+{
+    bool32 discount = IsPokeNewsActive(POKENEWS_SLATEPORT);
+    return sSlateportStock != NULL ? GetSlateportItemPrice(item, discount) : GetItemPrice(item) >> discount;
+}
+
 static void BuyMenuPrintPriceInList(u8 windowId, u32 itemId, u8 y)
 {
     u8 x;
@@ -644,7 +664,7 @@ static void BuyMenuPrintPriceInList(u8 windowId, u32 itemId, u8 y)
         {
             ConvertIntToDecimalStringN(
                 gStringVar1,
-                GetItemPrice(itemId) >> IsPokeNewsActive(POKENEWS_SLATEPORT),
+                GetShopItemPrice(itemId),
                 STR_CONV_MODE_LEFT_ALIGN,
                 6);
         }
@@ -1017,7 +1037,7 @@ static void Task_BuyMenu(u8 taskId)
             BuyMenuPrintCursor(tListTaskId, COLORID_GRAY_CURSOR);
 
             if (sMartInfo.martType == MART_TYPE_NORMAL)
-                sShopData->totalCost = (GetItemPrice(itemId) >> IsPokeNewsActive(POKENEWS_SLATEPORT));
+                sShopData->totalCost = GetShopItemPrice(itemId);
             else
                 sShopData->totalCost = gDecorations[itemId].price;
 
@@ -1037,7 +1057,7 @@ static void Task_BuyMenu(u8 taskId)
                         ConvertIntToDecimalStringN(gStringVar2, sShopData->totalCost, STR_CONV_MODE_LEFT_ALIGN, 6);
                         StringExpandPlaceholders(gStringVar4, gText_YouWantedVar1ThatllBeVar2);
                         tItemCount = 1;
-                        sShopData->totalCost = (GetItemPrice(tItemId) >> IsPokeNewsActive(POKENEWS_SLATEPORT)) * tItemCount;
+                        sShopData->totalCost = GetShopItemPrice(tItemId) * tItemCount;
                         BuyMenuDisplayMessage(taskId, gStringVar4, BuyMenuConfirmPurchase);
                     }
                     else if (GetItemPocket(itemId) == POCKET_TM_HM)
@@ -1104,7 +1124,7 @@ static void Task_BuyHowManyDialogueHandleInput(u8 taskId)
 
     if (AdjustQuantityAccordingToDPadInput(&tItemCount, sShopData->maxQuantity) == TRUE)
     {
-        sShopData->totalCost = (GetItemPrice(tItemId) >> IsPokeNewsActive(POKENEWS_SLATEPORT)) * tItemCount;
+        sShopData->totalCost = GetShopItemPrice(tItemId) * tItemCount;
         BuyMenuPrintItemQuantityAndPrice(taskId);
     }
     else
@@ -1147,7 +1167,7 @@ static void BuyMenuTryMakePurchase(u8 taskId)
 
     if (sMartInfo.martType == MART_TYPE_NORMAL)
     {
-        if (AddBagItem(tItemId, tItemCount) == TRUE)
+        if (sSlateportStock != NULL ? TryGiveSlateportPurchase(sSlateportCategory, tItemId, tItemCount) : AddBagItem(tItemId, tItemCount))
         {
             GetSetItemObtained(tItemId, FLAG_SET_ITEM_OBTAINED);
             RecordItemPurchase(taskId);
@@ -1317,6 +1337,21 @@ void CreatePokemartMenu(const u16 *itemsForSale)
     SetShopItemsForSale(itemsForSale);
     ClearItemPurchases();
     SetShopMenuCallback(ScriptContext_Enable);
+}
+
+void OpenSlateportShop(void)
+{
+    sSlateportStock = AllocZeroed(ITEMS_COUNT * sizeof(u16));
+    gSpecialVar_Result = sSlateportStock != NULL;
+    if (sSlateportStock == NULL)
+        return;
+    sSlateportCategory = gSpecialVar_0x8004;
+    BuildSlateportShopStock(sSlateportCategory, sSlateportStock);
+    LockPlayerFieldControls();
+    sMartInfo.martType = MART_TYPE_NORMAL;
+    SetShopItemsForSale(sSlateportStock);
+    ClearItemPurchases();
+    Task_HandleShopMenuBuy(CreateTask(Task_HandleShopMenuBuy, 8));
 }
 
 void CreateDecorationShop1Menu(const u16 *itemsForSale)

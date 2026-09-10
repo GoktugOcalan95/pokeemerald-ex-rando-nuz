@@ -118,20 +118,12 @@ SlateportCity_EventScript_EnergyGuru::
 	faceplayer
 	message SlateportCity_Text_EnergyGuruSellWhatYouNeed
 	waitmessage
-	pokemart SlateportCity_Pokemart_EnergyGuru
+	setvar VAR_0x8004, SLATEPORT_SHOP_ENERGY
+	call SlateportCity_EventScript_OpenExpandedShop
 	msgbox gText_PleaseComeAgain, MSGBOX_DEFAULT
 	release
 	end
 
-	.align 2
-SlateportCity_Pokemart_EnergyGuru:
-	.2byte ITEM_PROTEIN
-	.2byte ITEM_IRON
-	.2byte ITEM_CARBOS
-	.2byte ITEM_ZINC
-	.2byte ITEM_CALCIUM
-	.2byte ITEM_HP_UP
-	pokemartlistend
 
 SlateportCity_EventScript_EffortRibbonWoman::
 	lock
@@ -530,16 +522,12 @@ SlateportCity_EventScript_PowerTMClerk::
 	faceplayer
 	message gText_HowMayIServeYou
 	waitmessage
-	pokemart SlateportCity_Pokemart_PowerTMs
+	setvar VAR_0x8004, SLATEPORT_SHOP_TM
+	call SlateportCity_EventScript_OpenExpandedShop
 	msgbox gText_PleaseComeAgain, MSGBOX_DEFAULT
 	release
 	end
 
-	.align 2
-SlateportCity_Pokemart_PowerTMs:
-	.2byte ITEM_TM_HIDDEN_POWER
-	.2byte ITEM_TM_SECRET_POWER
-	pokemartlistend
 
 @ Scene with Capt Sterns interview and Team Aqua announcing plans to steal Submarine
 SlateportCity_EventScript_CaptStern::
@@ -1350,3 +1338,77 @@ SlateportCity_Text_TakingBattleTentChallenge:
 	.string "After all, a tough TRAINER is\n"
 	.string "the perfect fit for the BATTLE TENT!\p"
 	.string "Give it your best effort!$"
+
+SlateportCity_EventScript_ExtraEvoItems::
+	lock
+	faceplayer
+	setvar VAR_0x8004, SLATEPORT_SHOP_EVOLUTION
+	call SlateportCity_EventScript_OpenExpandedShop
+	msgbox gText_PleaseComeAgain, MSGBOX_DEFAULT
+	release
+	end
+
+SlateportCity_EventScript_FormShop::
+	lock
+	faceplayer
+	goto_if_set FLAG_IS_CHAMPION, SlateportCity_EventScript_FormShopCategories
+	msgbox SlateportCity_Text_FormShop, MSGBOX_DEFAULT
+	setvar VAR_0x8004, SLATEPORT_SHOP_FORMS
+	call SlateportCity_EventScript_OpenExpandedShop
+	goto SlateportCity_EventScript_FormShopExit
+
+SlateportCity_EventScript_FormShopCategories::
+	message SlateportCity_Text_ChooseStock
+	waitmessage
+	multichoice 0, 0, MULTI_SLATEPORT_STOCK, FALSE
+	switch VAR_RESULT
+	case 0, SlateportCity_EventScript_ShopForms
+	case 1, SlateportCity_EventScript_ShopMega
+	case 2, SlateportCity_EventScript_ShopZ
+	case 3, SlateportCity_EventScript_ShopTera
+	case 4, SlateportCity_EventScript_ShopMints
+	goto SlateportCity_EventScript_FormShopExit
+
+SlateportCity_EventScript_ShopForms::
+	setvar VAR_0x8004, SLATEPORT_SHOP_FORMS
+	goto SlateportCity_EventScript_ShopCategory
+SlateportCity_EventScript_ShopMega::
+	setvar VAR_0x8004, SLATEPORT_SHOP_MEGA
+	goto SlateportCity_EventScript_ShopCategory
+SlateportCity_EventScript_ShopZ::
+	setvar VAR_0x8004, SLATEPORT_SHOP_Z
+	goto SlateportCity_EventScript_ShopCategory
+SlateportCity_EventScript_ShopTera::
+	setvar VAR_0x8004, SLATEPORT_SHOP_TERA
+	goto SlateportCity_EventScript_ShopCategory
+SlateportCity_EventScript_ShopMints::
+	setvar VAR_0x8004, SLATEPORT_SHOP_MINTS
+SlateportCity_EventScript_ShopCategory::
+	call SlateportCity_EventScript_OpenExpandedShop
+	goto SlateportCity_EventScript_FormShopCategories
+
+SlateportCity_EventScript_OpenExpandedShop::
+	callnative OpenSlateportShop
+	goto_if_eq VAR_RESULT, FALSE, SlateportCity_EventScript_ShopUnavailable
+	waitstate
+	return
+
+SlateportCity_EventScript_ShopUnavailable::
+	msgbox SlateportCity_Text_ShopUnavailable, MSGBOX_DEFAULT
+	return
+
+SlateportCity_EventScript_FormShopExit::
+	msgbox gText_PleaseComeAgain, MSGBOX_DEFAULT
+	release
+	end
+
+SlateportCity_Text_FormShop:
+	.string "I sell items to change Pokémon forms.\p"
+	.string "Become Champion to buy Mega Stones,\n"
+	.string "Z-Crystals, Tera Shards, and mints!$"
+
+SlateportCity_Text_ChooseStock:
+	.string "Which items would you like to see?$"
+
+SlateportCity_Text_ShopUnavailable:
+	.string "Sorry, I can't open the shop right now.$"

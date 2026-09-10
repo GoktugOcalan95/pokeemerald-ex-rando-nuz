@@ -1,5 +1,6 @@
 #include "global.h"
 #include "no_evs.h"
+#include "slateport_shops.h"
 #include "machro_bike.h"
 #include "frostbite.h"
 #include "item.h"
@@ -971,7 +972,7 @@ u32 GetItemStatus1Mask(enum Item itemId)
 
 u32 GetItemSellPrice(enum Item itemId)
 {
-    return GetItemPrice(itemId) / ITEM_SELL_FACTOR;
+    return LimitSlateportResalePrice(itemId, GetItemPrice(itemId) / ITEM_SELL_FACTOR);
 }
 
 bool32 IsHoldEffectChoice(enum HoldEffect holdEffect)

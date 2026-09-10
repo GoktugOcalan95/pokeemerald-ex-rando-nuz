@@ -12,6 +12,7 @@ struct SignatureZMove
 };
 
 bool32 IsZMove(enum Move move);
+bool32 IsFunctionalZCrystal(enum Item item);
 bool32 CanUseZMove(enum BattlerId battler);
 enum Move GetUsableZMove(enum BattlerId battler, enum Move move);
 void ActivateZMove(enum BattlerId battler);

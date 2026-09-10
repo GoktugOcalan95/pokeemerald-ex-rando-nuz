@@ -105,6 +105,20 @@ static const u8 sText_PowerColon[] = _("Power: ");
 static const u8 sText_NoAdditionalEffect[] = _("No Additional Effect");
 
 // Functions
+bool32 IsFunctionalZCrystal(enum Item item)
+{
+    u32 type = GetItemSecondaryId(item);
+    if (item <= ITEM_NONE || item >= ITEMS_COUNT || gItemsInfo[item].sortType != ITEM_TYPE_Z_CRYSTAL
+     || GetItemHoldEffect(item) != HOLD_EFFECT_Z_CRYSTAL)
+        return FALSE;
+    if (type > TYPE_NONE && type < TYPE_STELLAR && type != TYPE_MYSTERY)
+        return TRUE;
+    for (u32 i = 0; i < ARRAY_COUNT(sSignatureZMoves); i++)
+        if (sSignatureZMoves[i].item == item && IsSpeciesEnabled(sSignatureZMoves[i].species))
+            return TRUE;
+    return FALSE;
+}
+
 bool32 IsZMove(enum Move move)
 {
     return move >= FIRST_Z_MOVE && move <= LAST_Z_MOVE;

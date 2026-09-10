@@ -1134,6 +1134,15 @@ struct MultichoiceListStruct
     u8 count;
 };
 
+static const struct MenuAction sMultichoiceList_SlateportStock[] = {
+    {COMPOUND_STRING("Form items")},
+    {COMPOUND_STRING("Mega Stones")},
+    {COMPOUND_STRING("Z-Crystals")},
+    {COMPOUND_STRING("Tera Shards")},
+    {COMPOUND_STRING("Mints")},
+    {gText_Exit},
+};
+
 static const struct MultichoiceListStruct sMultichoiceLists[] =
 {
     [MULTI_BRINEY_ON_DEWFORD]          = MULTICHOICE(MultichoiceList_BrineyOnDewford),
@@ -1251,6 +1260,7 @@ static const struct MultichoiceListStruct sMultichoiceLists[] =
     [MULTI_FALLARBOR_TENT_RULES]       = MULTICHOICE(MultichoiceList_FallarborTentRules),
     [MULTI_TAG_MATCH_TYPE]             = MULTICHOICE(MultichoiceList_TagMatchType),
     [MULTI_BERRY_PLOT]                 = MULTICHOICE(MultichoiceList_BerryPlot),
+    [MULTI_SLATEPORT_STOCK] = MULTICHOICE(sMultichoiceList_SlateportStock),
     [MULTI_BIKE_SHOP]                  = MULTICHOICE(sMultichoiceList_BikeShop),
     [MULTI_EEVEELUTIONS]               = MULTICHOICE(sMultichoiceList_Eeveelutions),
     [MULTI_ISLAND_23]                  = MULTICHOICE(sMultichoiceList_Island23),

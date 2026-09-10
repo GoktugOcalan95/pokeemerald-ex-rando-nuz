@@ -810,9 +810,16 @@ bool8 StandardWildEncounter(u16 curMetatileBehavior, u16 prevMetatileBehavior)
 
 void RockSmashWildEncounter(void)
 {
-    u32 headerId = GetCurrentMapWildMonHeaderId();
+    u32 headerId;
     enum TimeOfDay timeOfDay;
 
+    if (FlagGet(WE_FLAG_NO_ENCOUNTER))
+    {
+        gSpecialVar_Result = FALSE;
+        return;
+    }
+
+    headerId = GetCurrentMapWildMonHeaderId();
     if (headerId != HEADER_NONE)
     {
         timeOfDay = GetTimeOfDayForEncounters(headerId, WILD_AREA_ROCKS);

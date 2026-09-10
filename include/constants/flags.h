@@ -74,7 +74,7 @@
 #define FLAG_RUN_RULE_EARLY_SURF 0x34
 #define FLAG_RUN_RULE_EARLY_FLY 0x35
 #define FLAG_RUN_RULE_AUTO_HEAL 0x36
-#define FLAG_UNUSED_0x037    0x37 // Unused Flag
+#define FLAG_TERA_ORB_CHARGED 0x37
 #define FLAG_UNUSED_0x038    0x38 // Unused Flag
 #define FLAG_UNUSED_0x039    0x39 // Unused Flag
 #define FLAG_UNUSED_0x03A    0x3A // Unused Flag

@@ -64,6 +64,7 @@ static const struct MenuAction MultichoiceList_Bike[] =
 {
     {COMPOUND_STRING("MACH")},
     {COMPOUND_STRING("ACRO")},
+    {COMPOUND_STRING("MACHRO")},
 };
 
 static const struct MenuAction MultichoiceList_StatusInfo[] =

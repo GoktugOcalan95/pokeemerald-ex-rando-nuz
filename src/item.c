@@ -1,4 +1,5 @@
 #include "global.h"
+#include "machro_bike.h"
 #include "frostbite.h"
 #include "item.h"
 #include "berry.h"
@@ -517,11 +518,12 @@ void SwapRegisteredBike(void)
         replacement = ITEM_MACH_BIKE;
     else if (CheckBagHasItem(ITEM_ACRO_BIKE, 1))
         replacement = ITEM_ACRO_BIKE;
+    else if (CheckBagHasItem(ITEM_BICYCLE, 1))
+        replacement = ITEM_BICYCLE;
     for (u32 i = 0; i < REGISTERED_ITEMS_COUNT; i++)
     {
         u16 item = gSaveBlock1Ptr->registeredItems[i];
-        if ((item == ITEM_MACH_BIKE || item == ITEM_ACRO_BIKE)
-         && !CheckBagHasItem(item, 1))
+        if (IsBikeItem(item) && !CheckBagHasItem(item, 1))
             gSaveBlock1Ptr->registeredItems[i] = replacement;
     }
 }

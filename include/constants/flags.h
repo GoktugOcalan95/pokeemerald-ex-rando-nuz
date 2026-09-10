@@ -76,7 +76,7 @@
 #define FLAG_RUN_RULE_AUTO_HEAL 0x36
 #define FLAG_TERA_ORB_CHARGED 0x37
 #define FLAG_POST_JUAN_LEGENDARIES_UNLOCKED 0x38
-#define FLAG_UNUSED_0x039    0x39 // Unused Flag
+#define FLAG_MACHRO_ACRO_MODE 0x39
 #define FLAG_UNUSED_0x03A    0x3A // Unused Flag
 #define FLAG_UNUSED_0x03B    0x3B // Unused Flag
 #define FLAG_UNUSED_0x03C    0x3C // Unused Flag

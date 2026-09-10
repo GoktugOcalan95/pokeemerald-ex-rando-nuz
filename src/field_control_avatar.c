@@ -113,6 +113,10 @@ void FieldGetPlayerInput(struct FieldInput *input, u16 newKeys, u16 heldKeys)
     u8 runningState = gPlayerAvatar.runningState;
     bool8 forcedMove = MetatileBehavior_IsForcedMovementTile(GetPlayerCurMetatileBehavior(runningState));
 
+    if (VarGet(VAR_MOUNTED_BIKE) == ITEM_BICYCLE && TestPlayerAvatarFlags(PLAYER_AVATAR_FLAG_BIKE) && (heldKeys & L_BUTTON)
+     && (newKeys & B_BUTTON) && !(gMain.newKeysRaw & A_BUTTON))
+        newKeys &= ~A_BUTTON;
+
     if ((tileTransitionState == T_TILE_CENTER && forcedMove == FALSE) || tileTransitionState == T_NOT_MOVING)
     {
         if (GetPlayerSpeed() != PLAYER_SPEED_FASTEST)

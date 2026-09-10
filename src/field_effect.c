@@ -3370,6 +3370,7 @@ static void SurfFieldEffect_Init(struct Task *task)
     // Put follower into pokeball before using Surf
     HideFollowerForFieldEffect();
     gPlayerAvatar.preventStep = TRUE;
+    VarSet(VAR_MOUNTED_BIKE, ITEM_NONE);
     SetPlayerAvatarStateMask(PLAYER_AVATAR_FLAG_SURFING);
     PlayerGetDestCoords(&task->tDestX, &task->tDestY);
     MoveCoords(gObjectEvents[gPlayerAvatar.objectEventId].movementDirection, &task->tDestX, &task->tDestY);
@@ -3563,6 +3564,7 @@ static void FlyOutFieldEffect_FieldMovePose(struct Task *task)
     {
         task->tAvatarFlags = gPlayerAvatar.flags;
         gPlayerAvatar.preventStep = TRUE;
+        VarSet(VAR_MOUNTED_BIKE, ITEM_NONE);
         SetPlayerAvatarStateMask(PLAYER_AVATAR_FLAG_ON_FOOT);
         SetPlayerAvatarFieldMove();
         ObjectEventSetHeldMovement(objectEvent, MOVEMENT_ACTION_START_ANIM_IN_DIRECTION);
@@ -3856,6 +3858,7 @@ static void FlyInFieldEffect_BirdSwoopDown(struct Task *task)
         task->tTimer = 17;
         task->tAvatarFlags = gPlayerAvatar.flags;
         gPlayerAvatar.preventStep = TRUE;
+        VarSet(VAR_MOUNTED_BIKE, ITEM_NONE);
         SetPlayerAvatarStateMask(PLAYER_AVATAR_FLAG_ON_FOOT);
         if (task->tAvatarFlags & PLAYER_AVATAR_FLAG_SURFING)
         {
@@ -4369,6 +4372,7 @@ static bool8 RockClimb_Init(struct Task *task, struct ObjectEvent *objectEvent)
     // Put follower into pokeball before using Rock Climb
     HideFollowerForFieldEffect();
     gPlayerAvatar.preventStep = TRUE;
+    VarSet(VAR_MOUNTED_BIKE, ITEM_NONE);
     SetPlayerAvatarStateMask(PLAYER_AVATAR_FLAG_SURFING);
     PlayerGetDestCoords(&task->tDestX, &task->tDestY);
     MoveCoords(gObjectEvents[gPlayerAvatar.objectEventId].movementDirection, &task->tDestX, &task->tDestY);

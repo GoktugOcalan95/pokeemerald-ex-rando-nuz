@@ -1,4 +1,5 @@
 #include "global.h"
+#include "machro_bike.h"
 #include "main.h"
 #include "bike.h"
 #include "event_data.h"
@@ -365,6 +366,13 @@ void PlayerStep(enum Direction direction, u16 newKeys, u16 heldKeys)
     HideShowWarpArrow(playerObjEvent);
     if (gPlayerAvatar.preventStep == FALSE && !TryUpdatePlayerSpinDirection())
     {
+        if (TrySwitchMachroBike(newKeys, heldKeys))
+            return;
+        if (VarGet(VAR_MOUNTED_BIKE) == ITEM_BICYCLE && TestPlayerAvatarFlags(PLAYER_AVATAR_FLAG_BIKE) && (heldKeys & L_BUTTON))
+        {
+            newKeys &= ~B_BUTTON;
+            heldKeys &= ~B_BUTTON;
+        }
         Bike_TryAcroBikeHistoryUpdate(newKeys, heldKeys);
         if (TryInterruptObjectEventSpecialAnim(playerObjEvent, direction) == 0)
         {
@@ -1129,6 +1137,7 @@ static void PlayerAvatarTransition_Dummy(struct ObjectEvent *objEvent)
 
 static void PlayerAvatarTransition_Normal(struct ObjectEvent *objEvent)
 {
+    VarSet(VAR_MOUNTED_BIKE, ITEM_NONE);
     ObjectEventSetGraphicsId(objEvent, GetPlayerAvatarGraphicsIdByStateId(PLAYER_AVATAR_STATE_NORMAL));
     ObjectEventTurn(objEvent, objEvent->movementDirection);
     SetPlayerAvatarStateMask(PLAYER_AVATAR_FLAG_ON_FOOT);
@@ -1163,6 +1172,7 @@ static void PlayerAvatarTransition_Surfing(struct ObjectEvent *objEvent)
 
     ObjectEventSetGraphicsId(objEvent, GetPlayerAvatarGraphicsIdByStateId(PLAYER_AVATAR_STATE_SURFING));
     ObjectEventTurn(objEvent, objEvent->movementDirection);
+    VarSet(VAR_MOUNTED_BIKE, ITEM_NONE);
     SetPlayerAvatarStateMask(PLAYER_AVATAR_FLAG_SURFING);
     gFieldEffectArguments[0] = objEvent->currentCoords.x;
     gFieldEffectArguments[1] = objEvent->currentCoords.y;
@@ -1176,6 +1186,7 @@ static void PlayerAvatarTransition_Underwater(struct ObjectEvent *objEvent)
 {
     ObjectEventSetGraphicsId(objEvent, GetPlayerAvatarGraphicsIdByStateId(PLAYER_AVATAR_STATE_UNDERWATER));
     ObjectEventTurn(objEvent, objEvent->movementDirection);
+    VarSet(VAR_MOUNTED_BIKE, ITEM_NONE);
     SetPlayerAvatarStateMask(PLAYER_AVATAR_FLAG_UNDERWATER);
     objEvent->fieldEffectSpriteId = StartUnderwaterSurfBlobBobbing(objEvent->spriteId);
 }

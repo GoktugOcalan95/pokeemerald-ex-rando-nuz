@@ -3019,3 +3019,14 @@
 	getbraillestringwidth \text
 	call EventScript_BrailleCursorWaitButton
 	.endm
+
+	.macro msgbox_timed text:req, delay=48
+	message \text
+	waitmessage
+	.byte SCR_OP_WAITBUTTONPRESSDELAYED
+	.2byte \delay
+	.endm
+
+	.macro msgbox_ack text:req
+	msgbox_timed \text, 0
+	.endm

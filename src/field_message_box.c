@@ -1,4 +1,5 @@
 #include "global.h"
+#include "main.h"
 #include "menu.h"
 #include "string_util.h"
 #include "task.h"
@@ -10,6 +11,10 @@
 #include "field_name_box.h"
 
 static EWRAM_DATA u8 sFieldMessageBoxMode = 0;
+static EWRAM_DATA u16 sInputAutoDelay = 0;
+static EWRAM_DATA u32 sInputWaitStart = 0;
+static EWRAM_DATA u32 sLastInputFrame = 0;
+static EWRAM_DATA bool8 sHasInputFrame = FALSE;
 EWRAM_DATA u8 gWalkAwayFromSignpostTimer = 0;
 
 static void ExpandStringAndStartDrawFieldMessage(const u8 *, bool32);
@@ -172,4 +177,22 @@ void StopFieldMessage(void)
 {
     DestroyTask_DrawFieldMessage();
     sFieldMessageBoxMode = FIELD_MESSAGE_BOX_HIDDEN;
+}
+
+void FieldMessage_StartInputWait(u16 autoDelay)
+{
+    sInputAutoDelay = autoDelay;
+    sInputWaitStart = gMain.vblankCounter1;
+}
+
+bool8 FieldMessage_WaitForInput(void)
+{
+    if (JOY_NEW(A_BUTTON | B_BUTTON) && (!sHasInputFrame || sLastInputFrame != gMain.vblankCounter1))
+    {
+        sLastInputFrame = gMain.vblankCounter1;
+        sHasInputFrame = TRUE;
+        return TRUE;
+    }
+    return GetPlayerTextSpeed() == OPTIONS_TEXT_SPEED_AUTO && sInputAutoDelay != 0
+        && gMain.vblankCounter1 - sInputWaitStart >= sInputAutoDelay;
 }

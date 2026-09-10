@@ -3406,3 +3406,11 @@ bool8 ScrCmd_normalmsg(struct ScriptContext *ctx)
     gMsgIsSignPost = FALSE;
     return FALSE;
 }
+
+bool8 ScrCmd_waitbuttonpressdelayed(struct ScriptContext *ctx)
+{
+    Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+    FieldMessage_StartInputWait(ScriptReadHalfword(ctx));
+    SetupNativeScript(ctx, FieldMessage_WaitForInput);
+    return TRUE;
+}

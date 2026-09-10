@@ -32,7 +32,7 @@ Movement_CutTreeDown:
 	step_end
 
 EventScript_CheckTreeCantCut::
-	msgbox Text_CantCut, MSGBOX_DEFAULT
+	msgbox_timed Text_CantCut
 	releaseall
 	end
 
@@ -200,7 +200,7 @@ Movement_SmashRock:
 	step_end
 
 EventScript_CantSmashRock::
-	msgbox Text_CantSmash, MSGBOX_DEFAULT
+	msgbox_timed Text_CantSmash
 	releaseall
 	end
 
@@ -232,17 +232,17 @@ EventScript_UseStrength::
 
 EventScript_ActivateStrength::
 	setflag FLAG_SYS_USE_STRENGTH
-	msgbox Text_MonUsedStrength, MSGBOX_DEFAULT
+	msgbox_timed Text_MonUsedStrength
 	releaseall
 	end
 
 EventScript_CantStrength::
-	msgbox Text_CantStrength, MSGBOX_DEFAULT
+	msgbox_timed Text_CantStrength
 	releaseall
 	end
 
 EventScript_CheckActivatedBoulder::
-	msgbox Text_StrengthActivated, MSGBOX_DEFAULT
+	msgbox_timed Text_StrengthActivated
 	releaseall
 	end
 
@@ -283,7 +283,7 @@ EventScript_CannotUseWaterfall::
 	lockall
 
 EventScript_CantWaterfall::
-	msgbox Text_CantWaterfall, MSGBOX_DEFAULT
+	msgbox_timed Text_CantWaterfall
 
 EventScript_EndWaterfall::
 	releaseall
@@ -314,7 +314,7 @@ EventScript_UseDive::
 	goto EventScript_EndDive
 
 EventScript_CantDive::
-	msgbox Text_CantDive, MSGBOX_DEFAULT
+	msgbox_timed Text_CantDive
 	releaseall
 	end
 
@@ -337,7 +337,7 @@ EventScript_UseDiveUnderwater::
 
 EventScript_CantSurface::
 	lockall
-	msgbox Text_CantSurface, MSGBOX_DEFAULT
+	msgbox_timed Text_CantSurface
 	goto EventScript_EndSurface
 	end
 
@@ -435,7 +435,7 @@ EventScript_UseRockClimb::
 	end
 
 EventScript_CantRockClimb::
-	msgbox Text_CantRockClimb, MSGBOX_DEFAULT
+	msgbox_timed Text_CantRockClimb
 
 EventScript_EndRockClimb::
 	releaseall
@@ -454,7 +454,7 @@ Text_CantRockClimb:
 
 EventScript_CannotFlyHere::
 	lockall
-	msgbox Text_CannotFlyHere, MSGBOX_DEFAULT
+	msgbox_timed Text_CannotFlyHere
 	releaseall
 	end
 

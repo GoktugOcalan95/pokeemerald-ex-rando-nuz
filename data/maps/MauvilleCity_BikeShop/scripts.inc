@@ -42,6 +42,7 @@ MauvilleCity_BikeShop_EventScript_GetMachBike::
 	msgbox MauvilleCity_BikeShop_Text_ChoseMachBike, MSGBOX_DEFAULT
 	giveitem ITEM_MACH_BIKE
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
+	msgbox_ack MauvilleCity_BikeShop_Text_MachControls
 	goto MauvilleCity_BikeShop_EventScript_ComeBackToSwitchBikes
 	end
 
@@ -49,6 +50,7 @@ MauvilleCity_BikeShop_EventScript_GetAcroBike::
 	msgbox MauvilleCity_BikeShop_Text_ChoseAcroBike, MSGBOX_DEFAULT
 	giveitem ITEM_ACRO_BIKE
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
+	msgbox_ack MauvilleCity_BikeShop_Text_AcroControls
 	goto MauvilleCity_BikeShop_EventScript_ComeBackToSwitchBikes
 	end
 
@@ -320,3 +322,11 @@ MauvilleCity_BikeShop_Text_Jumps:
 	.string "change directions while jumping.\p"
 	.string "Want to read a different page?$"
 
+
+MauvilleCity_BikeShop_Text_MachControls:
+	.string "The MACH BIKE builds speed.\n"
+	.string "Use it to climb muddy slopes!$"
+
+MauvilleCity_BikeShop_Text_AcroControls:
+	.string "Hold B to bunny-hop.\n"
+	.string "Tap B + a direction for tricks!$"

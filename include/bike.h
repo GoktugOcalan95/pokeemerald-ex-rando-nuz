@@ -89,6 +89,7 @@ void Bike_TryAcroBikeHistoryUpdate(u16 newKeys, u16 heldKeys);
 bool8 IsBikingDisallowedByPlayer(void);
 bool8 IsPlayerNotUsingAcroBikeOnBumpySlope(void);
 void GetOnOffBike(u8 transitionFlags);
+bool32 CanReverseLedgeHop(s16 x, s16 y, enum Direction direction);
 void BikeClearState(int newDirHistory, int newAbStartHistory);
 void Bike_UpdateBikeCounterSpeed(u8 counter);
 enum PlayerSpeed GetPlayerSpeed(void);

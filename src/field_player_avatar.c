@@ -1027,7 +1027,7 @@ static bool8 CanStopSurfing(s16 x, s16 y, enum Direction direction)
 
 static bool8 ShouldJumpLedge(s16 x, s16 y, enum Direction direction)
 {
-    if (GetLedgeJumpDirection(x, y, direction) != DIR_NONE)
+    if (GetLedgeJumpDirection(x, y, direction) != DIR_NONE || CanReverseLedgeHop(x, y, direction))
         return TRUE;
     else
         return FALSE;

@@ -1277,6 +1277,36 @@ bool8 IsPlayerNotUsingAcroBikeOnBumpySlope(void)
         return TRUE;
 }
 
+bool32 CanReverseLedgeHop(s16 x, s16 y, enum Direction direction)
+{
+    struct ObjectEvent landingPlayer;
+    u8 behavior;
+
+    if (!TestPlayerAvatarFlags(PLAYER_AVATAR_FLAG_ACRO_BIKE)
+     || gPlayerAvatar.acroBikeState != ACRO_STATE_BUNNY_HOP
+     || !Overworld_IsBikingAllowed()
+     || direction < DIR_SOUTH || direction > DIR_EAST
+     || GetLedgeJumpDirection(x, y, GetOppositeDirection(direction)) == DIR_NONE)
+        return FALSE;
+    MoveCoords(direction, &x, &y);
+    if (GetMapBorderIdAt(x, y) != CONNECTION_NONE)
+        return FALSE;
+    behavior = MapGridGetMetatileBehaviorAt(x, y);
+    if (MetatileBehavior_IsSurfableWaterOrUnderwater(behavior)
+     || MetatileBehavior_IsRunningDisallowed(behavior)
+     || (MetatileBehavior_IsFortreeBridge(behavior) && !(MapGridGetElevationAt(x, y) & 1))
+     || !CanBikeFaceDirOnMetatile(direction, behavior)
+     || MetatileBehavior_IsSidewaysStairsLeftSideAny(behavior)
+     || MetatileBehavior_IsSidewaysStairsRightSideAny(behavior))
+        return FALSE;
+
+    // Test objects at the landing elevation, including across a height change.
+    landingPlayer = gObjectEvents[gPlayerAvatar.objectEventId];
+    if (MapGridGetElevationAt(x, y) != ELEVATION_MULTI_LEVEL)
+        landingPlayer.currentElevation = MapGridGetElevationAt(x, y);
+    return GetCollisionFlagsAtCoords(&landingPlayer, x, y, direction) == 0;
+}
+
 void GetOnOffBike(u8 transitionFlags)
 {
     if (gPlayerAvatar.flags & (PLAYER_AVATAR_FLAG_MACH_BIKE | PLAYER_AVATAR_FLAG_ACRO_BIKE))

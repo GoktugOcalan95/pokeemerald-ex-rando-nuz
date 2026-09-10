@@ -14,17 +14,25 @@ static EWRAM_DATA u16 sRewardPool[ITEMS_COUNT] = {0};
 static EWRAM_DATA u16 sRewardPoolCount = 0;
 static EWRAM_DATA u32 sRewardPoolRules = 0;
 
+static bool32 IsGimmickItem(u16 item)
+{
+    enum ItemSortType type = gItemsInfo[item].sortType;
+    return type == ITEM_TYPE_MEGA_STONE || type == ITEM_TYPE_Z_CRYSTAL || type == ITEM_TYPE_TERA_SHARD;
+}
+
 bool32 IsRandomizedRewardItemAllowed(u16 item)
 {
     return item > ITEM_NONE && item < ITEMS_COUNT && gItemsInfo[item].name != NULL
         && GetItemPocket(item) != POCKET_KEY_ITEMS && GetItemPocket(item) != POCKET_TM_HM
         && !(FlagGet(FLAG_RUN_RULE_ITEMS) && FlagGet(FLAG_RUN_RULE_BAN_SLATEPORT) && IsSlateportPreChampionItem(item))
+        && !(FlagGet(FLAG_RUN_RULE_ITEMS) && FlagGet(FLAG_RUN_RULE_BAN_GIMMICKS) && IsGimmickItem(item))
         && !ItemIsMail(item) && !IsAbilityCustomizationItem(item) && IsItemAllowedByNoEVs(item);
 }
 
 static void PrepareRewardPool(void)
 {
-    u32 rules = FlagGet(FLAG_RUN_RULE_NO_EV_GAIN) | (FlagGet(FLAG_RUN_RULE_BAN_SLATEPORT) << 1);
+    u32 rules = FlagGet(FLAG_RUN_RULE_NO_EV_GAIN) | (FlagGet(FLAG_RUN_RULE_BAN_SLATEPORT) << 1)
+        | (FlagGet(FLAG_RUN_RULE_BAN_GIMMICKS) << 2);
     if (sRewardPoolCount != 0 && rules == sRewardPoolRules)
         return;
     sRewardPoolCount = 0;

@@ -202,3 +202,39 @@ TEST("Ban Slateport items uses pre-Champion stock and leaves shops and mints int
     FlagClear(FLAG_IS_CHAMPION);
     ClearBag();
 }
+
+TEST("Ban gimmick items filters every gimmick category and combines with Slateport")
+{
+    FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
+    FlagClear(FLAG_RUN_RULE_BAN_SLATEPORT);
+    FlagSet(FLAG_RUN_RULE_BAN_GIMMICKS);
+    FlagClear(FLAG_RUN_RULE_ITEMS);
+    EXPECT(IsRandomizedRewardItemAllowed(ITEM_VENUSAURITE));
+    FlagSet(FLAG_RUN_RULE_ITEMS);
+    u32 counts[3] = {0};
+    for (u32 item = 1; item < ITEMS_COUNT; item++)
+    {
+        u32 type = gItemsInfo[item].sortType;
+        if (type >= ITEM_TYPE_MEGA_STONE && type <= ITEM_TYPE_TERA_SHARD)
+        {
+            counts[type - ITEM_TYPE_MEGA_STONE]++;
+            EXPECT(!IsRandomizedRewardItemAllowed(item));
+        }
+    }
+    EXPECT_EQ(counts[0], 92);
+    EXPECT_EQ(counts[1], 35);
+    EXPECT_EQ(counts[2], 19);
+    EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_MINT));
+    EXPECT(IsRandomizedRewardItemAllowed(ITEM_THUNDER_STONE));
+    EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_CRYSTAL));
+    FlagSet(FLAG_RUN_RULE_BAN_SLATEPORT);
+    EXPECT(!IsRandomizedRewardItemAllowed(ITEM_THUNDER_STONE));
+    EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_MINT));
+    for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_FACILITY_HELD; domain++)
+        for (u32 source = 0; source < 100; source++)
+            EXPECT(IsRandomizedRewardItemAllowed(RandomizeItemReward(ITEM_POTION, domain, source, 0)));
+    FlagClear(FLAG_RUN_RULE_BAN_GIMMICKS);
+    FlagClear(FLAG_RUN_RULE_BAN_SLATEPORT);
+    EXPECT(IsRandomizedRewardItemAllowed(ITEM_VENUSAURITE));
+    FlagClear(FLAG_RUN_RULE_ITEMS);
+}

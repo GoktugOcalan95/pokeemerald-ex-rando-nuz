@@ -37,15 +37,11 @@ static inline bool32 SetUpFieldMove(enum FieldMove fieldMove)
     return gFieldMoveInfo[fieldMove].fieldMoveFunc();
 }
 
-static inline bool32 IsFieldMoveUnlocked(enum FieldMove fieldMove)
-{
-    return gFieldMoveUnlocks[gFieldMoveInfo[fieldMove].unlockType].isUnlockedFunc(fieldMove);
-}
+u32 FieldMove_GetHMItem(enum FieldMove fieldMove);
+bool32 IsFieldMoveUnlocked(enum FieldMove fieldMove);
+bool32 FieldMove_CanUseAutomaticFlash(void);
 
-static inline const u8 *FieldMove_GetLockedMessage(enum FieldMove fieldMove)
-{
-    return gFieldMoveUnlocks[gFieldMoveInfo[fieldMove].unlockType].lockedMessage;
-}
+const u8 *FieldMove_GetLockedMessage(enum FieldMove fieldMove);
 
 static inline enum Move FieldMove_GetMoveId(enum FieldMove fieldMove)
 {

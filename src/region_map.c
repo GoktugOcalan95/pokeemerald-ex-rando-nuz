@@ -78,6 +78,7 @@ static EWRAM_DATA struct {
     u8 tileBuffer[0x1c0];
     u8 nameBuffer[0x26]; // never read
     bool8 choseFlyLocation;
+    bool8 fromStartMenu;
 } *sFlyMap = NULL;
 
 static bool32 sDrawFlyDestTextWindow;
@@ -105,6 +106,7 @@ static void UnhideRegionMapPlayerIcon(void);
 static void SpriteCB_PlayerIconMapZoomed(struct Sprite *sprite);
 static void SpriteCB_PlayerIconMapFull(struct Sprite *sprite);
 static void SpriteCB_PlayerIcon(struct Sprite *sprite);
+static void InitFlyMap(bool32 fromStartMenu);
 static void VBlankCB_FlyMap(void);
 static void CB2_FlyMap(void);
 static void SetFlyMapCallback(void callback(void));
@@ -1944,6 +1946,16 @@ bool32 IsEventIslandMapSecId(mapsec_u8_t mapSecId)
 
 void CB2_OpenFlyMap(void)
 {
+    InitFlyMap(FALSE);
+}
+
+void CB2_OpenFlyMapFromStartMenu(void)
+{
+    InitFlyMap(TRUE);
+}
+
+static void InitFlyMap(bool32 fromStartMenu)
+{
     switch (gMain.state)
     {
     case 0:
@@ -1964,6 +1976,7 @@ void CB2_OpenFlyMap(void)
         }
         else
         {
+            sFlyMap->fromStartMenu = fromStartMenu;
             ResetPaletteFade();
             ResetSpriteData();
             FreeSpriteTileRanges();
@@ -2486,11 +2499,12 @@ static void CB_ExitFlyMap(void)
                 struct RegionMap* tempRegionMap = &sFlyMap->regionMap;
 
                 SetFlyDestination(tempRegionMap);
+                gSkipShowMonAnim = sFlyMap->fromStartMenu;
                 ReturnToFieldFromFlyMapSelect();
             }
             else
             {
-                SetMainCallback2(CB2_ReturnToPartyMenuFromFlyMap);
+                SetMainCallback2(sFlyMap->fromStartMenu ? CB2_ReturnToFieldWithOpenMenu : CB2_ReturnToPartyMenuFromFlyMap);
             }
             TRY_FREE_AND_SET_NULL(sFlyMap);
             FreeAllWindowBuffers();

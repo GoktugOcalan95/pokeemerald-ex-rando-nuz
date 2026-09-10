@@ -10,6 +10,7 @@
 #include "event_object_lock.h"
 #include "event_scripts.h"
 #include "fieldmap.h"
+#include "field_move.h"
 #include "field_effect.h"
 #include "field_player_avatar.h"
 #include "field_specials.h"
@@ -32,6 +33,7 @@
 #include "pokedex.h"
 #include "pokenav.h"
 #include "safari_zone.h"
+#include "region_map.h"
 #include "save.h"
 #include "scanline_effect.h"
 #include "script.h"
@@ -62,6 +64,7 @@ enum
     MENU_ACTION_SAVE,
     MENU_ACTION_OPTION,
     MENU_ACTION_EXIT,
+    MENU_ACTION_FLY,
     MENU_ACTION_RETIRE_SAFARI,
     MENU_ACTION_PLAYER_LINK,
     MENU_ACTION_REST_FRONTIER,
@@ -105,6 +108,7 @@ static bool8 StartMenuPlayerNameCallback(void);
 static bool8 StartMenuSaveCallback(void);
 static bool8 StartMenuOptionCallback(void);
 static bool8 StartMenuExitCallback(void);
+static bool8 StartMenuFlyCallback(void);
 static bool8 StartMenuSafariZoneRetireCallback(void);
 static bool8 StartMenuLinkModePlayerNameCallback(void);
 static bool8 StartMenuBattlePyramidRetireCallback(void);
@@ -187,6 +191,8 @@ static const struct WindowTemplate sWindowTemplate_PyramidPeak = {
     .baseBlock = 0x8
 };
 
+static const u8 sText_MenuFly[] = _("FLY");
+
 static const u8 sText_MenuDebug[] = _("DEBUG");
 
 static const struct MenuAction sStartMenuItems[] =
@@ -198,6 +204,7 @@ static const struct MenuAction sStartMenuItems[] =
     [MENU_ACTION_PLAYER]          = {gText_MenuPlayer,  {.u8_void = StartMenuPlayerNameCallback}},
     [MENU_ACTION_SAVE]            = {gText_MenuSave,    {.u8_void = StartMenuSaveCallback}},
     [MENU_ACTION_OPTION]          = {gText_MenuOption,  {.u8_void = StartMenuOptionCallback}},
+    [MENU_ACTION_FLY]             = {sText_MenuFly,     {.u8_void = StartMenuFlyCallback}},
     [MENU_ACTION_EXIT]            = {gText_MenuExit,    {.u8_void = StartMenuExitCallback}},
     [MENU_ACTION_RETIRE_SAFARI]   = {gText_MenuRetire,  {.u8_void = StartMenuSafariZoneRetireCallback}},
     [MENU_ACTION_PLAYER_LINK]     = {gText_MenuPlayer,  {.u8_void = StartMenuLinkModePlayerNameCallback}},
@@ -341,7 +348,7 @@ static void BuildNormalStartMenu(void)
     AddStartMenuAction(MENU_ACTION_PLAYER);
     AddStartMenuAction(MENU_ACTION_SAVE);
     AddStartMenuAction(MENU_ACTION_OPTION);
-    AddStartMenuAction(MENU_ACTION_EXIT);
+    AddStartMenuAction(IsFieldMoveUnlocked(FIELD_MOVE_FLY) ? MENU_ACTION_FLY : MENU_ACTION_EXIT);
 }
 
 static void BuildDebugStartMenu(void)
@@ -650,6 +657,15 @@ static bool8 HandleStartMenuInput(void)
           && MapHasNoEncounterData())
             return FALSE;
 
+        if (sCurrentStartMenuActions[sStartMenuCursorPos] == MENU_ACTION_FLY
+         && !SetUpFieldMove_Fly())
+        {
+            RemoveExtraStartMenuWindows();
+            HideStartMenu();
+            ScriptContext_SetupScript(EventScript_CannotFlyHere);
+            return TRUE;
+        }
+
         gMenuCallback = sStartMenuItems[sCurrentStartMenuActions[sStartMenuCursorPos]].func.u8_void;
 
         if (gMenuCallback != StartMenuSaveCallback
@@ -702,6 +718,19 @@ static bool8 StartMenuPokemonCallback(void)
         return TRUE;
     }
 
+    return FALSE;
+}
+
+static bool8 StartMenuFlyCallback(void)
+{
+    if (!gPaletteFade.active)
+    {
+        PlayRainStoppingSoundEffect();
+        RemoveExtraStartMenuWindows();
+        CleanupOverworldWindowsAndTilemaps();
+        SetMainCallback2(CB2_OpenFlyMapFromStartMenu);
+        return TRUE;
+    }
     return FALSE;
 }
 
@@ -1511,3 +1540,13 @@ void Script_ForceSaveGame(struct ScriptContext *ctx)
     gMenuCallback = SaveCallback;
     sSaveDialogCallback = SaveSavingMessageCallback;
 }
+
+#if TESTING
+bool32 Test_StartMenuHasFly(u32 *count)
+{
+    sNumStartMenuActions = 0;
+    BuildNormalStartMenu();
+    *count = sNumStartMenuActions;
+    return sCurrentStartMenuActions[sNumStartMenuActions - 1] == MENU_ACTION_FLY;
+}
+#endif

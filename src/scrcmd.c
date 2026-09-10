@@ -2306,6 +2306,15 @@ bool8 ScrCmd_checkfieldmove(struct ScriptContext *ctx)
     if (doUnlockedCheck && !IsFieldMoveUnlocked(fieldMove))
         return FALSE;
 
+    if (FieldMove_GetHMItem(fieldMove) != ITEM_NONE)
+    {
+        // HM scripts use availability, without selecting a Pokemon as the user.
+        if (IsFieldMoveUnlocked(fieldMove))
+            gSpecialVar_Result = 0;
+        gSpecialVar_0x8004 = SPECIES_NONE;
+        return FALSE;
+    }
+
     move = FieldMove_GetMoveId(fieldMove);
     for (u32 i = 0; i < PARTY_SIZE; i++)
     {

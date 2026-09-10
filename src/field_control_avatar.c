@@ -1,5 +1,6 @@
 #include "global.h"
 #include "battle_setup.h"
+#include "braille_puzzles.h"
 #include "bike.h"
 #include "coord_event_weather.h"
 #include "daycare.h"
@@ -38,6 +39,7 @@
 #include "wild_encounter.h"
 #include "wild_encounter_ow.h"
 #include "constants/event_bg.h"
+#include "constants/field_effects.h"
 #include "constants/event_objects.h"
 #include "constants/field_poison.h"
 #include "constants/layouts.h"
@@ -59,6 +61,8 @@ static const u8 *GetInteractedBackgroundEventScript(struct MapPosition *, u8, en
 static const u8 *GetInteractedMetatileScript(struct MapPosition *, u8, enum Direction);
 static const u8 *GetInteractedWaterScript(struct MapPosition *, u8, enum Direction);
 static bool32 TrySetupDiveDownScript(void);
+static bool32 TryAutomaticHM(struct MapPosition *position, u8 metatileBehavior, enum Direction direction);
+static bool32 TryUsePuzzleHM(void);
 static bool32 TrySetupDiveEmergeScript(void);
 static bool8 CheckStandardWildEncounter(u16);
 static bool8 TryArrowWarp(struct MapPosition *, u16, enum Direction);
@@ -178,6 +182,13 @@ int ProcessPlayerFieldInput(struct FieldInput *input)
     if (TryRunOnFrameMapScript() == TRUE)
         return TRUE;
 
+    if (FieldMove_CanUseAutomaticFlash() && GetFlashLevel() > 1)
+    {
+        FlagSet(FLAG_SYS_USE_FLASH);
+        ScriptContext_SetupScript(EventScript_UseFlash);
+        return TRUE;
+    }
+
     if (input->pressedBButton && TrySetupDiveEmergeScript() == TRUE)
         return TRUE;
     if (input->tookStep)
@@ -213,6 +224,10 @@ int ProcessPlayerFieldInput(struct FieldInput *input)
     if (input->heldDirection && (input->dpadDirection == playerDirection) && (TrySetUpWalkIntoSignpostScript(&position, metatileBehavior, playerDirection) == TRUE))
         return TRUE;
 
+    if (input->heldDirection && input->dpadDirection == playerDirection
+     && TryAutomaticHM(&position, metatileBehavior, playerDirection))
+        return TRUE;
+
     if (input->pressedAButton && TryStartInteractionScript(&position, metatileBehavior, playerDirection) == TRUE)
         return TRUE;
 
@@ -222,6 +237,8 @@ int ProcessPlayerFieldInput(struct FieldInput *input)
             return TRUE;
     }
     if (input->pressedAButton && TrySetupDiveDownScript() == TRUE)
+        return TRUE;
+    if (input->pressedAButton && TryUsePuzzleHM())
         return TRUE;
     if (input->pressedStartButton)
     {
@@ -641,7 +658,7 @@ static const u8 *GetInteractedWaterScript(struct MapPosition *unused1, u8 metati
 {
     if (MetatileBehavior_IsFastWater(metatileBehavior) == TRUE && !TestPlayerAvatarFlags(PLAYER_AVATAR_FLAG_SURFING))
         return EventScript_CurrentTooFast;
-    if (IsFieldMoveUnlocked(FIELD_MOVE_SURF) && PartyHasMonWithSurf() == TRUE && IsPlayerFacingSurfableFishableWater() == TRUE
+    if (IsFieldMoveUnlocked(FIELD_MOVE_SURF) && IsPlayerFacingSurfableFishableWater() == TRUE
      && CheckFollowerNPCFlag(FOLLOWER_NPC_FLAG_CAN_SURF)
      )
         return EventScript_UseSurf;
@@ -656,6 +673,51 @@ static const u8 *GetInteractedWaterScript(struct MapPosition *unused1, u8 metati
             return EventScript_CannotUseWaterfall;
     }
     return NULL;
+}
+
+static bool32 TryAutomaticHM(struct MapPosition *position, u8 metatileBehavior, enum Direction direction)
+{
+    const u8 *script;
+
+    // Let Acro tricks finish before interpreting forward input as an HM action.
+    if (TestPlayerAvatarFlags(PLAYER_AVATAR_FLAG_ACRO_BIKE)
+     && gPlayerAvatar.acroBikeState != ACRO_STATE_NORMAL)
+        return FALSE;
+
+    script = GetInteractedObjectEventScript(position, metatileBehavior, direction);
+    if (script != NULL)
+    {
+        if (!((script == EventScript_CutTree && IsFieldMoveUnlocked(FIELD_MOVE_CUT))
+           || (script == EventScript_RockSmash && IsFieldMoveUnlocked(FIELD_MOVE_ROCK_SMASH))))
+            return FALSE;
+    }
+    else
+    {
+        script = GetInteractedWaterScript(position, metatileBehavior, direction);
+        if (script != EventScript_UseSurf && script != EventScript_UseWaterfall)
+            return FALSE;
+        if (GetObjectEventIdByXY(position->x, position->y) != OBJECT_EVENTS_COUNT)
+            return FALSE;
+    }
+
+    if (TestPlayerAvatarFlags(PLAYER_AVATAR_FLAG_MACH_BIKE | PLAYER_AVATAR_FLAG_ACRO_BIKE))
+        BikeClearState(0, 0);
+    ScriptContext_SetupScript(script);
+    return TRUE;
+}
+
+static bool32 TryUsePuzzleHM(void)
+{
+    if ((IsFieldMoveUnlocked(FIELD_MOVE_ROCK_SMASH) && ShouldDoBrailleRegirockEffect())
+     || (IsFieldMoveUnlocked(FIELD_MOVE_FLASH) && ShouldDoBrailleRegisteelEffect()))
+    {
+        FreezeObjectEvents();
+        gFieldEffectArguments[0] = PARTY_SIZE;
+        gFieldEffectArguments[3] = TRUE;
+        FieldEffectStart(FLDEFF_USE_TOMB_PUZZLE_EFFECT);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 static bool32 TrySetupDiveDownScript(void)
@@ -1429,3 +1491,22 @@ void HandleBoulderActivateVictoryRoadSwitch(u16 x, u16 y)
         }
     }
 }
+
+#if TESTING
+bool32 Test_TryAutomaticHM(void)
+{
+    struct MapPosition position;
+    GetInFrontOfPlayerPosition(&position);
+    return TryAutomaticHM(&position, MapGridGetMetatileBehaviorAt(position.x, position.y), GetPlayerFacingDirection());
+}
+
+bool32 Test_TryUsePuzzleHM(void)
+{
+    return TryUsePuzzleHM();
+}
+
+bool32 Test_TryDive(bool32 emerge)
+{
+    return emerge ? TrySetupDiveEmergeScript() : TrySetupDiveDownScript();
+}
+#endif

@@ -1,4 +1,5 @@
 #include "global.h"
+#include "field_move.h"
 #include "overworld.h"
 #include "battle_pyramid.h"
 #include "battle_setup.h"
@@ -1104,6 +1105,9 @@ bool32 Overworld_IsBikingAllowed(void)
 // Flash level of 8 is fully black
 void SetDefaultFlashLevel(void)
 {
+    if (FieldMove_CanUseAutomaticFlash())
+        FlagSet(FLAG_SYS_USE_FLASH);
+
     if (!gMapHeader.cave)
         gSaveBlock1Ptr->flashLevel = 0;
     else if (FlagGet(FLAG_SYS_USE_FLASH))
@@ -2205,6 +2209,12 @@ static void VBlankCB_Field(void)
 static void InitCurrentFlashLevelScanlineEffect(void)
 {
     u8 flashLevel;
+
+    if (FieldMove_CanUseAutomaticFlash() && GetFlashLevel() > 1)
+    {
+        FlagSet(FLAG_SYS_USE_FLASH);
+        SetFlashLevel(1);
+    }
 
     if (InBattlePyramid())
     {

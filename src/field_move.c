@@ -1,13 +1,70 @@
 #include "global.h"
+#include "battle_pyramid.h"
 #include "event_data.h"
 #include "field_move.h"
 #include "fldeff.h"
 #include "fldeff_misc.h"
+#include "item.h"
+#include "overworld.h"
 #include "party_menu.h"
 #include "strings.h"
 #include "constants/field_move.h"
+#include "constants/items.h"
+#include "constants/layouts.h"
 #include "constants/moves.h"
 #include "constants/party_menu.h"
+
+u32 FieldMove_GetHMItem(enum FieldMove fieldMove)
+{
+    switch (fieldMove)
+    {
+    case FIELD_MOVE_CUT:
+        return ITEM_HM01;
+    case FIELD_MOVE_FLY:
+        return ITEM_HM02;
+    case FIELD_MOVE_SURF:
+        return ITEM_HM03;
+    case FIELD_MOVE_STRENGTH:
+        return ITEM_HM04;
+    case FIELD_MOVE_FLASH:
+        return ITEM_HM05;
+    case FIELD_MOVE_ROCK_SMASH:
+        return ITEM_HM06;
+    case FIELD_MOVE_WATERFALL:
+        return ITEM_HM07;
+    case FIELD_MOVE_DIVE:
+        return ITEM_HM08;
+    default:
+        return ITEM_NONE;
+    }
+}
+
+bool32 IsFieldMoveUnlocked(enum FieldMove fieldMove)
+{
+    u32 item = FieldMove_GetHMItem(fieldMove);
+
+    if (item != ITEM_NONE && !CheckBagHasItem(item, 1))
+        return FALSE;
+    return gFieldMoveUnlocks[gFieldMoveInfo[fieldMove].unlockType].isUnlockedFunc(fieldMove);
+}
+
+const u8 *FieldMove_GetLockedMessage(enum FieldMove fieldMove)
+{
+    static const u8 sText_NeedHM[] = _("You need the HM to use this move.");
+    u32 item = FieldMove_GetHMItem(fieldMove);
+
+    if (item != ITEM_NONE && !CheckBagHasItem(item, 1))
+        return sText_NeedHM;
+    return gFieldMoveUnlocks[gFieldMoveInfo[fieldMove].unlockType].lockedMessage;
+}
+
+bool32 FieldMove_CanUseAutomaticFlash(void)
+{
+    return gMapHeader.cave
+        && gMapHeader.mapLayoutId != LAYOUT_DEWFORD_TOWN_GYM
+        && !InBattlePyramid()
+        && IsFieldMoveUnlocked(FIELD_MOVE_FLASH);
+}
 
 static bool32 IsAlwaysFalse(enum FieldMove fieldMove)
 {

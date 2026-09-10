@@ -2938,6 +2938,12 @@ bool8 FldEff_FieldMoveShowMonInit(void)
 {
     struct Pokemon *pokemon;
     bool32 noDucking = gFieldEffectArguments[0] & SHOW_MON_CRY_NO_DUCKING;
+    // PARTY_SIZE denotes an HM effect without a Pokemon user.
+    if ((u8)gFieldEffectArguments[0] == PARTY_SIZE)
+    {
+        FieldEffectActiveListRemove(FLDEFF_FIELD_MOVE_SHOW_MON_INIT);
+        return FALSE;
+    }
     pokemon = &gParties[B_TRAINER_PLAYER][(u8)gFieldEffectArguments[0]];
     gFieldEffectArguments[0] = GetMonData(pokemon, MON_DATA_SPECIES);
     gFieldEffectArguments[1] = GetMonData(pokemon, MON_DATA_IS_SHINY);
@@ -3376,9 +3382,16 @@ static void SurfFieldEffect_FieldMovePose(struct Task *task)
     objectEvent = &gObjectEvents[gPlayerAvatar.objectEventId];
     if (!ObjectEventIsMovementOverridden(objectEvent) || ObjectEventClearHeldMovementIfFinished(objectEvent))
     {
-        SetPlayerAvatarFieldMove();
-        ObjectEventSetHeldMovement(objectEvent, MOVEMENT_ACTION_START_ANIM_IN_DIRECTION);
-        task->tState++;
+        if (task->tMonId == PARTY_SIZE)
+        {
+            task->tState = 3;
+        }
+        else
+        {
+            SetPlayerAvatarFieldMove();
+            ObjectEventSetHeldMovement(objectEvent, MOVEMENT_ACTION_START_ANIM_IN_DIRECTION);
+            task->tState++;
+        }
     }
 }
 

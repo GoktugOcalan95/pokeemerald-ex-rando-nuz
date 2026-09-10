@@ -512,14 +512,17 @@ void CompactPCItems(void)
 
 void SwapRegisteredBike(void)
 {
-    switch (gSaveBlock1Ptr->registeredItem)
+    u16 replacement = ITEM_NONE;
+    if (CheckBagHasItem(ITEM_MACH_BIKE, 1))
+        replacement = ITEM_MACH_BIKE;
+    else if (CheckBagHasItem(ITEM_ACRO_BIKE, 1))
+        replacement = ITEM_ACRO_BIKE;
+    for (u32 i = 0; i < REGISTERED_ITEMS_COUNT; i++)
     {
-    case ITEM_MACH_BIKE:
-        gSaveBlock1Ptr->registeredItem = ITEM_ACRO_BIKE;
-        break;
-    case ITEM_ACRO_BIKE:
-        gSaveBlock1Ptr->registeredItem = ITEM_MACH_BIKE;
-        break;
+        u16 item = gSaveBlock1Ptr->registeredItems[i];
+        if ((item == ITEM_MACH_BIKE || item == ITEM_ACRO_BIKE)
+         && !CheckBagHasItem(item, 1))
+            gSaveBlock1Ptr->registeredItems[i] = replacement;
     }
 }
 

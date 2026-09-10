@@ -1,5 +1,7 @@
 #include "global.h"
 #include "item_menu.h"
+#include "registered_items.h"
+#include "event_object_lock.h"
 #include "battle.h"
 #include "battle_controllers.h"
 #include "battle_pyramid.h"
@@ -198,6 +200,7 @@ static void BagMenu_ItemPrintCallback(u8, u32, u8);
 static void ItemMenu_UseOutOfBattle(u8);
 static void ItemMenu_Toss(u8);
 static void ItemMenu_Register(u8);
+static void ItemMenu_Deselect(u8);
 static void ItemMenu_Give(u8);
 static void ItemMenu_Cancel(u8);
 static void ItemMenu_UseInBattle(u8);
@@ -298,7 +301,7 @@ static const struct MenuAction sItemMenuActions[] = {
     [ACTION_BATTLE_USE]        = {gMenuText_Use,                {ItemMenu_UseInBattle}},
     [ACTION_CHECK]             = {COMPOUND_STRING("CHECK"),     {ItemMenu_UseOutOfBattle}},
     [ACTION_WALK]              = {COMPOUND_STRING("WALK"),      {ItemMenu_UseOutOfBattle}},
-    [ACTION_DESELECT]          = {COMPOUND_STRING("DESELECT"),  {ItemMenu_Register}},
+    [ACTION_DESELECT]          = {COMPOUND_STRING("DESELECT"),  {ItemMenu_Deselect}},
     [ACTION_CHECK_TAG]         = {COMPOUND_STRING("CHECK TAG"), {ItemMenu_CheckTag}},
     [ACTION_CONFIRM]           = {gMenuText_Confirm,            {Task_FadeAndCloseBagMenu}},
     [ACTION_SHOW]              = {COMPOUND_STRING("SHOW"),      {ItemMenu_Show}},
@@ -404,7 +407,7 @@ static const struct ScrollArrowsTemplate sBagScrollArrowsTemplate = {
     .palNum = 0,
 };
 
-static const u8 sRegisteredSelect_Gfx[] = INCGFX_U8("graphics/bag/select_button.png", ".4bpp");
+static EWRAM_DATA u8 sRegisterWindowId = 0;
 
 enum {
     COLORID_NORMAL,
@@ -1023,9 +1026,9 @@ static void BagMenu_ItemPrintCallback(u8 windowId, u32 itemIndex, u8 y)
         }
         else
         {
-            // Print registered icon
-            if (gSaveBlock1Ptr->registeredItem != ITEM_NONE && gSaveBlock1Ptr->registeredItem == itemSlot.itemId)
-                BlitBitmapToWindow(windowId, sRegisteredSelect_Gfx, 96, y - 1, 24, 16);
+            s32 slot = GetRegisteredItemSlot(itemSlot.itemId);
+            if (slot >= 0)
+                BagMenu_Print(windowId, FONT_SMALL, gRegisteredItemDirections[slot], 96, y, 0, 0, TEXT_SKIP_DRAW, COLORID_NORMAL);
         }
     }
 }
@@ -1708,8 +1711,8 @@ static void OpenContextMenu(u8 taskId)
                 gBagMenu->contextMenuItemsPtr = gBagMenu->contextMenuItemsBuffer;
                 gBagMenu->contextMenuNumItems = ARRAY_COUNT(sContextMenuItems_KeyItemsPocket);
                 memcpy(&gBagMenu->contextMenuItemsBuffer, &sContextMenuItems_KeyItemsPocket, sizeof(sContextMenuItems_KeyItemsPocket));
-                if (gSaveBlock1Ptr->registeredItem == gSpecialVar_ItemId)
-                    gBagMenu->contextMenuItemsBuffer[1] = ACTION_DESELECT;
+                if (GetRegisteredItemSlot(gSpecialVar_ItemId) >= 0)
+                    gBagMenu->contextMenuItemsBuffer[2] = ACTION_DESELECT;
                 if (gSpecialVar_ItemId == ITEM_MACH_BIKE || gSpecialVar_ItemId == ITEM_ACRO_BIKE || gSpecialVar_ItemId == ITEM_BICYCLE)
                 {
                     if (TestPlayerAvatarFlags(PLAYER_AVATAR_FLAG_MACH_BIKE | PLAYER_AVATAR_FLAG_ACRO_BIKE))
@@ -2020,21 +2023,51 @@ static void Task_RemoveItemFromBag(u8 taskId)
     }
 }
 
-static void ItemMenu_Register(u8 taskId)
+static void RefreshRegisteredItemList(u8 taskId)
 {
     s16 *data = gTasks[taskId].data;
     u16 *scrollPos = &gBagPosition.scrollPosition[gBagPosition.pocket];
     u16 *cursorPos = &gBagPosition.cursorPosition[gBagPosition.pocket];
 
-    if (gSaveBlock1Ptr->registeredItem == gSpecialVar_ItemId)
-        gSaveBlock1Ptr->registeredItem = ITEM_NONE;
-    else
-        gSaveBlock1Ptr->registeredItem = gSpecialVar_ItemId;
     DestroyListMenuTask(tListTaskId, scrollPos, cursorPos);
     LoadBagItemListBuffers(gBagPosition.pocket);
     tListTaskId = ListMenuInit(&gMultiuseListMenuTemplate, *scrollPos, *cursorPos);
     ScheduleBgCopyTilemapToVram(0);
     ItemMenu_Cancel(taskId);
+}
+
+static void Task_RegisterItemDirection(u8 taskId)
+{
+    s32 slot = RegisteredItemSlotFromKeys(gMain.newKeys);
+    if (JOY_NEW(B_BUTTON))
+    {
+        PlaySE(SE_SELECT);
+        CloseRegisteredItemWheel(sRegisterWindowId, TRUE);
+        ItemMenu_Cancel(taskId);
+    }
+    else if (slot >= 0 && RegisterItem(slot, gSpecialVar_ItemId))
+    {
+        PlaySE(SE_SELECT);
+        CloseRegisteredItemWheel(sRegisterWindowId, TRUE);
+        RefreshRegisteredItemList(taskId);
+    }
+}
+
+static void ItemMenu_Register(u8 taskId)
+{
+    RemoveContextWindow();
+    ValidateRegisteredItems();
+    sRegisterWindowId = ShowRegisteredItemWheel(TRUE);
+    if (sRegisterWindowId == WINDOW_NONE)
+        ItemMenu_Cancel(taskId);
+    else
+        gTasks[taskId].func = Task_RegisterItemDirection;
+}
+
+static void ItemMenu_Deselect(u8 taskId)
+{
+    UnregisterItem(gSpecialVar_ItemId);
+    RefreshRegisteredItemList(taskId);
 }
 
 static void ItemMenu_Give(u8 taskId)
@@ -2157,33 +2190,77 @@ static void Task_ItemContext_GiveToPC(u8 taskId)
 
 #define tUsingRegisteredKeyItem data[3] // See usage in item_use.c
 
-bool8 UseRegisteredKeyItemOnField(void)
+static void DispatchRegisteredItem(u16 item)
 {
     u8 taskId;
+    gSpecialVar_ItemId = item;
+    taskId = CreateTask(GetItemFieldFunc(item), 8);
+    gTasks[taskId].tUsingRegisteredKeyItem = TRUE;
+}
+
+static void Task_RegisteredItemWheel(u8 taskId)
+{
+    u16 item;
+    if (gTasks[taskId].data[1] == 0)
+    {
+        gTasks[taskId].data[1] = 1;
+        return;
+    }
+    item = RegisteredItemWheelInput(gMain.newKeys);
+    if (item == ITEMS_COUNT)
+    {
+        PlaySE(SE_SELECT);
+        CloseRegisteredItemWheel(gTasks[taskId].data[0], FALSE);
+        ScriptUnfreezeObjectEvents();
+        UnlockPlayerFieldControls();
+        DestroyTask(taskId);
+    }
+    else if (item != ITEM_NONE)
+    {
+        PlaySE(SE_SELECT);
+        CloseRegisteredItemWheel(gTasks[taskId].data[0], FALSE);
+        DestroyTask(taskId);
+        DispatchRegisteredItem(item);
+    }
+}
+
+bool8 UseRegisteredKeyItemOnField(void)
+{
+    u32 count;
+    u8 windowId, taskId;
 
     if (InUnionRoom() == TRUE || CurrentBattlePyramidLocation() != PYRAMID_LOCATION_NONE || InBattlePike() || InMultiPartnerRoom() == TRUE)
         return FALSE;
     HideMapNamePopUpWindow();
     ChangeBgY_ScreenOff(0, 0, BG_COORD_SET);
-    if (gSaveBlock1Ptr->registeredItem != ITEM_NONE)
+    count = ValidateRegisteredItems();
+    if (count == 0)
     {
-        if (CheckBagHasItem(gSaveBlock1Ptr->registeredItem, 1) == TRUE)
+        ScriptContext_SetupScript(EventScript_SelectWithoutRegisteredItem);
+        return TRUE;
+    }
+    LockPlayerFieldControls();
+    FreezeObjectEvents();
+    PlayerFreeze();
+    StopPlayerAvatar();
+    if (count == 1)
+    {
+        for (u32 i = 0; i < REGISTERED_ITEMS_COUNT; i++)
+            if (gSaveBlock1Ptr->registeredItems[i] != ITEM_NONE)
+                DispatchRegisteredItem(gSaveBlock1Ptr->registeredItems[i]);
+    }
+    else
+    {
+        windowId = ShowRegisteredItemWheel(FALSE);
+        if (windowId == WINDOW_NONE)
         {
-            LockPlayerFieldControls();
-            FreezeObjectEvents();
-            PlayerFreeze();
-            StopPlayerAvatar();
-            gSpecialVar_ItemId = gSaveBlock1Ptr->registeredItem;
-            taskId = CreateTask(GetItemFieldFunc(gSaveBlock1Ptr->registeredItem), 8);
-            gTasks[taskId].tUsingRegisteredKeyItem = TRUE;
+            ScriptUnfreezeObjectEvents();
+            UnlockPlayerFieldControls();
             return TRUE;
         }
-        else
-        {
-            gSaveBlock1Ptr->registeredItem = ITEM_NONE;
-        }
+        taskId = CreateTask(Task_RegisteredItemWheel, 8);
+        gTasks[taskId].data[0] = windowId;
     }
-    ScriptContext_SetupScript(EventScript_SelectWithoutRegisteredItem);
     return TRUE;
 }
 

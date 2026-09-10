@@ -1,6 +1,8 @@
 #ifndef GUARD_CONSTANTS_GLOBAL_H
 #define GUARD_CONSTANTS_GLOBAL_H
 
+#define REGISTERED_ITEMS_COUNT 4
+
 // You can use the ENABLED_ON_RELEASE and DISABLED_ON_RELEASE macros to
 // control whether a feature is enabled or disabled when making a release build.
 //

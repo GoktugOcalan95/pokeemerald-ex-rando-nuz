@@ -9,12 +9,13 @@
 TEST("Toggle Repel starts enabled is registrable and shares the saved debug flag without consumption")
 {
     ClearBag();
-    gSaveBlock1Ptr->registeredItem = ITEM_NONE;
+    memset(gSaveBlock1Ptr->registeredItems, 0, sizeof(gSaveBlock1Ptr->registeredItems));
     FlagSet(FLAG_DEBUG_NO_ENCOUNTER);
     InitToggleRepel();
     EXPECT(!FlagGet(FLAG_DEBUG_NO_ENCOUNTER));
     EXPECT_EQ(CountTotalItemQuantityInBag(ITEM_TOGGLE_REPEL), 1);
-    EXPECT_EQ(gSaveBlock1Ptr->registeredItem, ITEM_NONE);
+    for (u32 i = 0; i < REGISTERED_ITEMS_COUNT; i++)
+        EXPECT_EQ(gSaveBlock1Ptr->registeredItems[i], ITEM_NONE);
     EXPECT_EQ(GetItemType(ITEM_TOGGLE_REPEL), ITEM_USE_FIELD);
     EXPECT_EQ(GetItemFieldFunc(ITEM_TOGGLE_REPEL), ItemUseOutOfBattle_ToggleRepel);
     ToggleRepelEncounters();

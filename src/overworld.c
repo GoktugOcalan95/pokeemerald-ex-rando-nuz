@@ -1,4 +1,5 @@
 #include "global.h"
+#include "berry_plots.h"
 #include "field_move.h"
 #include "overworld.h"
 #include "battle_pyramid.h"
@@ -570,8 +571,11 @@ void LoadSaveblockObjEventScripts(void)
     struct ObjectEventTemplate *savObjTemplates = gSaveBlock1Ptr->objectEventTemplates;
     s32 i;
 
-    for (i = 0; i < OBJECT_EVENT_TEMPLATES_COUNT; i++)
+    for (i = 0; i < gMapHeader.events->objectEventCount; i++)
+    {
         savObjTemplates[i].script = mapHeaderObjTemplates[i].script;
+        RestoreCollectedBerryPlot(&savObjTemplates[i]);
+    }
 }
 
 static struct ObjectEventTemplate *GetObjectEventTemplate(u8 localId)

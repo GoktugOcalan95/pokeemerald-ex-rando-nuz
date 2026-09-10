@@ -1,0 +1,131 @@
+#include "global.h"
+#include "berry_plots.h"
+#include "event_data.h"
+#include "event_object_movement.h"
+#include "constants/berry.h"
+#include "constants/event_objects.h"
+#include "constants/flags.h"
+#include "constants/event_object_movement.h"
+
+extern const u8 BerryTreeScript[];
+
+static const u8 sBerryPlotTreeIds[] = {
+    BERRY_TREE_ROUTE_102_ORAN,
+    BERRY_TREE_ROUTE_102_PECHA,
+    BERRY_TREE_ROUTE_103_CHERI_1,
+    BERRY_TREE_ROUTE_103_LEPPA,
+    BERRY_TREE_ROUTE_103_CHERI_2,
+    BERRY_TREE_ROUTE_104_CHERI_1,
+    BERRY_TREE_ROUTE_104_SOIL_2,
+    BERRY_TREE_ROUTE_104_LEPPA,
+    BERRY_TREE_ROUTE_104_ORAN_2,
+    BERRY_TREE_ROUTE_104_SOIL_3,
+    BERRY_TREE_ROUTE_104_PECHA,
+    BERRY_TREE_ROUTE_104_SOIL_1,
+    BERRY_TREE_ROUTE_104_ORAN_1,
+    BERRY_TREE_ROUTE_104_SOIL_4,
+    BERRY_TREE_ROUTE_104_CHERI_2,
+    BERRY_TREE_ROUTE_110_NANAB_1,
+    BERRY_TREE_ROUTE_110_NANAB_2,
+    BERRY_TREE_ROUTE_110_NANAB_3,
+    BERRY_TREE_ROUTE_111_RAZZ_1,
+    BERRY_TREE_ROUTE_111_RAZZ_2,
+    BERRY_TREE_ROUTE_111_ORAN_1,
+    BERRY_TREE_ROUTE_111_ORAN_2,
+    BERRY_TREE_ROUTE_112_RAWST_2,
+    BERRY_TREE_ROUTE_112_PECHA_2,
+    BERRY_TREE_ROUTE_112_PECHA_1,
+    BERRY_TREE_ROUTE_112_RAWST_1,
+    BERRY_TREE_ROUTE_114_PERSIM_2,
+    BERRY_TREE_ROUTE_114_PERSIM_3,
+    BERRY_TREE_ROUTE_114_PERSIM_1,
+    BERRY_TREE_ROUTE_115_KELPSY_1,
+    BERRY_TREE_ROUTE_115_KELPSY_2,
+    BERRY_TREE_ROUTE_115_KELPSY_3,
+    BERRY_TREE_ROUTE_115_BLUK_1,
+    BERRY_TREE_ROUTE_115_BLUK_2,
+    BERRY_TREE_ROUTE_116_PINAP_1,
+    BERRY_TREE_ROUTE_116_CHESTO_1,
+    BERRY_TREE_ROUTE_116_CHESTO_2,
+    BERRY_TREE_ROUTE_116_PINAP_2,
+    BERRY_TREE_ROUTE_117_WEPEAR_3,
+    BERRY_TREE_ROUTE_117_WEPEAR_2,
+    BERRY_TREE_ROUTE_117_WEPEAR_1,
+    BERRY_TREE_ROUTE_118_SITRUS_1,
+    BERRY_TREE_ROUTE_118_SOIL,
+    BERRY_TREE_ROUTE_118_SITRUS_2,
+    BERRY_TREE_ROUTE_119_POMEG_1,
+    BERRY_TREE_ROUTE_119_POMEG_2,
+    BERRY_TREE_ROUTE_119_POMEG_3,
+    BERRY_TREE_ROUTE_119_HONDEW_1,
+    BERRY_TREE_ROUTE_119_HONDEW_2,
+    BERRY_TREE_ROUTE_119_SITRUS,
+    BERRY_TREE_ROUTE_119_LEPPA,
+    BERRY_TREE_ROUTE_120_WEPEAR,
+    BERRY_TREE_ROUTE_120_PINAP,
+    BERRY_TREE_ROUTE_120_NANAB,
+    BERRY_TREE_ROUTE_120_RAZZ,
+    BERRY_TREE_ROUTE_120_ASPEAR_1,
+    BERRY_TREE_ROUTE_120_ASPEAR_2,
+    BERRY_TREE_ROUTE_120_ASPEAR_3,
+    BERRY_TREE_ROUTE_120_PECHA_1,
+    BERRY_TREE_ROUTE_120_PECHA_2,
+    BERRY_TREE_ROUTE_120_PECHA_3,
+    BERRY_TREE_ROUTE_121_PERSIM,
+    BERRY_TREE_ROUTE_121_ASPEAR,
+    BERRY_TREE_ROUTE_121_RAWST,
+    BERRY_TREE_ROUTE_121_CHESTO,
+    BERRY_TREE_ROUTE_121_SOIL_1,
+    BERRY_TREE_ROUTE_121_NANAB_1,
+    BERRY_TREE_ROUTE_121_NANAB_2,
+    BERRY_TREE_ROUTE_121_SOIL_2,
+    BERRY_TREE_ROUTE_123_POMEG_3,
+    BERRY_TREE_ROUTE_123_POMEG_4,
+    BERRY_TREE_ROUTE_123_GREPA_1,
+    BERRY_TREE_ROUTE_123_GREPA_2,
+    BERRY_TREE_ROUTE_123_LEPPA_1,
+    BERRY_TREE_ROUTE_123_SOIL,
+    BERRY_TREE_ROUTE_123_LEPPA_2,
+    BERRY_TREE_ROUTE_123_GREPA_3,
+    BERRY_TREE_ROUTE_123_GREPA_4,
+    BERRY_TREE_ROUTE_123_QUALOT_2,
+    BERRY_TREE_ROUTE_123_QUALOT_3,
+    BERRY_TREE_ROUTE_123_QUALOT_4,
+    BERRY_TREE_ROUTE_123_QUALOT_1,
+    BERRY_TREE_ROUTE_123_POMEG_1,
+    BERRY_TREE_ROUTE_123_POMEG_2,
+    BERRY_TREE_ROUTE_123_PECHA,
+    BERRY_TREE_ROUTE_123_SITRUS,
+    BERRY_TREE_ROUTE_123_RAWST,
+    BERRY_TREE_ROUTE_130_LIECHI,
+};
+
+bool32 RestoreCollectedBerryPlot(struct ObjectEventTemplate *template)
+{
+    u32 index = template->flagId - FLAG_ITEM_BERRY_PLOT_ROUTE_102_ORAN;
+
+    if (index >= ARRAY_COUNT(sBerryPlotTreeIds) || !FlagGet(template->flagId))
+        return FALSE;
+
+    template->graphicsId = OBJ_EVENT_GFX_BERRY_TREE;
+    template->movementType = MOVEMENT_TYPE_BERRY_TREE_GROWTH;
+    template->trainerRange_berryTreeId = sBerryPlotTreeIds[index];
+    template->movementRangeX = 0;
+    template->movementRangeY = 0;
+    template->script = BerryTreeScript;
+    return TRUE;
+}
+
+void RestoreBerryPlotAfterPickup(void)
+{
+    for (u32 i = 0; i < gMapHeader.events->objectEventCount; i++)
+    {
+        struct ObjectEventTemplate *template = &gSaveBlock1Ptr->objectEventTemplates[i];
+
+        if (template->localId == gSpecialVar_LastTalked && RestoreCollectedBerryPlot(template))
+        {
+            TrySpawnObjectEvent(template->localId, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
+            return;
+        }
+    }
+}

@@ -79,6 +79,7 @@ static void ModifyPersonalityForNature(u32 *personality, s32 newNature)
 
 static bool32 SetCorrectAbilityNum(struct Pokemon *mon, enum Species species, enum Ability ability)
 {
+    // Authored ability IDs identify slots before run randomization.
     const struct SpeciesInfo *speciesInfo = &gSpeciesInfo[species];
     u32 abilityNum;
     u32 maxAbilityNum = ARRAY_COUNT(speciesInfo->abilities);

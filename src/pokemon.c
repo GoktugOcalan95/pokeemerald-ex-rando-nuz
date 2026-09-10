@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ability_randomizer.h"
 #include "species_randomizer.h"
 #include "item_randomizer.h"
 #include "no_evs.h"
@@ -3257,7 +3258,7 @@ enum Type GetSpeciesType(enum Species species, u8 slot)
 
 enum Ability GetSpeciesAbility(enum Species species, u8 slot)
 {
-    return gSpeciesInfo[SanitizeSpeciesId(species)].abilities[slot];
+    return GetRandomizedSpeciesAbility(SanitizeSpeciesId(species), slot);
 }
 
 u32 GetSpeciesBaseHP(enum Species species)
@@ -6069,8 +6070,11 @@ enum Species GetFormChangeTargetSpecies_Internal(struct FormChangeContext ctx)
         case FORM_CHANGE_DEPOSIT:
         case FORM_CHANGE_FAINT:
         case FORM_CHANGE_DAYS_PASSED:
-        case FORM_CHANGE_BEGIN_WILD_ENCOUNTER:
             targetSpecies = formChanges[i].targetSpecies;
+            break;
+        case FORM_CHANGE_BEGIN_WILD_ENCOUNTER:
+            if (formChanges[i].param1 == ABILITY_NONE || ctx.ability == formChanges[i].param1)
+                targetSpecies = formChanges[i].targetSpecies;
             break;
         case FORM_CHANGE_STATUS:
             if (ctx.status & formChanges[i].param1)
@@ -6165,8 +6169,9 @@ enum Species GetFormChangeTargetSpecies_Internal(struct FormChangeContext ctx)
             }
             // Otherwise, just check for a match between the weather and the form change table.
             // Added a check for whether the weather is in effect to prevent end-of-turn soft locks with Cloud Nine / Air Lock
-            else if (((gBattleWeather & formChanges[i].param1) && HasWeatherEffect())
-                || (gBattleWeather == B_WEATHER_NONE && formChanges[i].param1 == B_WEATHER_NONE))
+            else if ((formChanges[i].param2 == ABILITY_NONE || ctx.ability == formChanges[i].param2)
+                && (((gBattleWeather & formChanges[i].param1) && HasWeatherEffect())
+                    || (gBattleWeather == B_WEATHER_NONE && formChanges[i].param1 == B_WEATHER_NONE)))
             {
                 targetSpecies = formChanges[i].targetSpecies;
             }
@@ -6184,7 +6189,8 @@ enum Species GetFormChangeTargetSpecies_Internal(struct FormChangeContext ctx)
                 targetSpecies = formChanges[i].targetSpecies;
             break;
         case FORM_CHANGE_BATTLE_TERASTALLIZATION:
-            if (ctx.teraType == formChanges[i].param1)
+            if (ctx.teraType == formChanges[i].param1
+                && (formChanges[i].param2 == ABILITY_NONE || ctx.ability == formChanges[i].param2))
                 targetSpecies = formChanges[i].targetSpecies;
             break;
         case FORM_CHANGE_BATTLE_BEFORE_MOVE:

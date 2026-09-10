@@ -33,7 +33,7 @@ void ActivateTera(enum BattlerId battler)
 
     // Execute battle script.
     PREPARE_TYPE_BUFFER(gBattleTextBuff1, GetBattlerTeraType(battler));
-    if (TryBattleFormChange(gBattlerAttacker, FORM_CHANGE_BATTLE_TERASTALLIZATION, GetBattlerAbility(gBattlerAttacker)))
+    if (TryBattleFormChange(gBattlerAttacker, FORM_CHANGE_BATTLE_TERASTALLIZATION, GetMonAbility(GetBattlerMon(gBattlerAttacker))))
         BattleScriptPushCursorAndCallback(BattleScript_TeraFormChange);
     else if (gBattleStruct->illusion[gBattlerAttacker].state == ILLUSION_ON
           && DoesSpeciesHaveFormChangeMethod(GetIllusionMonSpecies(gBattlerAttacker), FORM_CHANGE_BATTLE_TERASTALLIZATION))

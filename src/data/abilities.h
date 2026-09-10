@@ -198,6 +198,7 @@ const struct AbilityInfo gAbilitiesInfo[ABILITIES_COUNT] =
 
     [ABILITY_WONDER_GUARD] =
     {
+        .randomizerBanned = TRUE,
         .name = _("Wonder Guard"),
         .description = COMPOUND_STRING("Only “supereffective” hits."),
         .aiRating = 10,
@@ -1655,6 +1656,7 @@ const struct AbilityInfo gAbilitiesInfo[ABILITIES_COUNT] =
 
     [ABILITY_BATTLE_BOND] =
     {
+        .randomizerBanned = TRUE,
         .name = _("Battle Bond"),
         .description = COMPOUND_STRING("Changes form after a KO."),
         .aiRating = 6,
@@ -2217,6 +2219,7 @@ const struct AbilityInfo gAbilitiesInfo[ABILITIES_COUNT] =
 
     [ABILITY_ZERO_TO_HERO] =
     {
+        .randomizerBanned = TRUE,
         .name = _("Zero to Hero"),
         .description = COMPOUND_STRING("Changes form upon switch."),
         .aiRating = 10,
@@ -2230,6 +2233,7 @@ const struct AbilityInfo gAbilitiesInfo[ABILITIES_COUNT] =
 
     [ABILITY_COMMANDER] =
     {
+        .randomizerBanned = TRUE,
         .name = _("Commander"),
         .description = COMPOUND_STRING("Commands from ally Dondozo."),
         .aiRating = 10,
@@ -2403,6 +2407,7 @@ const struct AbilityInfo gAbilitiesInfo[ABILITIES_COUNT] =
 
     [ABILITY_EMBODY_ASPECT_TEAL_MASK] =
     {
+        .randomizerBanned = TRUE,
         .name = _("Embody Aspect"),
         .description = COMPOUND_STRING("Terastal raises Speed."),
         .aiRating = 6,
@@ -2414,6 +2419,7 @@ const struct AbilityInfo gAbilitiesInfo[ABILITIES_COUNT] =
 
     [ABILITY_EMBODY_ASPECT_HEARTHFLAME_MASK] =
     {
+        .randomizerBanned = TRUE,
         .name = _("Embody Aspect"),
         .description = COMPOUND_STRING("Terastal raises Attack."),
         .aiRating = 6,
@@ -2425,6 +2431,7 @@ const struct AbilityInfo gAbilitiesInfo[ABILITIES_COUNT] =
 
     [ABILITY_EMBODY_ASPECT_WELLSPRING_MASK] =
     {
+        .randomizerBanned = TRUE,
         .name = _("Embody Aspect"),
         .description = COMPOUND_STRING("Terastal raises Sp. Def."),
         .aiRating = 6,
@@ -2436,6 +2443,7 @@ const struct AbilityInfo gAbilitiesInfo[ABILITIES_COUNT] =
 
     [ABILITY_EMBODY_ASPECT_CORNERSTONE_MASK] =
     {
+        .randomizerBanned = TRUE,
         .name = _("Embody Aspect"),
         .description = COMPOUND_STRING("Terastal raises Defense."),
         .aiRating = 6,
@@ -2474,6 +2482,7 @@ const struct AbilityInfo gAbilitiesInfo[ABILITIES_COUNT] =
 
     [ABILITY_TERA_SHELL] =
     {
+        .randomizerBanned = TRUE,
         .name = _("Tera Shell"),
         .description = COMPOUND_STRING("Resists all types at full HP."),
         .aiRating = 10,
@@ -2485,6 +2494,7 @@ const struct AbilityInfo gAbilitiesInfo[ABILITIES_COUNT] =
 
     [ABILITY_TERAFORM_ZERO] =
     {
+        .randomizerBanned = TRUE,
         .name = _("Teraform Zero"),
         .description = COMPOUND_STRING("Zeroes weather and terrain."),
         .aiRating = 10,

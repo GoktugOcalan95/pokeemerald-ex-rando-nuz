@@ -13,6 +13,8 @@
 
 #define TEXT_WINDOW_BYTES (26 * 4 * 32)
 
+static EWRAM_DATA u8 sSnapshot[TEXT_WINDOW_BYTES];
+
 static const struct WindowTemplate sTestWindows[] =
 {
     { .bg = 0, .width = 26, .height = 4, .baseBlock = 1 },
@@ -85,7 +87,6 @@ TEST("Battle text display holds replacements for real frames at every text speed
 {
     u32 speed;
     u32 savedSpeed = gSaveBlock2Ptr->optionsTextSpeed;
-    static EWRAM_DATA u8 pixels[TEXT_WINDOW_BYTES];
     u8 nextText[64];
 
     PARAMETRIZE { speed = OPTIONS_TEXT_SPEED_MID; }
@@ -96,7 +97,7 @@ TEST("Battle text display holds replacements for real frames at every text speed
     InitDisplay(speed);
     BattlePutTextOnWindow(COMPOUND_STRING("Mudkip used Fly!"), B_WIN_MSG);
     FinishPrinting();
-    memcpy(pixels, gWindows[0].tileData, sizeof(pixels));
+    memcpy(sSnapshot, gWindows[0].tileData, sizeof(sSnapshot));
     EXPECT(!IsTextWindowDisplayComplete(B_WIN_MSG));
 
     StringCopy(nextText, COMPOUND_STRING("Mudkip flew up high!"));
@@ -105,16 +106,16 @@ TEST("Battle text display holds replacements for real frames at every text speed
     for (u32 i = 0; i < 100; i++)
         RunTextPrinters();
     EXPECT(IsTextPrinterActiveOnWindow(B_WIN_MSG));
-    EXPECT_EQ(memcmp(pixels, gWindows[0].tileData, sizeof(pixels)), 0);
+    EXPECT_EQ(memcmp(sSnapshot, gWindows[0].tileData, sizeof(sSnapshot)), 0);
     for (u32 i = 1; i < B_MIN_TEXT_DISPLAY_FRAMES; i++)
         Frame();
-    EXPECT_EQ(memcmp(pixels, gWindows[0].tileData, sizeof(pixels)), 0);
+    EXPECT_EQ(memcmp(sSnapshot, gWindows[0].tileData, sizeof(sSnapshot)), 0);
     Frame();
     FinishPrinting();
-    EXPECT_NE(memcmp(pixels, gWindows[0].tileData, sizeof(pixels)), 0);
+    EXPECT_NE(memcmp(sSnapshot, gWindows[0].tileData, sizeof(sSnapshot)), 0);
 
     DrawExpected(COMPOUND_STRING("Mudkip flew up high!"));
-    EXPECT_EQ(memcmp(gWindows[0].tileData, gWindows[1].tileData, sizeof(pixels)), 0);
+    EXPECT_EQ(memcmp(gWindows[0].tileData, gWindows[1].tileData, sizeof(sSnapshot)), 0);
     EndDisplay();
     gSaveBlock2Ptr->optionsTextSpeed = savedSpeed;
 }
@@ -143,7 +144,6 @@ TEST("Battle text display protects Auto page clears and scrolling")
 {
     u32 savedSpeed = gSaveBlock2Ptr->optionsTextSpeed;
     const u8 *text;
-    static EWRAM_DATA u8 pixels[TEXT_WINDOW_BYTES];
 
     PARAMETRIZE { text = COMPOUND_STRING("Fainted!\pNext"); }
     PARAMETRIZE { text = COMPOUND_STRING("First\nSecond\lThird"); }
@@ -151,12 +151,12 @@ TEST("Battle text display protects Auto page clears and scrolling")
     InitDisplay(OPTIONS_TEXT_SPEED_AUTO);
     BattlePutTextOnWindow(text, B_WIN_MSG);
     Frame();
-    memcpy(pixels, gWindows[0].tileData, sizeof(pixels));
+    memcpy(sSnapshot, gWindows[0].tileData, sizeof(sSnapshot));
     for (u32 i = 1; i < B_MIN_TEXT_DISPLAY_FRAMES; i++)
         Frame();
-    EXPECT_EQ(memcmp(pixels, gWindows[0].tileData, sizeof(pixels)), 0);
+    EXPECT_EQ(memcmp(sSnapshot, gWindows[0].tileData, sizeof(sSnapshot)), 0);
     FinishPrinting();
-    EXPECT_NE(memcmp(pixels, gWindows[0].tileData, sizeof(pixels)), 0);
+    EXPECT_NE(memcmp(sSnapshot, gWindows[0].tileData, sizeof(sSnapshot)), 0);
     EXPECT_EQ(gMain.newKeys, 0);
     EXPECT_EQ(Menu_ProcessInputNoWrap(), MENU_NOTHING_CHOSEN);
     EndDisplay();
@@ -166,23 +166,22 @@ TEST("Battle text display protects Auto page clears and scrolling")
 TEST("Battle text display remembers early confirmation only for the current page")
 {
     u32 savedSpeed = gSaveBlock2Ptr->optionsTextSpeed;
-    static EWRAM_DATA u8 pixels[TEXT_WINDOW_BYTES];
 
     InitDisplay(OPTIONS_TEXT_SPEED_INSTANT);
     struct TextPrinterTemplate template = NarrationTemplate(B_WIN_MSG, COMPOUND_STRING("First\pSecond\p"));
     EXPECT(AddTextPrinterWithMinimumDisplayTime(&template, 1, B_MIN_TEXT_DISPLAY_FRAMES, TRUE));
     Frame();
-    memcpy(pixels, gWindows[0].tileData, sizeof(pixels));
+    memcpy(sSnapshot, gWindows[0].tileData, sizeof(sSnapshot));
     gMain.newKeys = A_BUTTON;
     Frame();
     gMain.newKeys = 0;
     for (u32 i = 2; i < B_MIN_TEXT_DISPLAY_FRAMES; i++)
         Frame();
-    EXPECT_EQ(memcmp(pixels, gWindows[0].tileData, sizeof(pixels)), 0);
+    EXPECT_EQ(memcmp(sSnapshot, gWindows[0].tileData, sizeof(sSnapshot)), 0);
     for (u32 i = 0; i < 64; i++)
         Frame();
     EXPECT(IsTextPrinterActiveOnWindow(B_WIN_MSG));
-    EXPECT_NE(memcmp(pixels, gWindows[0].tileData, sizeof(pixels)), 0);
+    EXPECT_NE(memcmp(sSnapshot, gWindows[0].tileData, sizeof(sSnapshot)), 0);
     gMain.newKeys = B_BUTTON;
     Frame();
     gMain.newKeys = 0;
@@ -194,24 +193,23 @@ TEST("Battle text display remembers early confirmation only for the current page
 TEST("Battle text display queues clears and multiple messages in order")
 {
     u32 savedSpeed = gSaveBlock2Ptr->optionsTextSpeed;
-    static EWRAM_DATA u8 first[TEXT_WINDOW_BYTES];
 
     InitDisplay(OPTIONS_TEXT_SPEED_INSTANT);
     BattlePutTextOnWindow(COMPOUND_STRING("First"), B_WIN_MSG);
     Frame();
-    memcpy(first, gWindows[0].tileData, sizeof(first));
+    memcpy(sSnapshot, gWindows[0].tileData, sizeof(sSnapshot));
     BattlePutTextOnWindow(COMPOUND_STRING(""), B_WIN_MSG);
     BattlePutTextOnWindow(COMPOUND_STRING("Second"), B_WIN_MSG);
     BattlePutTextOnWindow(COMPOUND_STRING("Third"), B_WIN_MSG);
     for (u32 i = 1; i < B_MIN_TEXT_DISPLAY_FRAMES; i++)
         Frame();
-    EXPECT_EQ(memcmp(first, gWindows[0].tileData, sizeof(first)), 0);
+    EXPECT_EQ(memcmp(sSnapshot, gWindows[0].tileData, sizeof(sSnapshot)), 0);
     Frame();
     EXPECT(IsTextPrinterActiveOnWindow(B_WIN_MSG));
-    EXPECT_NE(memcmp(first, gWindows[0].tileData, sizeof(first)), 0);
+    EXPECT_NE(memcmp(sSnapshot, gWindows[0].tileData, sizeof(sSnapshot)), 0);
     FinishPrinting();
     DrawExpected(COMPOUND_STRING("Third"));
-    EXPECT_EQ(memcmp(gWindows[0].tileData, gWindows[1].tileData, sizeof(first)), 0);
+    EXPECT_EQ(memcmp(gWindows[0].tileData, gWindows[1].tileData, sizeof(sSnapshot)), 0);
     EndDisplay();
     gSaveBlock2Ptr->optionsTextSpeed = savedSpeed;
 }
@@ -237,24 +235,23 @@ TEST("Battle text display teardown cancels pending text and leaves ordinary prin
 TEST("Battle text display does not count hidden fade frames or delay battle menu labels")
 {
     u32 savedSpeed = gSaveBlock2Ptr->optionsTextSpeed;
-    static EWRAM_DATA u8 pixels[TEXT_WINDOW_BYTES];
 
     InitDisplay(OPTIONS_TEXT_SPEED_AUTO);
     BattlePutTextOnWindow(COMPOUND_STRING("Mudkip used Fly!"), B_WIN_MSG);
     FinishPrinting();
-    memcpy(pixels, gWindows[0].tileData, sizeof(pixels));
+    memcpy(sSnapshot, gWindows[0].tileData, sizeof(sSnapshot));
     BattlePutTextOnWindow(COMPOUND_STRING("Mudkip flew up high!"), B_WIN_MSG);
     gPaletteFade.active = TRUE;
     for (u32 i = 0; i < 64; i++)
         Frame();
-    EXPECT_EQ(memcmp(pixels, gWindows[0].tileData, sizeof(pixels)), 0);
+    EXPECT_EQ(memcmp(sSnapshot, gWindows[0].tileData, sizeof(sSnapshot)), 0);
     gPaletteFade.active = FALSE;
     BattlePutTextOnWindow(COMPOUND_STRING("Choose"), B_WIN_ACTION_PROMPT);
     EXPECT(!IsTextPrinterActiveOnWindow(B_WIN_ACTION_PROMPT));
     EXPECT(IsTextPrinterActiveOnWindow(B_WIN_MSG));
     for (u32 i = 1; i < B_MIN_TEXT_DISPLAY_FRAMES; i++)
         Frame();
-    EXPECT_EQ(memcmp(pixels, gWindows[0].tileData, sizeof(pixels)), 0);
+    EXPECT_EQ(memcmp(sSnapshot, gWindows[0].tileData, sizeof(sSnapshot)), 0);
     FinishPrinting();
     EndDisplay();
     gSaveBlock2Ptr->optionsTextSpeed = savedSpeed;

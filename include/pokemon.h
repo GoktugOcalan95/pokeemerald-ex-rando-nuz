@@ -578,6 +578,7 @@ struct AbilityInfo
     u8 cantBeSuppressed:1; // cannot be negated by Gastro Acid or Neutralizing Gas
     u8 cantBeOverwritten:1; // cannot be overwritten by Entrainment, Worry Seed or Simple Beam (but can be by Mummy) - same as cantBeSuppressed except for Truant
     u8 breakable:1; // can be bypassed by Mold Breaker and clones
+    u8 randomizerBanned:1;
     u8 failsOnImposter:1; // doesn't work on an Imposter mon; when can we actually use this?
 };
 

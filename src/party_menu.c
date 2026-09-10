@@ -1,4 +1,5 @@
 #include "global.h"
+#include "ability_randomizer.h"
 #include "tera_shards.h"
 #include "malloc.h"
 #include "battle.h"
@@ -5004,10 +5005,7 @@ void Task_AbilityCapsule(u8 taskId)
     {
     case 0:
         // Can't use.
-        if (GetSpeciesAbility(tSpecies, 0) == GetSpeciesAbility(tSpecies, 1)
-            || GetSpeciesAbility(tSpecies, 1) == 0
-            || tAbilityNum > 1
-            || !tSpecies)
+        if (tAbilityNum >= NUM_ABILITY_SLOTS)
         {
             gPartyMenuUseExitCallback = FALSE;
             PlaySE(SE_SELECT);
@@ -5077,7 +5075,7 @@ void ItemUseCB_AbilityCapsule(u8 taskId, TaskFunc task)
     tState = 0;
     tMonId = gPartyMenu.slotId;
     tSpecies = GetMonData(&gParties[B_TRAINER_PLAYER][tMonId], MON_DATA_SPECIES);
-    tAbilityNum = GetMonData(&gParties[B_TRAINER_PLAYER][tMonId], MON_DATA_ABILITY_NUM) ^ 1;
+    tAbilityNum = GetAbilityItemTargetSlot(&gParties[B_TRAINER_PLAYER][tMonId], ITEM_ABILITY_CAPSULE);
     SetWordTaskArg(taskId, tOldFunc, (uintptr_t)(gTasks[taskId].func));
     gTasks[taskId].func = Task_AbilityCapsule;
 }
@@ -5090,9 +5088,7 @@ void Task_AbilityPatch(u8 taskId)
     {
     case 0:
         // Can't use.
-        if (GetSpeciesAbility(tSpecies, tAbilityNum) == 0
-            || !tSpecies
-            )
+        if (tAbilityNum >= NUM_ABILITY_SLOTS)
         {
             gPartyMenuUseExitCallback = FALSE;
             PlaySE(SE_SELECT);
@@ -5162,10 +5158,7 @@ void ItemUseCB_AbilityPatch(u8 taskId, TaskFunc task)
     tState = 0;
     tMonId = gPartyMenu.slotId;
     tSpecies = GetMonData(&gParties[B_TRAINER_PLAYER][tMonId], MON_DATA_SPECIES);
-    if (GetMonData(&gParties[B_TRAINER_PLAYER][tMonId], MON_DATA_ABILITY_NUM) == 2)
-        tAbilityNum = 0;
-    else
-        tAbilityNum = 2;
+    tAbilityNum = GetAbilityItemTargetSlot(&gParties[B_TRAINER_PLAYER][tMonId], ITEM_ABILITY_PATCH);
     SetWordTaskArg(taskId, tOldFunc, (uintptr_t)(gTasks[taskId].func));
     gTasks[taskId].func = Task_AbilityPatch;
 }

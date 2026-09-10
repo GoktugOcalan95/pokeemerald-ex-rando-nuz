@@ -108,7 +108,7 @@ enum FormChanges
     FORM_CHANGE_BATTLE_PRIMAL_REVERSION,
     // Form change that activates when a specific weather is set during battle.
     // param1: weather to check
-    // param2: (optional) revert if specified ability is lost
+    // param2: required ability, optional; losing it reverts to the no-weather form.
     FORM_CHANGE_BATTLE_WEATHER,
     // Form change that activates automatically when the turn ends.
     // param1: ability to check.
@@ -140,6 +140,7 @@ enum FormChanges
     FORM_CHANGE_BATTLE_HIT_BY_CONFUSION_SELF_DMG,
     // Form change that activates when terastallized as as a specific type
     // param1: tera type
+    // param2: ability to check, optional
     FORM_CHANGE_BATTLE_TERASTALLIZATION,
     // Form change that activates at midnight after a certain amount of days has passed.
     // Adding this form change will automatically make the countdown start as soon the Pokémon changes into a species other than the one specified for this form change.
@@ -164,7 +165,8 @@ enum FormChanges
     FORM_CHANGE_OVERWORLD_WEATHER,
     // Form change that activates when the Pokémon is deposited into the PC or Daycare.
     FORM_CHANGE_DEPOSIT,
-    // Form change for Minior, which appears unchanged when encountered in the wild
+    // Form change when a wild encounter begins.
+    // param1: ability to check, optional
     FORM_CHANGE_BEGIN_WILD_ENCOUNTER,
 };
 

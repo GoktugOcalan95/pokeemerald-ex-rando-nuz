@@ -196,60 +196,102 @@ TEST("Run setup scrolling keeps the selected row visible")
 TEST("Run setup presets replace the draft without changing the loaded save")
 {
     enum RunSetupPreset preset;
-    bool32 enabled;
+    bool32 bishey;
+    bool32 rules;
 
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; enabled = FALSE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; enabled = TRUE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; enabled = TRUE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; bishey = FALSE; rules = FALSE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; bishey = FALSE; rules = TRUE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; bishey = TRUE; rules = TRUE; }
 
-    FlagSet(FLAG_RUN_RULE_FULL_COMPATIBILITY);
-    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
     RunSetup_Begin();
     EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_VANILLA);
-    RunSetup_SetFullCompatibility(!enabled);
-    RunSetup_SetReusableTMs(!enabled);
-    RunSetup_SetNoEVGain(TRUE);
+    FlagSet(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    RunSetup_SetFullCompatibility(!bishey);
+    FlagSet(FLAG_RUN_RULE_REUSABLE_TMS);
+    RunSetup_SetReusableTMs(!bishey);
+    FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
+    RunSetup_SetNoEVGain(!rules);
+    FlagSet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE);
+    RunSetup_SetOpponentHPPercentage(!rules);
+    FlagSet(FLAG_RUN_RULE_LEVEL_CAPS);
+    RunSetup_SetLevelCaps(!rules);
+    FlagSet(FLAG_RUN_RULE_FROSTBITE);
+    RunSetup_SetFrostbite(!bishey);
+    FlagSet(FLAG_RUN_RULE_INSTANT_CATCH);
+    RunSetup_SetInstantCatch(!bishey);
+    FlagSet(FLAG_RUN_RULE_SETUP_MOVE_PP);
+    RunSetup_SetSetupMovePP(!rules);
     RunSetup_SetPreset(preset);
-    EXPECT(!RunSetup_GetNoEVGain());
-    EXPECT_EQ(RunSetup_GetFullCompatibility(), enabled);
-    EXPECT_EQ(RunSetup_GetReusableTMs(), enabled);
-    EXPECT_EQ(RunSetup_GetPreset(), preset);
+    EXPECT_EQ(RunSetup_GetFullCompatibility(), bishey);
     EXPECT(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY));
-    EXPECT(!FlagGet(FLAG_RUN_RULE_REUSABLE_TMS));
+    EXPECT_EQ(RunSetup_GetReusableTMs(), bishey);
+    EXPECT(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS));
+    EXPECT_EQ(RunSetup_GetNoEVGain(), rules);
+    EXPECT(FlagGet(FLAG_RUN_RULE_NO_EV_GAIN));
+    EXPECT_EQ(RunSetup_GetOpponentHPPercentage(), rules);
+    EXPECT(FlagGet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE));
+    EXPECT_EQ(RunSetup_GetLevelCaps(), rules);
+    EXPECT(FlagGet(FLAG_RUN_RULE_LEVEL_CAPS));
+    EXPECT_EQ(RunSetup_GetFrostbite(), bishey);
+    EXPECT(FlagGet(FLAG_RUN_RULE_FROSTBITE));
+    EXPECT_EQ(RunSetup_GetInstantCatch(), bishey);
+    EXPECT(FlagGet(FLAG_RUN_RULE_INSTANT_CATCH));
+    EXPECT_EQ(RunSetup_GetSetupMovePP(), rules);
+    EXPECT(FlagGet(FLAG_RUN_RULE_SETUP_MOVE_PP));
+    EXPECT_EQ(RunSetup_GetPreset(), preset);
     RunSetup_EnterConfirmation();
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), enabled);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), enabled);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), bishey);
     FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), bishey);
     FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_NO_EV_GAIN), rules);
+    FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE), rules);
+    FlagClear(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_LEVEL_CAPS), rules);
+    FlagClear(FLAG_RUN_RULE_LEVEL_CAPS);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FROSTBITE), bishey);
+    FlagClear(FLAG_RUN_RULE_FROSTBITE);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_INSTANT_CATCH), bishey);
+    FlagClear(FLAG_RUN_RULE_INSTANT_CATCH);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_SETUP_MOVE_PP), rules);
+    FlagClear(FLAG_RUN_RULE_SETUP_MOVE_PP);
 }
 
-TEST("Run setup preset names follow edits and retain the chosen identical preset")
+TEST("Run setup preset names follow individual edits")
 {
     enum RunSetupPreset preset;
+    bool32 enabled;
 
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; enabled = FALSE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; enabled = FALSE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; enabled = TRUE; }
 
     RunSetup_Begin();
     RunSetup_SetPreset(preset);
-    RunSetup_SetReusableTMs(FALSE);
+    RunSetup_SetReusableTMs(!enabled);
     EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
-    RunSetup_SetReusableTMs(TRUE);
+    RunSetup_SetReusableTMs(enabled);
     EXPECT_EQ(RunSetup_GetPreset(), preset);
-    RunSetup_SetFullCompatibility(FALSE);
-    RunSetup_SetReusableTMs(FALSE);
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_VANILLA);
-    RunSetup_SetFullCompatibility(TRUE);
-    RunSetup_SetReusableTMs(TRUE);
+    RunSetup_SetFullCompatibility(!enabled);
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
+    RunSetup_SetFullCompatibility(enabled);
     EXPECT_EQ(RunSetup_GetPreset(), preset);
     RunSetup_Discard();
     RunSetup_Begin();
     EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_VANILLA);
+    RunSetup_SetNoEVGain(TRUE);
+    RunSetup_SetOpponentHPPercentage(TRUE);
+    RunSetup_SetLevelCaps(TRUE);
+    RunSetup_SetSetupMovePP(TRUE);
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_NUZLOCKE);
     RunSetup_SetFullCompatibility(TRUE);
     RunSetup_SetReusableTMs(TRUE);
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_NUZLOCKE);
+    RunSetup_SetFrostbite(TRUE);
+    RunSetup_SetInstantCatch(TRUE);
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_BISHEY);
     RunSetup_Discard();
 }
 
@@ -359,16 +401,17 @@ TEST("Run setup rejects unconfirmed No EV gain and clears stale rule flags")
 TEST("Run setup No EV gain participates in preset matching")
 {
     enum RunSetupPreset preset;
+    bool32 enabled;
 
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; enabled = FALSE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; enabled = TRUE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; enabled = TRUE; }
 
     RunSetup_Begin();
     RunSetup_SetPreset(preset);
-    RunSetup_SetNoEVGain(TRUE);
+    RunSetup_SetNoEVGain(!enabled);
     EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
-    RunSetup_SetNoEVGain(FALSE);
+    RunSetup_SetNoEVGain(enabled);
     EXPECT_EQ(RunSetup_GetPreset(), preset);
     RunSetup_Discard();
 }
@@ -421,20 +464,21 @@ TEST("Run setup rejects unconfirmed opponent HP percentage and clears stale rule
 TEST("Run setup opponent HP percentage participates in preset matching")
 {
     enum RunSetupPreset preset;
+    bool32 enabled;
 
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; enabled = FALSE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; enabled = TRUE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; enabled = TRUE; }
 
     RunSetup_Begin();
     RunSetup_SetPreset(preset);
-    RunSetup_SetOpponentHPPercentage(TRUE);
+    RunSetup_SetOpponentHPPercentage(!enabled);
     EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
-    RunSetup_SetOpponentHPPercentage(FALSE);
+    RunSetup_SetOpponentHPPercentage(enabled);
     EXPECT_EQ(RunSetup_GetPreset(), preset);
-    RunSetup_SetOpponentHPPercentage(TRUE);
+    RunSetup_SetOpponentHPPercentage(!enabled);
     RunSetup_SetPreset(preset);
-    EXPECT(!RunSetup_GetOpponentHPPercentage());
+    EXPECT_EQ(RunSetup_GetOpponentHPPercentage(), enabled);
     RunSetup_Discard();
 }
 
@@ -486,20 +530,21 @@ TEST("Run setup rejects unconfirmed level caps and clears stale rule flags")
 TEST("Run setup level caps participates in preset matching")
 {
     enum RunSetupPreset preset;
+    bool32 enabled;
 
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; enabled = FALSE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; enabled = TRUE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; enabled = TRUE; }
 
     RunSetup_Begin();
     RunSetup_SetPreset(preset);
-    RunSetup_SetLevelCaps(TRUE);
+    RunSetup_SetLevelCaps(!enabled);
     EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
-    RunSetup_SetLevelCaps(FALSE);
+    RunSetup_SetLevelCaps(enabled);
     EXPECT_EQ(RunSetup_GetPreset(), preset);
-    RunSetup_SetLevelCaps(TRUE);
+    RunSetup_SetLevelCaps(!enabled);
     RunSetup_SetPreset(preset);
-    EXPECT(!RunSetup_GetLevelCaps());
+    EXPECT_EQ(RunSetup_GetLevelCaps(), enabled);
     RunSetup_Discard();
 }
 
@@ -551,20 +596,21 @@ TEST("Run setup rejects unconfirmed Frostbite and clears stale rule flags")
 TEST("Run setup Frostbite participates in preset matching")
 {
     enum RunSetupPreset preset;
+    bool32 enabled;
 
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; enabled = FALSE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; enabled = FALSE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; enabled = TRUE; }
 
     RunSetup_Begin();
     RunSetup_SetPreset(preset);
-    RunSetup_SetFrostbite(TRUE);
+    RunSetup_SetFrostbite(!enabled);
     EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
-    RunSetup_SetFrostbite(FALSE);
+    RunSetup_SetFrostbite(enabled);
     EXPECT_EQ(RunSetup_GetPreset(), preset);
-    RunSetup_SetFrostbite(TRUE);
+    RunSetup_SetFrostbite(!enabled);
     RunSetup_SetPreset(preset);
-    EXPECT(!RunSetup_GetFrostbite());
+    EXPECT_EQ(RunSetup_GetFrostbite(), enabled);
     RunSetup_Discard();
 }
 
@@ -640,20 +686,21 @@ TEST("Run setup rejects unconfirmed SetupMovePP and clears stale rule flags")
 TEST("Run setup SetupMovePP participates in preset matching")
 {
     enum RunSetupPreset preset;
+    bool32 enabled;
 
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; enabled = FALSE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; enabled = TRUE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; enabled = TRUE; }
 
     RunSetup_Begin();
     RunSetup_SetPreset(preset);
-    RunSetup_SetSetupMovePP(TRUE);
+    RunSetup_SetSetupMovePP(!enabled);
     EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
-    RunSetup_SetSetupMovePP(FALSE);
+    RunSetup_SetSetupMovePP(enabled);
     EXPECT_EQ(RunSetup_GetPreset(), preset);
-    RunSetup_SetSetupMovePP(TRUE);
+    RunSetup_SetSetupMovePP(!enabled);
     RunSetup_SetPreset(preset);
-    EXPECT(!RunSetup_GetSetupMovePP());
+    EXPECT_EQ(RunSetup_GetSetupMovePP(), enabled);
     RunSetup_Discard();
 }
 
@@ -729,20 +776,21 @@ TEST("Run setup rejects unconfirmed InstantCatch and clears stale rule flags")
 TEST("Run setup InstantCatch participates in preset matching")
 {
     enum RunSetupPreset preset;
+    bool32 enabled;
 
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; enabled = FALSE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; enabled = FALSE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; enabled = TRUE; }
 
     RunSetup_Begin();
     RunSetup_SetPreset(preset);
-    RunSetup_SetInstantCatch(TRUE);
+    RunSetup_SetInstantCatch(!enabled);
     EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
-    RunSetup_SetInstantCatch(FALSE);
+    RunSetup_SetInstantCatch(enabled);
     EXPECT_EQ(RunSetup_GetPreset(), preset);
-    RunSetup_SetInstantCatch(TRUE);
+    RunSetup_SetInstantCatch(!enabled);
     RunSetup_SetPreset(preset);
-    EXPECT(!RunSetup_GetInstantCatch());
+    EXPECT_EQ(RunSetup_GetInstantCatch(), enabled);
     RunSetup_Discard();
 }
 

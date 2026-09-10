@@ -1921,10 +1921,16 @@ static const struct FormChange sAlcremieFormChangeTable[] =
 #if P_GIGANTAMAX_FORMS
     {FORM_CHANGE_BATTLE_GIGANTAMAX, SPECIES_ALCREMIE_GMAX},
 #endif
-    {FORM_CHANGE_FAINT,             SPECIES_ALCREMIE},
-    {FORM_CHANGE_END_BATTLE,        SPECIES_ALCREMIE},
     {FORM_CHANGE_TERMINATOR},
 };
+#if P_GIGANTAMAX_FORMS
+static const struct FormChange sAlcremieGmaxFormChangeTable[] =
+{
+    {FORM_CHANGE_FAINT},
+    {FORM_CHANGE_END_BATTLE},
+    {FORM_CHANGE_TERMINATOR},
+};
+#endif
 #endif //P_FAMILY_MILCERY
 
 #if P_FAMILY_FALINKS

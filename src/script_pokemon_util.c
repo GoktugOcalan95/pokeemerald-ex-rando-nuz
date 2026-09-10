@@ -1,4 +1,5 @@
 #include "global.h"
+#include "species_randomizer.h"
 #include "item_randomizer.h"
 #include "battle.h"
 #include "battle_gfx_sfx_util.h"
@@ -71,6 +72,7 @@ u8 ScriptGiveEgg(enum Species species)
     u8 isEgg;
 
     CreateEgg(&mon, species, TRUE);
+    PrepareRandomizedEncounterMon(&mon);
     isEgg = TRUE;
     SetMonData(&mon, MON_DATA_IS_EGG, &isEgg);
 
@@ -144,6 +146,7 @@ void CreateScriptedWildMon(enum Species species, u8 level, enum Item item)
         heldItem[1] = item >> 8;
         SetMonData(&gParties[B_TRAINER_OPPONENT_A][0], MON_DATA_HELD_ITEM, heldItem);
     }
+    PrepareRandomizedEncounterMon(&gParties[B_TRAINER_OPPONENT_A][0]);
 }
 void CreateScriptedDoubleWildMon(enum Species species1, u8 level1, enum Item item1, enum Species species2, u8 level2, enum Item item2)
 {
@@ -178,6 +181,8 @@ void CreateScriptedDoubleWildMon(enum Species species1, u8 level1, enum Item ite
         heldItem2[1] = item2 >> 8;
         SetMonData(&gParties[B_TRAINER_OPPONENT_A][1], MON_DATA_HELD_ITEM, heldItem2);
     }
+    PrepareRandomizedEncounterMon(&gParties[B_TRAINER_OPPONENT_A][0]);
+    PrepareRandomizedEncounterMon(&gParties[B_TRAINER_OPPONENT_A][1]);
 }
 
 void ScriptSetMonMoveSlot(u8 monIndex, enum Move move, u8 slot)
@@ -379,6 +384,7 @@ u32 ScriptGiveMonParameterized(u8 side, u8 slot, struct PokemonTemplate *monTemp
     struct Pokemon mon;
 
     CreateMonFromTemplate(&mon, monTemplate);
+    PrepareRandomizedEncounterMon(&mon);
 
     if (side == B_SIDE_PLAYER)
         return GiveScriptedMonToPlayer(&mon, slot);
@@ -405,6 +411,7 @@ u32 ScriptGiveMon(enum Species species, u8 level, enum Item item)
         SetMonData(&mon, MON_DATA_HELD_ITEM, heldItem);
     }
 
+    PrepareRandomizedEncounterMon(&mon);
     return GiveScriptedMonToPlayer(&mon, PARTY_SIZE);
 }
 
@@ -475,6 +482,10 @@ void ScrCmd_createmon(struct ScriptContext *ctx)
 
     monTemplate.ignoreTotalEvCheck = flags >> 26;
 
+    monTemplate.species = RandomizeEncounterSpecies(monTemplate.species,
+        side == B_SIDE_PLAYER ? SPECIES_REWARD_GIFT : SPECIES_REWARD_STATIC, source, slot);
+    if (side == B_SIDE_PLAYER)
+        VarSet(VAR_TEMP_TRANSFERRED_SPECIES, monTemplate.species);
     monTemplate.heldItem = RandomizeItemReward(monTemplate.heldItem, ITEM_REWARD_GIFT_HELD, source, slot);
     gSpecialVar_Result = ScriptGiveMonParameterized(side, slot, &monTemplate);
 }

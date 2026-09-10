@@ -1303,6 +1303,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
 
     [SPECIES_MAUSHOLD_THREE] =
     {
+        .cosmeticFormOf = SPECIES_MAUSHOLD_THREE,
         .baseHP        = 74,
         .baseAttack    = 75,
         .baseDefense   = 70,
@@ -1367,6 +1368,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
 
     [SPECIES_MAUSHOLD_FOUR] =
     {
+        .cosmeticFormOf = SPECIES_MAUSHOLD_THREE,
         .baseHP        = 74,
         .baseAttack    = 75,
         .baseDefense   = 70,
@@ -1757,6 +1759,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
 #if P_FAMILY_SQUAWKABILLY
     [SPECIES_SQUAWKABILLY_GREEN] =
     {
+        .cosmeticFormOf = SPECIES_SQUAWKABILLY_GREEN,
         .baseHP        = 82,
         .baseAttack    = 96,
         .baseDefense   = 51,
@@ -1822,6 +1825,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
 
     [SPECIES_SQUAWKABILLY_BLUE] =
     {
+        .cosmeticFormOf = SPECIES_SQUAWKABILLY_GREEN,
         .baseHP        = 82,
         .baseAttack    = 96,
         .baseDefense   = 51,
@@ -1887,6 +1891,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
 
     [SPECIES_SQUAWKABILLY_YELLOW] =
     {
+        .cosmeticFormOf = SPECIES_SQUAWKABILLY_YELLOW,
         .baseHP        = 82,
         .baseAttack    = 96,
         .baseDefense   = 51,
@@ -1952,6 +1957,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
 
     [SPECIES_SQUAWKABILLY_WHITE] =
     {
+        .cosmeticFormOf = SPECIES_SQUAWKABILLY_YELLOW,
         .baseHP        = 82,
         .baseAttack    = 96,
         .baseDefense   = 51,
@@ -7645,6 +7651,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
 
     [SPECIES_SINISTCHA_UNREMARKABLE] =
     {
+        .cosmeticFormOf = SPECIES_SINISTCHA_UNREMARKABLE,
         .baseHP        = 71,
         .baseAttack    = 60,
         .baseDefense   = 106,
@@ -7710,6 +7717,7 @@ const struct SpeciesInfo gSpeciesInfoGen9[] =
 
     [SPECIES_SINISTCHA_MASTERPIECE] =
     {
+        .cosmeticFormOf = SPECIES_SINISTCHA_UNREMARKABLE,
         .baseHP        = 71,
         .baseAttack    = 60,
         .baseDefense   = 106,

@@ -1,4 +1,5 @@
 #include "global.h"
+#include "species_randomizer.h"
 #include "frontier_util.h"
 #include "battle_setup.h"
 #include "battle_util.h"
@@ -2274,11 +2275,12 @@ bool8 ScrCmd_bufferboxname(struct ScriptContext *ctx)
 
 bool8 ScrCmd_giveegg(struct ScriptContext *ctx)
 {
+    u32 source = (u32)ctx->scriptPtr;
     enum Species species = VarGet(ScriptReadHalfword(ctx));
 
     Script_RequestEffects(SCREFF_V1 | SCREFF_SAVE);
 
-    gSpecialVar_Result = ScriptGiveEgg(species);
+    gSpecialVar_Result = ScriptGiveEgg(RandomizeEncounterSpecies(species, SPECIES_REWARD_EGG, source, 0));
     return FALSE;
 }
 
@@ -2481,15 +2483,19 @@ bool8 ScrCmd_cleartrainerflag(struct ScriptContext *ctx)
 
 bool8 ScrCmd_setwildbattle(struct ScriptContext *ctx)
 {
+    u32 source = (u32)ctx->scriptPtr;
     enum Species species = ScriptReadHalfword(ctx);
     u8 level = ScriptReadByte(ctx);
     enum Item item = ScriptReadHalfword(ctx);
     enum Species species2 = ScriptReadHalfword(ctx);
     u8 level2 = ScriptReadByte(ctx);
     enum Item item2 = ScriptReadHalfword(ctx);
+    u32 sourceSlot = VarGet(ScriptReadHalfword(ctx));
 
     Script_RequestEffects(SCREFF_V1);
 
+    species = RandomizeEncounterSpecies(species, SPECIES_REWARD_STATIC, source, sourceSlot);
+    species2 = RandomizeEncounterSpecies(species2, SPECIES_REWARD_STATIC, source, sourceSlot + 0x100);
     if (species2 == SPECIES_NONE)
     {
         CreateScriptedWildMon(species, level, item);

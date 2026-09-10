@@ -48,9 +48,11 @@ NavelRock_Bottom_EventScript_Lugia::
 	delay 30
 	delay 50
 	waitse
-	playmoncry SPECIES_LUGIA, CRY_MODE_ENCOUNTER
+	randomizespecies VAR_0x800B, SPECIES_LUGIA, NavelRock_Bottom_RandomizedEncounter_0 + 5, SPECIES_REWARD_STATIC
+	playmoncry VAR_0x800B, CRY_MODE_ENCOUNTER
 	waitmoncry
 	delay 20
+NavelRock_Bottom_RandomizedEncounter_0::
 	seteventmon SPECIES_LUGIA, 70
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
 	special BattleSetup_StartLegendaryBattle
@@ -65,11 +67,11 @@ NavelRock_Bottom_EventScript_Lugia::
 
 NavelRock_Bottom_EventScript_DefeatedLugia::
 	setflag FLAG_DEFEATED_LUGIA
-	setvar VAR_0x8004, SPECIES_LUGIA
+	randomizespecies VAR_0x8004, SPECIES_LUGIA, NavelRock_Bottom_RandomizedEncounter_0 + 5, SPECIES_REWARD_STATIC
 	goto Common_EventScript_LegendaryFlewAway
 	end
 
 NavelRock_Bottom_EventScript_RanFromLugia::
-	setvar VAR_0x8004, SPECIES_LUGIA
+	randomizespecies VAR_0x8004, SPECIES_LUGIA, NavelRock_Bottom_RandomizedEncounter_0 + 5, SPECIES_REWARD_STATIC
 	goto Common_EventScript_LegendaryFlewAway
 	end

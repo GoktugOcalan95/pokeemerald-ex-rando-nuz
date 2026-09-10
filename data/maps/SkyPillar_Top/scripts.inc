@@ -45,9 +45,11 @@ SkyPillar_Top_EventScript_Rayquaza::
 	lockall
 	goto_if_unset FLAG_BADGE08_GET, EventScript_LegendaryNotUnlocked
 	waitse
-	playmoncry SPECIES_RAYQUAZA, CRY_MODE_ENCOUNTER
+	randomizespecies VAR_0x800B, SPECIES_RAYQUAZA, SkyPillar_Top_RandomizedEncounter_0 + 1, SPECIES_REWARD_STATIC
+	playmoncry VAR_0x800B, CRY_MODE_ENCOUNTER
 	delay 40
 	waitmoncry
+SkyPillar_Top_RandomizedEncounter_0::
 	setwildbattle SPECIES_RAYQUAZA, 50
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
 	special BattleSetup_StartLegendaryBattle
@@ -66,7 +68,7 @@ SkyPillar_Top_EventScript_DefeatedRayquaza::
 	end
 
 SkyPillar_Top_EventScript_RanFromRayquaza::
-	setvar VAR_0x8004, SPECIES_RAYQUAZA
+	randomizespecies VAR_0x8004, SPECIES_RAYQUAZA, SkyPillar_Top_RandomizedEncounter_0 + 1, SPECIES_REWARD_STATIC
 	goto SkyPillar_Top_EventScript_RanFromRayquaza2
 	end
 

@@ -60,9 +60,11 @@ AncientTomb_EventScript_Registeel::
 	goto_if_unset FLAG_BADGE08_GET, EventScript_LegendaryNotUnlocked
 	faceplayer
 	waitse
-	playmoncry SPECIES_REGISTEEL, CRY_MODE_ENCOUNTER
+	randomizespecies VAR_0x800B, SPECIES_REGISTEEL, AncientTomb_RandomizedEncounter_0 + 1, SPECIES_REWARD_STATIC
+	playmoncry VAR_0x800B, CRY_MODE_ENCOUNTER
 	delay 40
 	waitmoncry
+AncientTomb_RandomizedEncounter_0::
 	setwildbattle SPECIES_REGISTEEL, 50
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
 	special StartRegiBattle
@@ -81,7 +83,7 @@ AncientTomb_EventScript_DefeatedRegisteel::
 	end
 
 AncientTomb_EventScript_RanFromRegisteel::
-	setvar VAR_0x8004, SPECIES_REGISTEEL
+	randomizespecies VAR_0x8004, SPECIES_REGISTEEL, AncientTomb_RandomizedEncounter_0 + 1, SPECIES_REWARD_STATIC
 	goto Common_EventScript_LegendaryFlewAway
 	end
 

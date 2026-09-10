@@ -1,4 +1,5 @@
 #include "global.h"
+#include "species_randomizer.h"
 #include "no_evs.h"
 #include "battle.h"
 #include "battle_ai_main.h"
@@ -153,7 +154,7 @@ void SetUpBattleVarsAndBirchZigzagoon(void)
     BattleAI_SetupFlags();
 
     if (!IS_FRLG && gBattleTypeFlags & BATTLE_TYPE_FIRST_BATTLE)
-        CreateWildMon(SPECIES_ZIGZAGOON, 2);
+        CreateWildMon(RandomizeEncounterSpecies(SPECIES_ZIGZAGOON, SPECIES_REWARD_FIRST_BATTLE, 0, 0), 2);
 }
 
 void InitBattleControllers(void)

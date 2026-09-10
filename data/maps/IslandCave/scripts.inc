@@ -93,9 +93,11 @@ IslandCave_EventScript_Regice::
 	goto_if_unset FLAG_BADGE08_GET, EventScript_LegendaryNotUnlocked
 	faceplayer
 	waitse
-	playmoncry SPECIES_REGICE, CRY_MODE_ENCOUNTER
+	randomizespecies VAR_0x800B, SPECIES_REGICE, IslandCave_RandomizedEncounter_0 + 1, SPECIES_REWARD_STATIC
+	playmoncry VAR_0x800B, CRY_MODE_ENCOUNTER
 	delay 40
 	waitmoncry
+IslandCave_RandomizedEncounter_0::
 	setwildbattle SPECIES_REGICE, 50
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
 	special StartRegiBattle
@@ -114,7 +116,7 @@ IslandCave_EventScript_DefeatedRegice::
 	end
 
 IslandCave_EventScript_RanFromRegice::
-	setvar VAR_0x8004, SPECIES_REGICE
+	randomizespecies VAR_0x8004, SPECIES_REGICE, IslandCave_RandomizedEncounter_0 + 1, SPECIES_REWARD_STATIC
 	goto Common_EventScript_LegendaryFlewAway
 	end
 

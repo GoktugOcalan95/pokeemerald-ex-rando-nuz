@@ -84,7 +84,8 @@ MossdeepCity_StevensHouse_EventScript_LeaveBeldum::
 	end
 
 MossdeepCity_StevensHouse_EventScript_GiveBeldum::
-	setvar VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_BELDUM
+	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_BELDUM, MossdeepCity_StevensHouse_RandomizedGift_0 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
+MossdeepCity_StevensHouse_RandomizedGift_0::
 	givemon SPECIES_BELDUM, 5
 	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PARTY, MossdeepCity_StevensHouse_EventScript_SendBeldumParty
 	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PC, MossdeepCity_StevensHouse_EventScript_SendBeldumPC
@@ -114,13 +115,15 @@ MossdeepCity_StevensHouse_EventScript_BeldumTransferredToPC::
 	end
 
 MossdeepCity_StevensHouse_EventScript_ReceivedBeldumFanfare::
-	bufferspeciesname STR_VAR_2, SPECIES_BELDUM
+	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_BELDUM, MossdeepCity_StevensHouse_RandomizedGift_0 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
+	bufferspeciesname STR_VAR_2, VAR_TEMP_TRANSFERRED_SPECIES
 	removeobject LOCALID_STEVENS_HOUSE_BALL
 	playfanfare MUS_OBTAIN_ITEM
 	message MossdeepCity_StevensHouse_Text_ObtainedBeldum
 	waitmessage
 	waitfanfare
-	bufferspeciesname STR_VAR_1, SPECIES_BELDUM
+	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_BELDUM, MossdeepCity_StevensHouse_RandomizedGift_0 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
+	bufferspeciesname STR_VAR_1, VAR_TEMP_TRANSFERRED_SPECIES
 	return
 
 MossdeepCity_StevensHouse_EventScript_ReceivedBeldum::

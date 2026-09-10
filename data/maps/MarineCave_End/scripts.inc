@@ -29,10 +29,12 @@ MarineCave_End_EventScript_Kyogre::
 	applymovement LOCALID_MARINE_CAVE_KYOGRE, MarineCave_End_Movement_KyogreApproach
 	waitmovement 0
 	waitse
-	playmoncry SPECIES_KYOGRE, CRY_MODE_ENCOUNTER
+	randomizespecies VAR_0x800B, SPECIES_KYOGRE, MarineCave_End_RandomizedEncounter_0 + 1, SPECIES_REWARD_STATIC
+	playmoncry VAR_0x800B, CRY_MODE_ENCOUNTER
 	delay 40
 	waitmoncry
 	setvar VAR_LAST_TALKED, LOCALID_MARINE_CAVE_KYOGRE
+MarineCave_End_RandomizedEncounter_0::
 	setwildbattle SPECIES_KYOGRE, 70
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
 	special BattleSetup_StartLegendaryBattle
@@ -54,7 +56,7 @@ MarineCave_End_EventScript_DefeatedKyogre::
 	end
 
 MarineCave_End_EventScript_RanFromKyogre::
-	setvar VAR_0x8004, SPECIES_KYOGRE
+	randomizespecies VAR_0x8004, SPECIES_KYOGRE, MarineCave_End_RandomizedEncounter_0 + 1, SPECIES_REWARD_STATIC
 	goto Common_EventScript_LegendaryFlewAway
 	end
 

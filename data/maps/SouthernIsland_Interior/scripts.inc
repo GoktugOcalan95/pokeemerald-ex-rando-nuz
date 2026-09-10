@@ -61,6 +61,8 @@ SouthernIsland_Interior_EventScript_Lati::
 	waitmovement 0
 	delay 50
 	waitse
+	call_if_eq VAR_ROAMER_POKEMON, 0, SouthernIsland_Interior_RandomizedLatiosPreview
+	call_if_ne VAR_ROAMER_POKEMON, 0, SouthernIsland_Interior_RandomizedLatiasPreview
 	playmoncry VAR_TEMP_4, CRY_MODE_NORMAL
 	delay 30
 	waitmoncry
@@ -102,10 +104,12 @@ SouthernIsland_Interior_EventScript_Sign::
 	end
 
 SouthernIsland_Interior_EventScript_SetLatiosBattleVars::
+SouthernIsland_Interior_RandomizedLatios::
 	seteventmon SPECIES_LATIOS, 50, ITEM_SOUL_DEW
 	return
 
 SouthernIsland_Interior_EventScript_SetLatiasBattleVars::
+SouthernIsland_Interior_RandomizedLatias::
 	seteventmon SPECIES_LATIAS, 50, ITEM_SOUL_DEW
 	return
 
@@ -142,3 +146,11 @@ SouthernIsland_Interior_Movement_LatiApproach:
 	walk_down
 	walk_down
 	step_end
+
+SouthernIsland_Interior_RandomizedLatiosPreview::
+	randomizespecies VAR_TEMP_4, SPECIES_LATIOS, SouthernIsland_Interior_RandomizedLatios + 5, SPECIES_REWARD_STATIC
+	return
+
+SouthernIsland_Interior_RandomizedLatiasPreview::
+	randomizespecies VAR_TEMP_4, SPECIES_LATIAS, SouthernIsland_Interior_RandomizedLatias + 5, SPECIES_REWARD_STATIC
+	return

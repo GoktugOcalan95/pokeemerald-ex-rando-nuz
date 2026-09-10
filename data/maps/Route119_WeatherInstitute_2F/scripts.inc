@@ -81,7 +81,8 @@ Route119_WeatherInstitute_2F_EventScript_ShellyDefeated::
 
 Route119_WeatherInstitute_2F_EventScript_ReceiveCastform::
 	msgbox Route119_WeatherInstitute_2F_Text_ThanksPleaseTakePokemon, MSGBOX_DEFAULT
-	setvar VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_CASTFORM_NORMAL
+	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_CASTFORM_NORMAL, Route119_WeatherInstitute_2F_RandomizedGift_0 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
+Route119_WeatherInstitute_2F_RandomizedGift_0::
 	givemon SPECIES_CASTFORM_NORMAL, 25, ITEM_MYSTIC_WATER
 	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PARTY, Route119_WeatherInstitute_2F_EventScript_ReceiveCastformParty
 	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PC, Route119_WeatherInstitute_2F_EventScript_ReceiveCastformPC
@@ -115,7 +116,8 @@ Route119_WeatherInstitute_2F_EventScript_ReceivedCastformFanfare::
 	message Route119_WeatherInstitute_2F_Text_PlayerReceivedCastform
 	waitmessage
 	waitfanfare
-	bufferspeciesname STR_VAR_1, SPECIES_CASTFORM_NORMAL
+	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_CASTFORM_NORMAL, Route119_WeatherInstitute_2F_RandomizedGift_0 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
+	bufferspeciesname STR_VAR_1, VAR_TEMP_TRANSFERRED_SPECIES
 	return
 
 Route119_WeatherInstitute_2F_EventScript_ExplainCastform::

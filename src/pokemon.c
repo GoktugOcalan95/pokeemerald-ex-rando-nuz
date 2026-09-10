@@ -1,4 +1,5 @@
 #include "global.h"
+#include "species_randomizer.h"
 #include "item_randomizer.h"
 #include "no_evs.h"
 #include "storage_level_cap.h"
@@ -5432,6 +5433,7 @@ static void SetRandomizedWildHeldItem(u32 index, u32 species, u16 original, u32 
 {
     u16 item = RandomizeItemReward(original, ITEM_REWARD_WILD_HELD, species, slot);
     SetMonData(&gParties[B_TRAINER_OPPONENT_A][index], MON_DATA_HELD_ITEM, &item);
+    PrepareRandomizedEncounterMon(&gParties[B_TRAINER_OPPONENT_A][index]);
 }
 
 void SetWildMonHeldItem(void)
@@ -5965,6 +5967,8 @@ enum Species GetFormChangeTargetSpeciesBoxMon(struct BoxPokemon *boxMon, enum Fo
         .status = GetBoxMonData(boxMon, MON_DATA_STATUS),
     };
 
+    for (u32 i = 0; i < MAX_MON_MOVES; i++)
+        ctx.moves[i] = GetBoxMonData(boxMon, MON_DATA_MOVE1 + i);
     return GetFormChangeTargetSpecies_Internal(ctx);
 }
 
@@ -6042,9 +6046,16 @@ enum Species GetFormChangeTargetSpecies_Internal(struct FormChangeContext ctx)
             }
             break;
         case FORM_CHANGE_MOVE:
-            if (ctx.learnedMove != formChanges[i].param2)
+        {
+            bool32 knowsMove = FALSE;
+            for (u32 move = 0; move < MAX_MON_MOVES; move++)
+                if (ctx.moves[move] == formChanges[i].param1)
+                    knowsMove = TRUE;
+            if ((knowsMove && formChanges[i].param2 == WHEN_LEARNED)
+                || (!knowsMove && formChanges[i].param2 == WHEN_FORGOTTEN))
                 targetSpecies = formChanges[i].targetSpecies;
             break;
+        }
         case FORM_CHANGE_BEGIN_BATTLE:
         case FORM_CHANGE_END_BATTLE:
             if (ctx.heldItem == formChanges[i].param1 || formChanges[i].param1 == ITEM_NONE)

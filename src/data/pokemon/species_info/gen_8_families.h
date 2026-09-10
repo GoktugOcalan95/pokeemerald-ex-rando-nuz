@@ -4151,6 +4151,7 @@ const struct SpeciesInfo gSpeciesInfoGen8[] =
 
     [SPECIES_POLTEAGEIST_PHONY] =
     {
+        .cosmeticFormOf = SPECIES_POLTEAGEIST_PHONY,
         .baseHP        = 60,
         .baseAttack    = 65,
         .baseDefense   = 65,
@@ -4215,6 +4216,7 @@ const struct SpeciesInfo gSpeciesInfoGen8[] =
 
     [SPECIES_POLTEAGEIST_ANTIQUE] =
     {
+        .cosmeticFormOf = SPECIES_POLTEAGEIST_PHONY,
         .baseHP        = 60,
         .baseAttack    = 65,
         .baseDefense   = 65,
@@ -5063,6 +5065,7 @@ const struct SpeciesInfo gSpeciesInfoGen8[] =
 
 #define ALCREMIE_REGULAR_SPECIES_INFO(sweet, cream, color)                                      \
     {                                                                                           \
+        .cosmeticFormOf = SPECIES_ALCREMIE_STRAWBERRY_VANILLA_CREAM, \
         ALCREMIE_MISC_INFO(color),                                                              \
         .speciesName = _("Alcremie"),                                                           \
         .cryId = CRY_ALCREMIE,                                                                  \
@@ -5208,7 +5211,7 @@ const struct SpeciesInfo gSpeciesInfoGen8[] =
         .levelUpLearnset = sAlcremieLevelUpLearnset,
         .teachableLearnset = sAlcremieTeachableLearnset,
         .formSpeciesIdTable = sAlcremieFormSpeciesIdTable,
-        .formChangeTable = sAlcremieFormChangeTable,
+        .formChangeTable = sAlcremieGmaxFormChangeTable,
     },
 #endif //P_GIGANTAMAX_FORMS
 #endif //P_FAMILY_MILCERY
@@ -7576,6 +7579,7 @@ const struct SpeciesInfo gSpeciesInfoGen8[] =
 #if P_FAMILY_ZARUDE
     [SPECIES_ZARUDE] =
     {
+        .cosmeticFormOf = SPECIES_ZARUDE,
         .baseHP        = 105,
         .baseAttack    = 120,
         .baseDefense   = 105,
@@ -7643,6 +7647,7 @@ const struct SpeciesInfo gSpeciesInfoGen8[] =
 
     [SPECIES_ZARUDE_DADA] =
     {
+        .cosmeticFormOf = SPECIES_ZARUDE,
         .baseHP        = 105,
         .baseAttack    = 120,
         .baseDefense   = 105,

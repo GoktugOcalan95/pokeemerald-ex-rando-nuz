@@ -68,10 +68,12 @@ EventScript_BattleKecleon::
 	applymovement VAR_LAST_TALKED, Movement_KecleonAppears
 	waitmovement 0
 	waitse
-	playmoncry SPECIES_KECLEON, CRY_MODE_ENCOUNTER
+	randomizespecies VAR_0x800B, SPECIES_KECLEON, Kecleon_RandomizedEncounter + 1, SPECIES_REWARD_STATIC, VAR_0x8009
+	playmoncry VAR_0x800B, CRY_MODE_ENCOUNTER
 	delay 40
 	waitmoncry
-	setwildbattle SPECIES_KECLEON, 30
+Kecleon_RandomizedEncounter::
+	setwildbattle SPECIES_KECLEON, 30, sourceSlot=VAR_0x8009
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
 	dowildbattle
 	clearflag FLAG_SYS_CTRL_OBJ_DELETE

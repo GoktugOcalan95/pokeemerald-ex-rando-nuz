@@ -188,9 +188,11 @@ Route120_EventScript_StevenBattleKecleon::
 	applymovement LOCALID_BRIDGE_KECLEON, Movement_KecleonAppears
 	waitmovement 0
 	waitse
-	playmoncry SPECIES_KECLEON, CRY_MODE_ENCOUNTER
+	randomizespecies VAR_0x800B, SPECIES_KECLEON, Route120_RandomizedEncounter_0 + 1, SPECIES_REWARD_STATIC
+	playmoncry VAR_0x800B, CRY_MODE_ENCOUNTER
 	delay 40
 	waitmoncry
+Route120_RandomizedEncounter_0::
 	setwildbattle SPECIES_KECLEON, 30
 	setvar VAR_0x8009, 0
 	setflag FLAG_SYS_CTRL_OBJ_DELETE

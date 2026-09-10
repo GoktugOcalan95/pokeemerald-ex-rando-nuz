@@ -3035,6 +3035,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
 #if P_COSPLAY_PIKACHU_FORMS
     [SPECIES_PIKACHU_COSPLAY]   =
     {
+        .cosmeticFormOf = SPECIES_PIKACHU_COSPLAY,
         .baseHP        = 35,
         .baseAttack    = 55,
         .baseDefense   = 40,
@@ -3087,6 +3088,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
 
     [SPECIES_PIKACHU_ROCK_STAR] =
     {
+        .cosmeticFormOf = SPECIES_PIKACHU_COSPLAY,
         .baseHP        = 35,
         .baseAttack    = 55,
         .baseDefense   = 40,
@@ -3139,6 +3141,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
 
     [SPECIES_PIKACHU_BELLE] =
     {
+        .cosmeticFormOf = SPECIES_PIKACHU_COSPLAY,
         .baseHP        = 35,
         .baseAttack    = 55,
         .baseDefense   = 40,
@@ -3192,6 +3195,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
 
     [SPECIES_PIKACHU_POP_STAR] =
     {
+        .cosmeticFormOf = SPECIES_PIKACHU_COSPLAY,
         .baseHP        = 35,
         .baseAttack    = 55,
         .baseDefense   = 40,
@@ -3245,6 +3249,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
 
     [SPECIES_PIKACHU_PHD] =
     {
+        .cosmeticFormOf = SPECIES_PIKACHU_COSPLAY,
         .baseHP        = 35,
         .baseAttack    = 55,
         .baseDefense   = 40,
@@ -3297,6 +3302,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
 
     [SPECIES_PIKACHU_LIBRE] =
     {
+        .cosmeticFormOf = SPECIES_PIKACHU_COSPLAY,
         .baseHP        = 35,
         .baseAttack    = 55,
         .baseDefense   = 40,
@@ -3352,6 +3358,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
 #if P_CAP_PIKACHU_FORMS
     [SPECIES_PIKACHU_ORIGINAL] =
     {
+        .cosmeticFormOf = SPECIES_PIKACHU_ORIGINAL,
         .baseHP        = 35,
         .baseAttack    = 55,
         .baseDefense   = 40,
@@ -3409,6 +3416,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
 
     [SPECIES_PIKACHU_HOENN] =
     {
+        .cosmeticFormOf = SPECIES_PIKACHU_ORIGINAL,
         .baseHP        = 35,
         .baseAttack    = 55,
         .baseDefense   = 40,
@@ -3465,6 +3473,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
 
     [SPECIES_PIKACHU_SINNOH] =
     {
+        .cosmeticFormOf = SPECIES_PIKACHU_ORIGINAL,
         .baseHP        = 35,
         .baseAttack    = 55,
         .baseDefense   = 40,
@@ -3521,6 +3530,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
 
     [SPECIES_PIKACHU_UNOVA] =
     {
+        .cosmeticFormOf = SPECIES_PIKACHU_ORIGINAL,
         .baseHP        = 35,
         .baseAttack    = 55,
         .baseDefense   = 40,
@@ -3577,6 +3587,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
 
     [SPECIES_PIKACHU_KALOS] =
     {
+        .cosmeticFormOf = SPECIES_PIKACHU_ORIGINAL,
         .baseHP        = 35,
         .baseAttack    = 55,
         .baseDefense   = 40,
@@ -3633,6 +3644,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
 
     [SPECIES_PIKACHU_ALOLA] =
     {
+        .cosmeticFormOf = SPECIES_PIKACHU_ORIGINAL,
         .baseHP        = 35,
         .baseAttack    = 55,
         .baseDefense   = 40,
@@ -3689,6 +3701,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
 
     [SPECIES_PIKACHU_PARTNER] =
     {
+        .cosmeticFormOf = SPECIES_PIKACHU_ORIGINAL,
         .baseHP        = 35,
         .baseAttack    = 55,
         .baseDefense   = 40,
@@ -3746,6 +3759,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
 
     [SPECIES_PIKACHU_WORLD] =
     {
+        .cosmeticFormOf = SPECIES_PIKACHU_ORIGINAL,
         .baseHP        = 35,
         .baseAttack    = 55,
         .baseDefense   = 40,

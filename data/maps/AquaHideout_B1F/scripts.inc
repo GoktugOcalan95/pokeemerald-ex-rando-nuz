@@ -29,9 +29,11 @@ AquaHideout_B1F_EventScript_ShowElectrode2::
 AquaHideout_B1F_EventScript_Electrode1::
 	lock
 	faceplayer
+AquaHideout_B1F_RandomizedEncounter_0::
 	setwildbattle SPECIES_ELECTRODE, 30
 	waitse
-	playmoncry SPECIES_ELECTRODE, CRY_MODE_ENCOUNTER
+	randomizespecies VAR_0x800B, SPECIES_ELECTRODE, AquaHideout_B1F_RandomizedEncounter_0 + 1, SPECIES_REWARD_STATIC
+	playmoncry VAR_0x800B, CRY_MODE_ENCOUNTER
 	delay 40
 	waitmoncry
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
@@ -53,9 +55,11 @@ AquaHideout_B1F_EventScript_DefeatedElectrode1::
 AquaHideout_B1F_EventScript_Electrode2::
 	lock
 	faceplayer
+AquaHideout_B1F_RandomizedEncounter_1::
 	setwildbattle SPECIES_ELECTRODE, 30
 	waitse
-	playmoncry SPECIES_ELECTRODE, CRY_MODE_ENCOUNTER
+	randomizespecies VAR_0x800B, SPECIES_ELECTRODE, AquaHideout_B1F_RandomizedEncounter_1 + 1, SPECIES_REWARD_STATIC
+	playmoncry VAR_0x800B, CRY_MODE_ENCOUNTER
 	delay 40
 	waitmoncry
 	setflag FLAG_SYS_CTRL_OBJ_DELETE

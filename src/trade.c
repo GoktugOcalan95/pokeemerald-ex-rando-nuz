@@ -1,4 +1,5 @@
 #include "global.h"
+#include "species_randomizer.h"
 #include "item_randomizer.h"
 #include "no_evs.h"
 #include "malloc.h"
@@ -4556,7 +4557,7 @@ u16 GetInGameTradeSpeciesInfo(void)
 {
     const struct InGameTrade *inGameTrade = &sIngameTrades[gSpecialVar_0x8005];
     StringCopy(gStringVar1, GetSpeciesName(inGameTrade->requestedSpecies));
-    StringCopy(gStringVar2, GetSpeciesName(inGameTrade->species));
+    StringCopy(gStringVar2, GetSpeciesName(RandomizeEncounterSpecies(inGameTrade->species, SPECIES_REWARD_TRADE, gSpecialVar_0x8005, 0)));
     return inGameTrade->requestedSpecies;
 }
 
@@ -4566,7 +4567,7 @@ static void BufferInGameTradeMonName(void)
     const struct InGameTrade *inGameTrade = &sIngameTrades[gSpecialVar_0x8005];
     GetMonData(&gParties[B_TRAINER_PLAYER][gSpecialVar_0x8005], MON_DATA_NICKNAME, nickname);
     StringCopy_Nickname(gStringVar1, nickname);
-    StringCopy(gStringVar2, GetSpeciesName(inGameTrade->species));
+    StringCopy(gStringVar2, GetSpeciesName(RandomizeEncounterSpecies(inGameTrade->species, SPECIES_REWARD_TRADE, gSpecialVar_0x8005, 0)));
 }
 
 static void CreateInGameTradePokemonInternal(u8 whichPlayerMon, u8 whichInGameTrade)
@@ -4580,7 +4581,7 @@ static void CreateInGameTradePokemonInternal(u8 whichPlayerMon, u8 whichInGameTr
     u8 mailNum;
     struct Pokemon *pokemon = &gParties[B_TRAINER_OPPONENT_A][0];
 
-    CreateMon(pokemon, inGameTrade->species, level, inGameTrade->personality, OTID_STRUCT_PRESET(inGameTrade->otId));
+    CreateMon(pokemon, RandomizeEncounterSpecies(inGameTrade->species, SPECIES_REWARD_TRADE, whichInGameTrade, 0), level, inGameTrade->personality, OTID_STRUCT_PRESET(inGameTrade->otId));
     GiveMonInitialMoveset(pokemon);
 
     SetMonData(pokemon, MON_DATA_HP_IV, &inGameTrade->ivs[0]);
@@ -4608,6 +4609,7 @@ static void CreateInGameTradePokemonInternal(u8 whichPlayerMon, u8 whichInGameTr
         if (ItemIsMail(heldItem))
         {
             GetInGameTradeMail(&mail, inGameTrade);
+            mail.species = GetMonData(pokemon, MON_DATA_SPECIES);
             gTradeMail[0] = mail;
             SetMonData(pokemon, MON_DATA_MAIL, &mailNum);
             SetMonData(pokemon, MON_DATA_HELD_ITEM, &heldItem);
@@ -4617,6 +4619,7 @@ static void CreateInGameTradePokemonInternal(u8 whichPlayerMon, u8 whichInGameTr
             SetMonData(pokemon, MON_DATA_HELD_ITEM, &heldItem);
         }
     }
+    PrepareRandomizedEncounterMon(pokemon);
     CalculateMonStats(&gParties[B_TRAINER_OPPONENT_A][0]);
 }
 

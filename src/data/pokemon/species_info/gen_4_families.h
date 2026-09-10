@@ -2283,6 +2283,7 @@ const struct SpeciesInfo gSpeciesInfoGen4[] =
 
 #define MOTHIM_SPECIES_INFO                                                 \
     {                                                                       \
+        .cosmeticFormOf = SPECIES_MOTHIM_PLANT, \
         .baseHP        = 70,                                                \
         .baseAttack    = 94,                                                \
         .baseDefense   = 50,                                                \
@@ -2991,6 +2992,7 @@ const struct SpeciesInfo gSpeciesInfoGen4[] =
 #if P_FAMILY_SHELLOS
     [SPECIES_SHELLOS_WEST] =
     {
+        .cosmeticFormOf = SPECIES_SHELLOS_WEST,
         .baseHP        = 76,
         .baseAttack    = 48,
         .baseDefense   = 48,
@@ -3057,6 +3059,7 @@ const struct SpeciesInfo gSpeciesInfoGen4[] =
 
     [SPECIES_SHELLOS_EAST] =
     {
+        .cosmeticFormOf = SPECIES_SHELLOS_WEST,
         .baseHP        = 76,
         .baseAttack    = 48,
         .baseDefense   = 48,
@@ -3123,6 +3126,7 @@ const struct SpeciesInfo gSpeciesInfoGen4[] =
 
     [SPECIES_GASTRODON_WEST] =
     {
+        .cosmeticFormOf = SPECIES_GASTRODON_WEST,
         .baseHP        = 111,
         .baseAttack    = 83,
         .baseDefense   = 68,
@@ -3187,6 +3191,7 @@ const struct SpeciesInfo gSpeciesInfoGen4[] =
 
     [SPECIES_GASTRODON_EAST] =
     {
+        .cosmeticFormOf = SPECIES_GASTRODON_WEST,
         .baseHP        = 111,
         .baseAttack    = 83,
         .baseDefense   = 68,

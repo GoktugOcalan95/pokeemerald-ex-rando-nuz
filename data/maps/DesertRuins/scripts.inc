@@ -60,9 +60,11 @@ DesertRuins_EventScript_Regirock::
 	goto_if_unset FLAG_BADGE08_GET, EventScript_LegendaryNotUnlocked
 	faceplayer
 	waitse
-	playmoncry SPECIES_REGIROCK, CRY_MODE_ENCOUNTER
+	randomizespecies VAR_0x800B, SPECIES_REGIROCK, DesertRuins_RandomizedEncounter_0 + 1, SPECIES_REWARD_STATIC
+	playmoncry VAR_0x800B, CRY_MODE_ENCOUNTER
 	delay 40
 	waitmoncry
+DesertRuins_RandomizedEncounter_0::
 	setwildbattle SPECIES_REGIROCK, 50
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
 	special StartRegiBattle
@@ -81,7 +83,7 @@ DesertRuins_EventScript_DefeatedRegirock::
 	end
 
 DesertRuins_EventScript_RanFromRegirock::
-	setvar VAR_0x8004, SPECIES_REGIROCK
+	randomizespecies VAR_0x8004, SPECIES_REGIROCK, DesertRuins_RandomizedEncounter_0 + 1, SPECIES_REWARD_STATIC
 	goto Common_EventScript_LegendaryFlewAway
 	end
 

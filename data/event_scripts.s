@@ -3,6 +3,7 @@
 #include "config/item.h"
 #include "config/pokemon.h"
 #include "constants/global.h"
+#include "constants/species_randomizer.h"
 #include "constants/apprentice.h"
 #include "constants/apricorn_tree.h"
 #include "constants/battle.h"
@@ -1741,3 +1742,6 @@ EventScript_PalletTown_PlayersHouse_2F_TurnOnPC::
 	.include "data/scripts/battle_frontier.inc"
 	.include "data/scripts/apricorn_tree.inc"
 	.include "data/scripts/wild_encounter.inc"
+
+Text_RandomizedGiftChoice:
+	.string "Will you choose {STR_VAR_1}?$"

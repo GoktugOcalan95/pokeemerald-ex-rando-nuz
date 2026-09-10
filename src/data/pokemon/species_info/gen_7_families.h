@@ -4767,6 +4767,7 @@ const struct SpeciesInfo gSpeciesInfoGen7[] =
 
 #define MINIOR_CORE_SPECIES_INFO(Form, color, iconPal, heldItem)\
     {                                                           \
+        .cosmeticFormOf = SPECIES_MINIOR_CORE_RED, \
         .baseHP        = 60,                                    \
         .baseAttack    = 100,                                   \
         .baseDefense   = 60,                                    \
@@ -7258,6 +7259,7 @@ const struct SpeciesInfo gSpeciesInfoGen7[] =
 #if P_FAMILY_MAGEARNA
     [SPECIES_MAGEARNA] =
     {
+        .cosmeticFormOf = SPECIES_MAGEARNA,
         .baseHP        = 80,
         .baseAttack    = 95,
         .baseDefense   = 115,
@@ -7326,6 +7328,7 @@ const struct SpeciesInfo gSpeciesInfoGen7[] =
 
     [SPECIES_MAGEARNA_ORIGINAL] =
     {
+        .cosmeticFormOf = SPECIES_MAGEARNA,
         .baseHP        = 80,
         .baseAttack    = 95,
         .baseDefense   = 115,

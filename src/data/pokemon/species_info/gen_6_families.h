@@ -1301,6 +1301,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 #if P_FAMILY_SCATTERBUG
 #define SCATTERBUG_SPECIES_INFO(evolution)                                                  \
     {                                                                                       \
+        .cosmeticFormOf = SPECIES_SCATTERBUG_ICY_SNOW, \
         .baseHP        = 38,                                                                \
         .baseAttack    = 35,                                                                \
         .baseDefense   = 40,                                                                \
@@ -1385,6 +1386,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
 #define SPEWPA_SPECIES_INFO(evolution)                                          \
     {                                                                           \
+        .cosmeticFormOf = SPECIES_SPEWPA_ICY_SNOW, \
         .baseHP        = 45,                                                    \
         .baseAttack    = 22,                                                    \
         .baseDefense   = 60,                                                    \
@@ -1528,6 +1530,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_ICY_SNOW] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(IcySnow, BODY_COLOR_WHITE, 0),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1538,6 +1541,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_POLAR] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(Polar, BODY_COLOR_BLUE, 0),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1548,6 +1552,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_TUNDRA] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(Tundra, BODY_COLOR_BLUE, 0),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1558,6 +1563,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_CONTINENTAL] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(Continental, BODY_COLOR_YELLOW, 2),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1568,6 +1574,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_GARDEN] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(Garden, BODY_COLOR_GREEN, 1),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1578,6 +1585,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_ELEGANT] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(Elegant, BODY_COLOR_PURPLE, 0),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1588,6 +1596,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_MEADOW] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(Meadow, BODY_COLOR_PINK, 0),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1598,6 +1607,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_MODERN] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(Modern, BODY_COLOR_RED, 2),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1608,6 +1618,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_MARINE] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(Marine, BODY_COLOR_BLUE, 0),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1618,6 +1629,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_ARCHIPELAGO] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(Archipelago, BODY_COLOR_BROWN, 0),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1628,6 +1640,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_HIGH_PLAINS] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(HighPlains, BODY_COLOR_BROWN, 0),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1638,6 +1651,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_SANDSTORM] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(Sandstorm, BODY_COLOR_BROWN, 1),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1648,6 +1662,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_RIVER] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(River, BODY_COLOR_BROWN, 2),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1658,6 +1673,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_MONSOON] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(Monsoon, BODY_COLOR_GRAY, 0),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1668,6 +1684,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_SAVANNA] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(Savanna, BODY_COLOR_GREEN, 0),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1678,6 +1695,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_SUN] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(Sun, BODY_COLOR_RED, 0),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1688,6 +1706,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_OCEAN] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(Ocean, BODY_COLOR_RED, 0),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1698,6 +1717,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_JUNGLE] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(Jungle, BODY_COLOR_GREEN, 0),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1708,6 +1728,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_FANCY] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(Fancy, BODY_COLOR_PINK, 1),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -1718,6 +1739,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_VIVILLON_POKEBALL] =
     {
+        .cosmeticFormOf = SPECIES_VIVILLON_ICY_SNOW,
         VIVILLON_MISC_INFO(PokeBall, BODY_COLOR_RED, 2),
         .description = COMPOUND_STRING(
             "Its pattern depends on the climate and\n"
@@ -2003,6 +2025,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_FLABEBE_RED] =
     {
+        .cosmeticFormOf = SPECIES_FLABEBE_RED,
         FLABEBE_MISC_INFO(Red, RED, 1),
         .description = COMPOUND_STRING(
             "This Flabébé rides a red flower.\n"
@@ -2013,6 +2036,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_FLABEBE_YELLOW] =
     {
+        .cosmeticFormOf = SPECIES_FLABEBE_RED,
         FLABEBE_MISC_INFO(Yellow, YELLOW, 1),
         .description = COMPOUND_STRING(
             "It unleashes a variety of moves by\n"
@@ -2023,6 +2047,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_FLABEBE_ORANGE] =
     {
+        .cosmeticFormOf = SPECIES_FLABEBE_RED,
         FLABEBE_MISC_INFO(Orange, ORANGE, 0),
         .description = COMPOUND_STRING(
             "It receives strength from flowers\n"
@@ -2033,6 +2058,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_FLABEBE_BLUE]   =
     {
+        .cosmeticFormOf = SPECIES_FLABEBE_RED,
         FLABEBE_MISC_INFO(Blue, BLUE, 0),
         .description = COMPOUND_STRING(
             "This Pokémon likes blue flowers\n"
@@ -2043,6 +2069,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_FLABEBE_WHITE]  =
     {
+        .cosmeticFormOf = SPECIES_FLABEBE_RED,
         FLABEBE_MISC_INFO(White, WHITE, 1),
         .description = COMPOUND_STRING(
             "When evening falls, it searches out\n"
@@ -2115,6 +2142,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_FLOETTE_RED] =
     {
+        .cosmeticFormOf = SPECIES_FLOETTE_RED,
         FLOETTE_NORMAL_INFO(Red, RED, 1),
         .description = COMPOUND_STRING(
             "This Pokémon uses red wavelengths\n"
@@ -2125,6 +2153,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_FLOETTE_YELLOW] =
     {
+        .cosmeticFormOf = SPECIES_FLOETTE_RED,
         FLOETTE_NORMAL_INFO(Yellow, YELLOW, 1),
         .description = COMPOUND_STRING(
             "This Pokémon can draw forth the\n"
@@ -2135,6 +2164,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_FLOETTE_ORANGE] =
     {
+        .cosmeticFormOf = SPECIES_FLOETTE_RED,
         FLOETTE_NORMAL_INFO(Orange, ORANGE, 0),
         .description = COMPOUND_STRING(
             "This Pokémon can draw forth the\n"
@@ -2145,6 +2175,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_FLOETTE_BLUE] =
     {
+        .cosmeticFormOf = SPECIES_FLOETTE_RED,
         FLOETTE_NORMAL_INFO(Blue, BLUE, 0),
         .description = COMPOUND_STRING(
             "Whenever this Pokémon finds\n"
@@ -2155,6 +2186,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_FLOETTE_WHITE] =
     {
+        .cosmeticFormOf = SPECIES_FLOETTE_RED,
         FLOETTE_NORMAL_INFO(White, WHITE, 1),
         .description = COMPOUND_STRING(
             "If it finds someone messing up a\n"
@@ -2251,6 +2283,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_FLORGES_RED] =
     {
+        .cosmeticFormOf = SPECIES_FLORGES_RED,
         FLORGES_MISC_INFO(Red, 0),
         .description = COMPOUND_STRING(
             "This Pokémon creates an impressive\n"
@@ -2261,6 +2294,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_FLORGES_YELLOW] =
     {
+        .cosmeticFormOf = SPECIES_FLORGES_RED,
         FLORGES_MISC_INFO(Yellow, 1),
         .description = COMPOUND_STRING(
             "This Pokémon battles by drawing\n"
@@ -2271,6 +2305,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_FLORGES_ORANGE] =
     {
+        .cosmeticFormOf = SPECIES_FLORGES_RED,
         FLORGES_MISC_INFO(Orange, 0),
         .description = COMPOUND_STRING(
             "In times long past, castle\n"
@@ -2281,6 +2316,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_FLORGES_BLUE] =
     {
+        .cosmeticFormOf = SPECIES_FLORGES_RED,
         FLORGES_MISC_INFO(Blue, 0),
         .description = COMPOUND_STRING(
             "Blue pigments were tremendously\n"
@@ -2290,6 +2326,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 
     [SPECIES_FLORGES_WHITE] =
     {
+        .cosmeticFormOf = SPECIES_FLORGES_RED,
         FLORGES_MISC_INFO(White, 0),
         .description = COMPOUND_STRING(
             "A flower garden made by a white-\n"
@@ -2644,6 +2681,7 @@ const struct SpeciesInfo gSpeciesInfoGen6[] =
 #if P_FAMILY_FURFROU
 #define FURFROU_MISC_INFO(_form, _noFlip, frontWidth, frontYOffset, backWidth, backYOffset, _iconIdx, _overworldAnim)   \
     {                                                                                                                   \
+        .cosmeticFormOf = SPECIES_FURFROU_NATURAL, \
         .baseHP        = 75,                                                                                            \
         .baseAttack    = 80,                                                                                            \
         .baseDefense   = 60,                                                                                            \

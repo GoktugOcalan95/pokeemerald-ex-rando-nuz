@@ -4048,6 +4048,7 @@ const struct SpeciesInfo gSpeciesInfoGen2[] =
 #if P_FAMILY_UNOWN
 #define UNOWN_MISC_INFO(letter, _noFlip, frontWidth, frontHeight, backWidth, backHeight, backYOffset)   \
     {                                                                                                   \
+        .cosmeticFormOf = SPECIES_UNOWN, \
         .baseHP        = 48,                                                                            \
         .baseAttack    = 72,                                                                            \
         .baseDefense   = 48,                                                                            \
@@ -4682,6 +4683,7 @@ const struct SpeciesInfo gSpeciesInfoGen2[] =
 #if P_GEN_9_CROSS_EVOS
     [SPECIES_DUDUNSPARCE_TWO_SEGMENT] =
     {
+        .cosmeticFormOf = SPECIES_DUDUNSPARCE_TWO_SEGMENT,
         .baseHP        = 125,
         .baseAttack    = 100,
         .baseDefense   = 80,
@@ -4746,6 +4748,7 @@ const struct SpeciesInfo gSpeciesInfoGen2[] =
 
     [SPECIES_DUDUNSPARCE_THREE_SEGMENT] =
     {
+        .cosmeticFormOf = SPECIES_DUDUNSPARCE_TWO_SEGMENT,
         .baseHP        = 125,
         .baseAttack    = 100,
         .baseDefense   = 80,

@@ -130,19 +130,22 @@ RustboroCity_DevonCorp_2F_EventScript_FossilMonReady::
 	end
 
 RustboroCity_DevonCorp_2F_EventScript_LileepReady::
-	bufferspeciesname STR_VAR_2, SPECIES_LILEEP
+	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_LILEEP, RustboroCity_DevonCorp_2F_RandomizedGift_0 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
+	bufferspeciesname STR_VAR_2, VAR_TEMP_TRANSFERRED_SPECIES
 	msgbox RustboroCity_DevonCorp_2F_Text_FossilizedMonBroughtBackToLife, MSGBOX_DEFAULT
 	goto RustboroCity_DevonCorp_2F_EventScript_ReceiveLileep
 	end
 
 RustboroCity_DevonCorp_2F_EventScript_AnorithReady::
-	bufferspeciesname STR_VAR_2, SPECIES_ANORITH
+	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_ANORITH, RustboroCity_DevonCorp_2F_RandomizedGift_1 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
+	bufferspeciesname STR_VAR_2, VAR_TEMP_TRANSFERRED_SPECIES
 	msgbox RustboroCity_DevonCorp_2F_Text_FossilizedMonBroughtBackToLife, MSGBOX_DEFAULT
 	goto RustboroCity_DevonCorp_2F_EventScript_ReceiveAnorith
 	end
 
 RustboroCity_DevonCorp_2F_EventScript_ReceiveLileep::
-	setvar VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_LILEEP
+	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_LILEEP, RustboroCity_DevonCorp_2F_RandomizedGift_0 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
+RustboroCity_DevonCorp_2F_RandomizedGift_0::
 	givemon SPECIES_LILEEP, 20
 	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PARTY, RustboroCity_DevonCorp_2F_EventScript_ReceiveLileepParty
 	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PC, RustboroCity_DevonCorp_2F_EventScript_ReceiveLileepPC
@@ -172,12 +175,14 @@ RustboroCity_DevonCorp_2F_EventScript_TransferLileepToPC::
 	end
 
 RustboroCity_DevonCorp_2F_EventScript_ReceivedLileepFanfare::
-	bufferspeciesname STR_VAR_2, SPECIES_LILEEP
+	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_LILEEP, RustboroCity_DevonCorp_2F_RandomizedGift_0 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
+	bufferspeciesname STR_VAR_2, VAR_TEMP_TRANSFERRED_SPECIES
 	playfanfare MUS_OBTAIN_ITEM
 	message RustboroCity_DevonCorp_2F_Text_ReceivedMonFromResearcher
 	waitmessage
 	waitfanfare
-	bufferspeciesname STR_VAR_1, SPECIES_LILEEP
+	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_LILEEP, RustboroCity_DevonCorp_2F_RandomizedGift_0 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
+	bufferspeciesname STR_VAR_1, VAR_TEMP_TRANSFERRED_SPECIES
 	return
 
 RustboroCity_DevonCorp_2F_EventScript_FinishReceivingLileep::
@@ -187,7 +192,8 @@ RustboroCity_DevonCorp_2F_EventScript_FinishReceivingLileep::
 	end
 
 RustboroCity_DevonCorp_2F_EventScript_ReceiveAnorith::
-	setvar VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_ANORITH
+	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_ANORITH, RustboroCity_DevonCorp_2F_RandomizedGift_1 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
+RustboroCity_DevonCorp_2F_RandomizedGift_1::
 	givemon SPECIES_ANORITH, 20
 	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PARTY, RustboroCity_DevonCorp_2F_EventScript_ReceiveAnorithParty
 	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PC, RustboroCity_DevonCorp_2F_EventScript_ReceiveAnorithPC
@@ -217,12 +223,14 @@ RustboroCity_DevonCorp_2F_EventScript_TransferAnorithToPC::
 	end
 
 RustboroCity_DevonCorp_2F_EventScript_ReceivedAnorithFanfare::
-	bufferspeciesname STR_VAR_2, SPECIES_ANORITH
+	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_ANORITH, RustboroCity_DevonCorp_2F_RandomizedGift_1 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
+	bufferspeciesname STR_VAR_2, VAR_TEMP_TRANSFERRED_SPECIES
 	playfanfare MUS_OBTAIN_ITEM
 	message RustboroCity_DevonCorp_2F_Text_ReceivedMonFromResearcher
 	waitmessage
 	waitfanfare
-	bufferspeciesname STR_VAR_1, SPECIES_ANORITH
+	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_ANORITH, RustboroCity_DevonCorp_2F_RandomizedGift_1 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
+	bufferspeciesname STR_VAR_1, VAR_TEMP_TRANSFERRED_SPECIES
 	return
 
 RustboroCity_DevonCorp_2F_EventScript_FinishReceivingAnorith::

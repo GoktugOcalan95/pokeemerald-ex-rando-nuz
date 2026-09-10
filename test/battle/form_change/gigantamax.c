@@ -62,3 +62,19 @@ SINGLE_BATTLE_TEST("Dynamax: Venusaur returns its base Form upon fainting end af
         EXPECT_EQ(player->species, SPECIES_VENUSAUR);
     }
 }
+
+SINGLE_BATTLE_TEST("Species randomizer Alcremie retains its cosmetic form after Gigantamax")
+{
+    enum Species species;
+    PARAMETRIZE { species = SPECIES_ALCREMIE_BERRY_RAINBOW_SWIRL; }
+    PARAMETRIZE { species = SPECIES_ALCREMIE_STAR_MATCHA_CREAM; }
+    GIVEN {
+        PLAYER(species) { GigantamaxFactor(TRUE); }
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { MOVE(player, MOVE_TACKLE, gimmick: GIMMICK_DYNAMAX); }
+    } THEN {
+        EXPECT_EQ(player->species, SPECIES_ALCREMIE_GMAX);
+        EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][0], MON_DATA_SPECIES), species);
+    }
+}

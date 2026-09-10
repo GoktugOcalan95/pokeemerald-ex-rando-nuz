@@ -7944,6 +7944,7 @@ const struct SpeciesInfo gSpeciesInfoGen5[] =
 #if P_FAMILY_DEERLING
     [SPECIES_DEERLING_SPRING] =
     {
+        .cosmeticFormOf = SPECIES_DEERLING_SPRING,
         .baseHP        = 60,
         .baseAttack    = 60,
         .baseDefense   = 50,
@@ -8010,6 +8011,7 @@ const struct SpeciesInfo gSpeciesInfoGen5[] =
 
     [SPECIES_DEERLING_SUMMER] =
     {
+        .cosmeticFormOf = SPECIES_DEERLING_SPRING,
         .baseHP        = 60,
         .baseAttack    = 60,
         .baseDefense   = 50,
@@ -8076,6 +8078,7 @@ const struct SpeciesInfo gSpeciesInfoGen5[] =
 
     [SPECIES_DEERLING_AUTUMN] =
     {
+        .cosmeticFormOf = SPECIES_DEERLING_SPRING,
         .baseHP        = 60,
         .baseAttack    = 60,
         .baseDefense   = 50,
@@ -8142,6 +8145,7 @@ const struct SpeciesInfo gSpeciesInfoGen5[] =
 
     [SPECIES_DEERLING_WINTER] =
     {
+        .cosmeticFormOf = SPECIES_DEERLING_SPRING,
         .baseHP        = 60,
         .baseAttack    = 60,
         .baseDefense   = 50,
@@ -8208,6 +8212,7 @@ const struct SpeciesInfo gSpeciesInfoGen5[] =
 
     [SPECIES_SAWSBUCK_SPRING] =
     {
+        .cosmeticFormOf = SPECIES_SAWSBUCK_SPRING,
         .baseHP        = 80,
         .baseAttack    = 100,
         .baseDefense   = 70,
@@ -8272,6 +8277,7 @@ const struct SpeciesInfo gSpeciesInfoGen5[] =
 
     [SPECIES_SAWSBUCK_SUMMER] =
     {
+        .cosmeticFormOf = SPECIES_SAWSBUCK_SPRING,
         .baseHP        = 80,
         .baseAttack    = 100,
         .baseDefense   = 70,
@@ -8336,6 +8342,7 @@ const struct SpeciesInfo gSpeciesInfoGen5[] =
 
     [SPECIES_SAWSBUCK_AUTUMN] =
     {
+        .cosmeticFormOf = SPECIES_SAWSBUCK_SPRING,
         .baseHP        = 80,
         .baseAttack    = 100,
         .baseDefense   = 70,
@@ -8400,6 +8407,7 @@ const struct SpeciesInfo gSpeciesInfoGen5[] =
 
     [SPECIES_SAWSBUCK_WINTER] =
     {
+        .cosmeticFormOf = SPECIES_SAWSBUCK_SPRING,
         .baseHP        = 80,
         .baseAttack    = 100,
         .baseDefense   = 70,

@@ -78,6 +78,8 @@ static bool32 IsAlwaysTrue(enum FieldMove fieldMove)
 
 static bool32 HasBadgeForFieldMove(enum FieldMove fieldMove)
 {
+    if (fieldMove == FIELD_MOVE_SURF && FlagGet(FLAG_RUN_RULE_EARLY_SURF))
+        return FlagGet(FLAG_BADGE03_GET);
     return FlagGet(gFieldMoveInfo[fieldMove].arg + FLAG_BADGE01_GET);
 }
 

@@ -56,9 +56,7 @@ RusturfTunnel_EventScript_ClearTunnelScene::
 	msgbox RusturfTunnel_Text_YouShatteredBoulderTakeHM, MSGBOX_DEFAULT
 	call_if_eq VAR_TEMP_1, 2, RusturfTunnel_EventScript_WandasBoyfriendApproachPlayer
 	call_if_eq VAR_TEMP_1, 3, RusturfTunnel_EventScript_WandasBoyfriendApproachPlayer
-	giveitem ITEM_HM_STRENGTH
-	setflag FLAG_RECEIVED_HM_STRENGTH
-	msgbox RusturfTunnel_Text_ExplainStrength, MSGBOX_DEFAULT
+	call RusturfTunnel_EventScript_GiveTunnelHM
 	closemessage
 	call_if_eq VAR_TEMP_1, 1, RusturfTunnel_EventScript_BoyfriendApproachWanda1
 	call_if_eq VAR_TEMP_1, 2, RusturfTunnel_EventScript_BoyfriendApproachWanda2
@@ -525,3 +523,21 @@ RusturfTunnel_Text_MikePostBattle:
 	.string "protect POKéMON, right?\l"
 	.string "There's a feel-good story!$"
 
+
+RusturfTunnel_EventScript_GiveTunnelHM::
+	goto_if_set FLAG_RUN_RULE_EARLY_SURF, RusturfTunnel_EventScript_GiveEarlySurf
+	giveitem ITEM_HM_STRENGTH
+	setflag FLAG_RECEIVED_HM_STRENGTH
+	msgbox RusturfTunnel_Text_ExplainStrength, MSGBOX_DEFAULT
+	return
+
+RusturfTunnel_EventScript_GiveEarlySurf::
+	giveitem ITEM_HM_SURF
+	setflag FLAG_RECEIVED_HM_SURF
+	msgbox RusturfTunnel_Text_ExplainEarlySurf, MSGBOX_DEFAULT
+	return
+
+RusturfTunnel_Text_ExplainEarlySurf:
+	.string "That HM contains SURF.\p"
+	.string "With WATTSON's DYNAMO BADGE, you can\n"
+	.string "travel across water!$"

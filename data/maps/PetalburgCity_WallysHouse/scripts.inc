@@ -19,9 +19,7 @@ PetalburgCity_WallysHouse_OnFrame:
 PetalburgCity_WallysHouse_EventScript_GiveHMSurf::
 	lockall
 	msgbox PetalburgCity_WallysHouse_Text_PleaseExcuseUs, MSGBOX_DEFAULT
-	giveitem ITEM_HM_SURF
-	setflag FLAG_RECEIVED_HM_SURF
-	msgbox PetalburgCity_WallysHouse_Text_SurfGoAllSortsOfPlaces, MSGBOX_DEFAULT
+	call PetalburgCity_WallysHouse_EventScript_GiveRewardHM
 	setvar VAR_PETALBURG_CITY_STATE, 5
 	releaseall
 	end
@@ -30,7 +28,7 @@ PetalburgCity_WallysHouse_EventScript_WallysDad::
 	lock
 	faceplayer
 	goto_if_set FLAG_DEFEATED_WALLY_VICTORY_ROAD, PetalburgCity_WallysHouse_EventScript_DefeatedWallyInVictoryRoad
-	goto_if_set FLAG_RECEIVED_HM_SURF, PetalburgCity_WallysHouse_EventScript_ReceievedHMSurf
+	goto_if_ge VAR_PETALBURG_CITY_STATE, 5, PetalburgCity_WallysHouse_EventScript_ReceievedHMSurf
 	goto_if_set FLAG_THANKED_FOR_PLAYING_WITH_WALLY, PetalburgCity_WallysHouse_EventScript_PlayedWithWally
 	msgbox PetalburgCity_WallysHouse_Text_ThanksForPlayingWithWally, MSGBOX_DEFAULT
 	setflag FLAG_THANKED_FOR_PLAYING_WITH_WALLY
@@ -55,7 +53,7 @@ PetalburgCity_WallysHouse_EventScript_PlayedWithWally::
 PetalburgCity_WallysHouse_EventScript_WallysMom::
 	lock
 	faceplayer
-	goto_if_set FLAG_RECEIVED_HM_SURF, PetalburgCity_WallysHouse_EventScript_ReceivedHMSurf
+	goto_if_ge VAR_PETALBURG_CITY_STATE, 5, PetalburgCity_WallysHouse_EventScript_ReceivedHMSurf
 	msgbox PetalburgCity_WallysHouse_Text_WallyWasReallyHappy, MSGBOX_DEFAULT
 	release
 	end
@@ -133,3 +131,21 @@ PetalburgCity_WallysHouse_Text_WallyLeftWithoutTelling:
 	.string "I'm sure that he'll come back safe\n"
 	.string "and sound one day!$"
 
+
+PetalburgCity_WallysHouse_EventScript_GiveRewardHM::
+	goto_if_set FLAG_RUN_RULE_EARLY_SURF, PetalburgCity_WallysHouse_EventScript_GiveStrength
+	giveitem ITEM_HM_SURF
+	setflag FLAG_RECEIVED_HM_SURF
+	msgbox PetalburgCity_WallysHouse_Text_SurfGoAllSortsOfPlaces, MSGBOX_DEFAULT
+	return
+
+PetalburgCity_WallysHouse_EventScript_GiveStrength::
+	giveitem ITEM_HM_STRENGTH
+	setflag FLAG_RECEIVED_HM_STRENGTH
+	msgbox PetalburgCity_WallysHouse_Text_ExplainStrength, MSGBOX_DEFAULT
+	return
+
+PetalburgCity_WallysHouse_Text_ExplainStrength:
+	.string "That HM contains STRENGTH.\p"
+	.string "You can use it to push the large\n"
+	.string "boulders blocking your way!$"

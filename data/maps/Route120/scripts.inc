@@ -154,6 +154,7 @@ Route120_EventScript_BerryNotLove::
 Route120_EventScript_Steven::
 	lock
 	faceplayer
+	goto_if_unset FLAG_BADGE05_GET, Route120_EventScript_StevenNeedsNorman
 	goto_if_set FLAG_NOT_READY_FOR_BATTLE_ROUTE_120, Route120_EventScript_StevenAskReadyForBattle
 	msgbox Route120_Text_StevenGreeting, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, Route120_EventScript_StevenNotReady
@@ -427,3 +428,14 @@ Route120_Text_RouteSignFortree:
 Route120_Text_RouteSign121:
 	.string "{RIGHT_ARROW} ROUTE 121\n"
 	.string "{LEFT_ARROW} ROUTE 120$"
+
+Route120_EventScript_StevenNeedsNorman::
+	msgbox Route120_Text_ChallengeNorman, MSGBOX_DEFAULT
+	release
+	end
+
+Route120_Text_ChallengeNorman:
+	.string "STEVEN: Have you challenged NORMAN\n"
+	.string "at the PETALBURG GYM yet?\p"
+	.string "Come see me after you have earned\n"
+	.string "his BALANCE BADGE.$"

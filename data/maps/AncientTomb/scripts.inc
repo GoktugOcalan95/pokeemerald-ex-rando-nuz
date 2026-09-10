@@ -20,6 +20,7 @@ AncientTomb_OnTransition:
 	end
 
 AncientTomb_EventScript_ShowRegisteel::
+	goto_if_unset FLAG_BADGE08_GET, AncientTomb_EventScript_HideRegisteel
 	clearflag FLAG_HIDE_REGISTEEL
 	return
 
@@ -56,12 +57,13 @@ AncientTomb_EventScript_CaveEntranceSide::
 
 AncientTomb_EventScript_Registeel::
 	lock
+	goto_if_unset FLAG_BADGE08_GET, EventScript_LegendaryNotUnlocked
 	faceplayer
 	waitse
 	playmoncry SPECIES_REGISTEEL, CRY_MODE_ENCOUNTER
 	delay 40
 	waitmoncry
-	setwildbattle SPECIES_REGISTEEL, 40
+	setwildbattle SPECIES_REGISTEEL, 50
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
 	special StartRegiBattle
 	clearflag FLAG_SYS_CTRL_OBJ_DELETE
@@ -83,3 +85,7 @@ AncientTomb_EventScript_RanFromRegisteel::
 	goto Common_EventScript_LegendaryFlewAway
 	end
 
+
+AncientTomb_EventScript_HideRegisteel::
+	setflag FLAG_HIDE_REGISTEEL
+	return

@@ -34,6 +34,7 @@ IslandCave_OnTransition:
 	end
 
 IslandCave_EventScript_ShowRegice::
+	goto_if_unset FLAG_BADGE08_GET, IslandCave_EventScript_HideRegice
 	clearflag FLAG_HIDE_REGICE
 	return
 
@@ -89,12 +90,13 @@ IslandCave_EventScript_ClearSteps::
 
 IslandCave_EventScript_Regice::
 	lock
+	goto_if_unset FLAG_BADGE08_GET, EventScript_LegendaryNotUnlocked
 	faceplayer
 	waitse
 	playmoncry SPECIES_REGICE, CRY_MODE_ENCOUNTER
 	delay 40
 	waitmoncry
-	setwildbattle SPECIES_REGICE, 40
+	setwildbattle SPECIES_REGICE, 50
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
 	special StartRegiBattle
 	clearflag FLAG_SYS_CTRL_OBJ_DELETE
@@ -115,3 +117,7 @@ IslandCave_EventScript_RanFromRegice::
 	setvar VAR_0x8004, SPECIES_REGICE
 	goto Common_EventScript_LegendaryFlewAway
 	end
+
+IslandCave_EventScript_HideRegice::
+	setflag FLAG_HIDE_REGICE
+	return

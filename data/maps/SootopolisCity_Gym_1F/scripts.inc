@@ -96,6 +96,7 @@ SootopolisCity_Gym_1F_EventScript_JuanDefeated::
 	msgbox SootopolisCity_Gym_1F_Text_ExplainRainBadgeTakeThis, MSGBOX_DEFAULT
 	setflag FLAG_DEFEATED_SOOTOPOLIS_GYM
 	setflag FLAG_BADGE08_GET
+	call SootopolisCity_Gym_1F_EventScript_UnlockLegendaries
 	setflag FLAG_HIDE_SOOTOPOLIS_CITY_RESIDENTS
 	setflag FLAG_HIDE_SOOTOPOLIS_CITY_STEVEN
 	setflag FLAG_HIDE_SOOTOPOLIS_CITY_WALLACE
@@ -317,3 +318,17 @@ SootopolisCity_Gym_1F_Text_JuanRematchNeedTwoMons:
 	.string "I wish that you would return with\n"
 	.string "two, perhaps more, POKéMON, please.$"
 
+
+SootopolisCity_Gym_1F_EventScript_UnlockLegendaries::
+	callnative UnlockPostJuanLegendaries
+	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_NopReturn
+	msgbox_ack SootopolisCity_Gym_1F_Text_LegendaryEncounters
+	msgbox_ack SootopolisCity_Gym_1F_Text_LegendaryLevels
+	return
+
+SootopolisCity_Gym_1F_Text_LegendaryEncounters:
+	.string "The three Regi caves and Sky Pillar\n"
+	.string "now hold legendary encounters!$"
+
+SootopolisCity_Gym_1F_Text_LegendaryLevels:
+	.string "All four await at Lv. 50!$"

@@ -29,6 +29,7 @@ SkyPillar_Top_EventScript_TryShowRayquaza::
 	return
 
 SkyPillar_Top_EventScript_ShowRayquaza::
+	goto_if_unset FLAG_BADGE08_GET, SkyPillar_Top_EventScript_HideCatchableRayquaza
 	clearflag FLAG_HIDE_SKY_PILLAR_TOP_RAYQUAZA_STILL
 	return
 
@@ -42,11 +43,12 @@ SkyPillar_Top_EventScript_RayquazaFaceDown::
 
 SkyPillar_Top_EventScript_Rayquaza::
 	lockall
+	goto_if_unset FLAG_BADGE08_GET, EventScript_LegendaryNotUnlocked
 	waitse
 	playmoncry SPECIES_RAYQUAZA, CRY_MODE_ENCOUNTER
 	delay 40
 	waitmoncry
-	setwildbattle SPECIES_RAYQUAZA, 70
+	setwildbattle SPECIES_RAYQUAZA, 50
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
 	special BattleSetup_StartLegendaryBattle
 	clearflag FLAG_SYS_CTRL_OBJ_DELETE
@@ -180,3 +182,11 @@ SkyPillar_Top_Movement_CameraPanDown:
 SkyPillar_Top_Text_RayquazaFlewOff:
 	.string "The awakened RAYQUAZA flew off…$"
 
+
+SkyPillar_Top_EventScript_HideCatchableRayquaza::
+	setflag FLAG_HIDE_SKY_PILLAR_TOP_RAYQUAZA_STILL
+	return
+
+EventScript_LegendaryNotUnlocked::
+	releaseall
+	end

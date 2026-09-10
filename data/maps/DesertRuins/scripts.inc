@@ -33,6 +33,7 @@ DesertRuins_OnTransition:
 	end
 
 DesertRuins_EventScript_ShowRegirock::
+	goto_if_unset FLAG_BADGE08_GET, DesertRuins_EventScript_HideRegirock
 	clearflag FLAG_HIDE_REGIROCK
 	return
 
@@ -56,12 +57,13 @@ DesertRuins_EventScript_CaveEntranceSide::
 
 DesertRuins_EventScript_Regirock::
 	lock
+	goto_if_unset FLAG_BADGE08_GET, EventScript_LegendaryNotUnlocked
 	faceplayer
 	waitse
 	playmoncry SPECIES_REGIROCK, CRY_MODE_ENCOUNTER
 	delay 40
 	waitmoncry
-	setwildbattle SPECIES_REGIROCK, 40
+	setwildbattle SPECIES_REGIROCK, 50
 	setflag FLAG_SYS_CTRL_OBJ_DELETE
 	special StartRegiBattle
 	clearflag FLAG_SYS_CTRL_OBJ_DELETE
@@ -83,3 +85,7 @@ DesertRuins_EventScript_RanFromRegirock::
 	goto Common_EventScript_LegendaryFlewAway
 	end
 
+
+DesertRuins_EventScript_HideRegirock::
+	setflag FLAG_HIDE_REGIROCK
+	return

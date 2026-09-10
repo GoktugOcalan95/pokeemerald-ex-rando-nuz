@@ -238,3 +238,42 @@ TEST("Ban gimmick items filters every gimmick category and combines with Slatepo
     EXPECT(IsRandomizedRewardItemAllowed(ITEM_VENUSAURITE));
     FlagClear(FLAG_RUN_RULE_ITEMS);
 }
+
+TEST("Ban in-battle items excludes exact unwanted rewards and retains useful supplies")
+{
+    const u16 banned[] = {ITEM_X_ATTACK, ITEM_X_DEFENSE, ITEM_X_SP_ATK, ITEM_X_SP_DEF, ITEM_X_SPEED, ITEM_X_ACCURACY,
+        ITEM_DIRE_HIT, ITEM_GUARD_SPEC, ITEM_BLUE_FLUTE, ITEM_YELLOW_FLUTE, ITEM_RED_FLUTE, ITEM_BLACK_FLUTE,
+        ITEM_WHITE_FLUTE, ITEM_POKE_DOLL, ITEM_FLUFFY_TAIL, ITEM_POKE_TOY, ITEM_MAX_MUSHROOMS};
+    const u16 retained[] = {ITEM_POTION, ITEM_ANTIDOTE, ITEM_ETHER, ITEM_POKE_BALL, ITEM_ADAMANT_MINT};
+    FlagClear(FLAG_RUN_RULE_ITEMS);
+    FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
+    FlagSet(FLAG_RUN_RULE_BAN_BATTLE_ITEMS);
+    for (u32 i = 0; i < ARRAY_COUNT(banned); i++)
+        EXPECT(IsRandomizedRewardItemAllowed(banned[i]));
+    FlagSet(FLAG_RUN_RULE_ITEMS);
+    for (u32 item = 1; item < ITEMS_COUNT; item++)
+    {
+        FlagClear(FLAG_RUN_RULE_BAN_BATTLE_ITEMS);
+        bool32 original = IsRandomizedRewardItemAllowed(item);
+        FlagSet(FLAG_RUN_RULE_BAN_BATTLE_ITEMS);
+        bool32 expected = original;
+        for (u32 i = 0; i < ARRAY_COUNT(banned); i++)
+            if (item == banned[i])
+                expected = FALSE;
+        EXPECT_EQ(IsRandomizedRewardItemAllowed(item), expected);
+    }
+    for (u32 i = 0; i < ARRAY_COUNT(retained); i++)
+        EXPECT(IsRandomizedRewardItemAllowed(retained[i]));
+    FlagSet(FLAG_RUN_RULE_BAN_SLATEPORT);
+    FlagSet(FLAG_RUN_RULE_BAN_GIMMICKS);
+    FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
+    for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_FACILITY_HELD; domain++)
+        for (u32 source = 0; source < 256; source++)
+            EXPECT(IsRandomizedRewardItemAllowed(RandomizeItemReward(ITEM_POTION, domain, source, 0)));
+    EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_MINT));
+    FlagClear(FLAG_RUN_RULE_BAN_SLATEPORT);
+    FlagClear(FLAG_RUN_RULE_BAN_GIMMICKS);
+    FlagClear(FLAG_RUN_RULE_BAN_BATTLE_ITEMS);
+    FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
+    FlagClear(FLAG_RUN_RULE_ITEMS);
+}

@@ -20,19 +20,28 @@ static bool32 IsGimmickItem(u16 item)
     return type == ITEM_TYPE_MEGA_STONE || type == ITEM_TYPE_Z_CRYSTAL || type == ITEM_TYPE_TERA_SHARD;
 }
 
+static bool32 IsBannedBattleItem(u16 item)
+{
+    return gItemsInfo[item].sortType == ITEM_TYPE_X_ITEM
+        || item == ITEM_BLUE_FLUTE || item == ITEM_YELLOW_FLUTE || item == ITEM_RED_FLUTE
+        || item == ITEM_BLACK_FLUTE || item == ITEM_WHITE_FLUTE
+        || item == ITEM_POKE_DOLL || item == ITEM_FLUFFY_TAIL || item == ITEM_POKE_TOY || item == ITEM_MAX_MUSHROOMS;
+}
+
 bool32 IsRandomizedRewardItemAllowed(u16 item)
 {
     return item > ITEM_NONE && item < ITEMS_COUNT && gItemsInfo[item].name != NULL
         && GetItemPocket(item) != POCKET_KEY_ITEMS && GetItemPocket(item) != POCKET_TM_HM
         && !(FlagGet(FLAG_RUN_RULE_ITEMS) && FlagGet(FLAG_RUN_RULE_BAN_SLATEPORT) && IsSlateportPreChampionItem(item))
         && !(FlagGet(FLAG_RUN_RULE_ITEMS) && FlagGet(FLAG_RUN_RULE_BAN_GIMMICKS) && IsGimmickItem(item))
+        && !(FlagGet(FLAG_RUN_RULE_ITEMS) && FlagGet(FLAG_RUN_RULE_BAN_BATTLE_ITEMS) && IsBannedBattleItem(item))
         && !ItemIsMail(item) && !IsAbilityCustomizationItem(item) && IsItemAllowedByNoEVs(item);
 }
 
 static void PrepareRewardPool(void)
 {
     u32 rules = FlagGet(FLAG_RUN_RULE_NO_EV_GAIN) | (FlagGet(FLAG_RUN_RULE_BAN_SLATEPORT) << 1)
-        | (FlagGet(FLAG_RUN_RULE_BAN_GIMMICKS) << 2);
+        | (FlagGet(FLAG_RUN_RULE_BAN_GIMMICKS) << 2) | (FlagGet(FLAG_RUN_RULE_BAN_BATTLE_ITEMS) << 3);
     if (sRewardPoolCount != 0 && rules == sRewardPoolRules)
         return;
     sRewardPoolCount = 0;

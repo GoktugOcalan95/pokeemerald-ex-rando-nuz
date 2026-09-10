@@ -15154,13 +15154,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Bug Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Bug."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_BUG,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_BugTeraShard,
     },
@@ -15170,13 +15171,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Dark Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Dark."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_DARK,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_DarkTeraShard,
     },
@@ -15186,13 +15188,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Dragon Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Dragon."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_DRAGON,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_DragonTeraShard,
     },
@@ -15202,13 +15205,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Electric Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Electric."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_ELECTRIC,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_ElectricTeraShard,
     },
@@ -15218,13 +15222,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Fairy Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Fairy."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_FAIRY,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_FairyTeraShard,
     },
@@ -15234,13 +15239,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Fighting Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Fighting."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_FIGHTING,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_FightingTeraShard,
     },
@@ -15250,13 +15256,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Fire Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Fire."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_FIRE,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_FireTeraShard,
     },
@@ -15266,13 +15273,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Flying Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Flying."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_FLYING,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_FlyingTeraShard,
     },
@@ -15282,13 +15290,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Ghost Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Ghost."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_GHOST,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_GhostTeraShard,
     },
@@ -15298,13 +15307,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Grass Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Grass."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_GRASS,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_GrassTeraShard,
     },
@@ -15314,13 +15324,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Ground Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Ground."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_GROUND,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_GroundTeraShard,
     },
@@ -15330,13 +15341,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Ice Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Ice."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_ICE,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_IceTeraShard,
     },
@@ -15346,13 +15358,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Normal Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Normal."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_NORMAL,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_NormalTeraShard,
     },
@@ -15362,13 +15375,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Poison Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Poison."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_POISON,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_PoisonTeraShard,
     },
@@ -15378,13 +15392,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Psychic Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Psychic."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_PSYCHIC,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_PsychicTeraShard,
     },
@@ -15394,13 +15409,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Rock Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Rock."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_ROCK,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_RockTeraShard,
     },
@@ -15410,13 +15426,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Steel Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Steel."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_STEEL,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_SteelTeraShard,
     },
@@ -15426,13 +15443,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Water Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Water."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_WATER,
         .iconPic = gItemIcon_TeraShard,
         .iconPalette = gItemIconPalette_WaterTeraShard,
     },
@@ -15864,13 +15882,14 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Stellar Tera Shard"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Shards that may\n"
-            "form when a Tera\n"
-            "Pokémon falls."),
+            "Unlocks Tera and\n"
+            "sets a Pokémon's\n"
+            "Tera type to Stellar."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
-        .type = ITEM_USE_BAG_MENU,
-        .fieldUseFunc = ItemUseOutOfBattle_CannotUse,
+        .type = ITEM_USE_PARTY_MENU,
+        .fieldUseFunc = ItemUseOutOfBattle_TeraShard,
+        .secondaryId = TYPE_STELLAR,
         .iconPic = gItemIcon_StellarTeraShard,
         .iconPalette = gItemIconPalette_StellarTeraShard,
     },

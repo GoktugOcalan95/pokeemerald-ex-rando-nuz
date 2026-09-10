@@ -166,6 +166,7 @@ static EWRAM_DATA struct PokemonSummaryScreenData
         u8 OTName[17]; // 0x36
         u32 OTID; // 0x48
         enum Type teraType;
+        bool8 teraUnlocked;
         u8 mintNature;
     } summary;
     u16 bgTilemapBuffers[PSS_PAGE_COUNT][2][0x400];
@@ -1567,6 +1568,7 @@ static bool8 ExtractMonDataToSummaryStruct(struct Pokemon *mon)
     default:
         sum->ribbonCount = GetMonData(mon, MON_DATA_RIBBON_COUNT);
         sum->teraType = GetMonData(mon, MON_DATA_TERA_TYPE);
+        sum->teraUnlocked = GetMonData(mon, MON_DATA_TERA_UNLOCKED);
         sum->isShiny = GetMonData(mon, MON_DATA_IS_SHINY);
         return TRUE;
     }
@@ -4338,6 +4340,8 @@ void SetTypeSpritePosAndPal(enum Type typeId, u8 x, u8 y, u8 spriteArrayId)
 static void SetMonTypeIcons(void)
 {
     struct PokeSummary *summary = &sMonSummaryScreen->summary;
+    FillWindowPixelRect(PSS_LABEL_WINDOW_POKEMON_INFO_TYPE, PIXEL_FILL(0), 112, 0, 32, 16);
+    SetSpriteInvisibility(SPRITE_ARR_ID_TYPE + 2, TRUE);
     if (summary->isEgg)
     {
         SetTypeSpritePosAndPal(TYPE_MYSTERY, 120, 48, SPRITE_ARR_ID_TYPE);
@@ -4357,9 +4361,13 @@ static void SetMonTypeIcons(void)
         }
         if (P_SHOW_TERA_TYPE >= GEN_9)
         {
-            SetTypeSpritePosAndPal(summary->teraType, 200, 48, SPRITE_ARR_ID_TYPE + 2);
+            if (summary->teraUnlocked)
+                SetTypeSpritePosAndPal(summary->teraType, 200, 48, SPRITE_ARR_ID_TYPE + 2);
+            else
+                PrintTextOnWindowToFitPx(PSS_LABEL_WINDOW_POKEMON_INFO_TYPE, COMPOUND_STRING("LOCKED"), 112, 1, 0, 0, 32);
         }
     }
+    CopyWindowToVram(PSS_LABEL_WINDOW_POKEMON_INFO_TYPE, COPYWIN_GFX);
 }
 
 static enum BattlerId GetCurrentBattlerFromSumIndex(u32 sumIndex)

@@ -2413,6 +2413,8 @@ void OpenPokemon(u32 sourceLine, enum BattleTrainer trainer, enum Species specie
     (*partySize)++;
 
     CreateMon(DATA.currentMon, species, 100, 0, OTID_STRUCT_PRESET(0));
+    data = TRUE;
+    SetMonData(DATA.currentMon, MON_DATA_TERA_UNLOCKED, &data);
     for (i = 0; i < MAX_MON_MOVES; i++)
     {
         data = MOVE_NONE;
@@ -2729,6 +2731,12 @@ void GigantamaxFactor_(u32 sourceLine, bool32 gigantamaxFactor)
     INVALID_IF(!DATA.currentMon, "GigantamaxFactor outside of PLAYER/OPPONENT");
     SetMonData(DATA.currentMon, MON_DATA_GIGANTAMAX_FACTOR, &gigantamaxFactor);
     SetGimmick(sourceLine, DATA.battlerParty, DATA.currentPartyIndex, GIMMICK_DYNAMAX);
+}
+
+void TeraUnlocked_(u32 sourceLine, bool32 unlocked)
+{
+    INVALID_IF(!DATA.currentMon, "TeraUnlocked outside of PLAYER/OPPONENT");
+    SetMonData(DATA.currentMon, MON_DATA_TERA_UNLOCKED, &unlocked);
 }
 
 void TeraType_(u32 sourceLine, enum Type teraType)

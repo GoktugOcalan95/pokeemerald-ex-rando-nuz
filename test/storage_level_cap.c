@@ -101,6 +101,7 @@ TEST("PC level to cap sends boxed Shedinja to the first free PC slot without cha
     if (space)
         ZeroBoxMonAt(0, 7);
     CreateRandomMon(&mon, SPECIES_NINCADA, 20);
+    SetMonData(&mon, MON_DATA_TERA_UNLOCKED, &((u8){TRUE}));
     SetBoxMonAt(3, 17, &mon.box);
     if (ball)
         AddBagItem(ITEM_POKE_BALL, 1);
@@ -111,6 +112,9 @@ TEST("PC level to cap sends boxed Shedinja to the first free PC slot without cha
     Test_CreateShedinja(SPECIES_NINCADA, SPECIES_NINJASK, working);
     StorageLevelCap_Finish();
     EXPECT_EQ(GetBoxMonDataAt(3, 17, MON_DATA_SPECIES), SPECIES_NINJASK);
+    EXPECT_EQ(GetBoxMonDataAt(3, 17, MON_DATA_TERA_UNLOCKED), TRUE);
+    if (space && ball)
+        EXPECT_EQ(GetBoxMonDataAt(0, 7, MON_DATA_TERA_UNLOCKED), FALSE);
     EXPECT_EQ(GetBoxMonDataAt(0, 7, MON_DATA_SPECIES), space ? (ball ? SPECIES_SHEDINJA : SPECIES_NONE) : SPECIES_WOBBUFFET);
     EXPECT_EQ(CheckBagHasItem(ITEM_POKE_BALL, 1), ball && !space);
     EXPECT_EQ(memcmp(original, gParties[B_TRAINER_PLAYER], sizeof(original)), 0);
@@ -125,11 +129,15 @@ TEST("PC level to cap keeps normal party Shedinja creation rules")
     PARAMETRIZE { size = PARTY_SIZE; }
     SetUpStorageCap(size);
     CreateRandomMon(&gParties[B_TRAINER_PLAYER][0], SPECIES_NINJASK, 20);
+    SetMonData(&gParties[B_TRAINER_PLAYER][0], MON_DATA_TERA_UNLOCKED, &((u8){TRUE}));
     AddBagItem(ITEM_POKE_BALL, 1);
     EXPECT(StorageLevelCap_Begin(FALSE, 0, 0));
     Test_CreateShedinja(SPECIES_NINCADA, SPECIES_NINJASK, &gParties[B_TRAINER_PLAYER][0]);
     StorageLevelCap_Finish();
     EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][5], MON_DATA_SPECIES), size == 5 ? SPECIES_SHEDINJA : SPECIES_WOBBUFFET);
+    EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][0], MON_DATA_TERA_UNLOCKED), TRUE);
+    if (size == 5)
+        EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][5], MON_DATA_TERA_UNLOCKED), FALSE);
     EXPECT_EQ(GetBoxMonDataAt(0, 0, MON_DATA_SPECIES), SPECIES_NONE);
     EXPECT_EQ(CheckBagHasItem(ITEM_POKE_BALL, 1), size == PARTY_SIZE);
     FlagClear(FLAG_RUN_RULE_LEVEL_CAPS);

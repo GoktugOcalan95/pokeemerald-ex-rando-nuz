@@ -572,6 +572,7 @@ static void CreateShedinja(enum Species preEvoSpecies, enum Species postEvoSpeci
             struct Pokemon *shedinja = boxed ? &boxedShedinja : &gParties[B_TRAINER_PLAYER][gPartiesCount[B_TRAINER_PLAYER]];
 
             CopyMon(shedinja, mon, sizeof(struct Pokemon));
+            SetMonData(shedinja, MON_DATA_TERA_UNLOCKED, &((u8){FALSE}));
             SetMonData(shedinja, MON_DATA_SPECIES, &evolutions[i].targetSpecies);
             SetMonData(shedinja, MON_DATA_NICKNAME, GetSpeciesName(evolutions[i].targetSpecies));
             SetMonData(shedinja, MON_DATA_HELD_ITEM, &data);

@@ -1,4 +1,5 @@
 #include "global.h"
+#include "tera_shards.h"
 #include "malloc.h"
 #include "battle.h"
 #include "battle_anim.h"
@@ -4960,6 +4961,33 @@ void ItemUseCB_Medicine(u8 taskId, TaskFunc task)
                 gTasks[taskId].func = task;
         }
     }
+}
+
+void ItemUseCB_TeraShard(u8 taskId, TaskFunc task)
+{
+    struct Pokemon *mon = &gParties[B_TRAINER_PLAYER][gPartyMenu.slotId];
+    u16 item = gSpecialVar_ItemId;
+    bool32 applied = ApplyTeraShard(mon, item);
+
+    gPartyMenuUseExitCallback = applied;
+    if (applied)
+    {
+        PlaySE(SE_USE_ITEM);
+        GetMonNickname(mon, gStringVar1);
+        StringCopy(gStringVar2, gTypesInfo[GetMonData(mon, MON_DATA_TERA_TYPE)].name);
+        StringExpandPlaceholders(gStringVar4, COMPOUND_STRING("{STR_VAR_1}: Tera unlocked!\nTera type: {STR_VAR_2}."));
+        DisplayPartyMenuMessage(gStringVar4, TRUE);
+    }
+    else
+    {
+        PlaySE(SE_SELECT);
+        DisplayPartyMenuMessage(gText_WontHaveEffect, TRUE);
+    }
+    ScheduleBgCopyTilemapToVram(2);
+    if (gPartyMenu.menuType == PARTY_MENU_TYPE_FIELD && (!applied || CheckBagHasItem(item, 1)))
+        gTasks[taskId].func = Task_ReturnToChooseMonAfterText;
+    else
+        gTasks[taskId].func = task;
 }
 
 #define tState      data[0]

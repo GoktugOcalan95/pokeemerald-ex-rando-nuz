@@ -6905,11 +6905,47 @@ static enum Direction GetCopyDirection(u8 copyInitDir, enum Direction playerInit
     return sPlayerDirectionToCopyDirection[copyInitDir - 1][dir - 1];
 }
 
+static bool32 ShouldSpeedUpCutsceneMovement(struct ObjectEvent *objectEvent)
+{
+    if (objectEvent->localId == LOCALID_CAMERA
+     || objectEvent->localId == OBJ_EVENT_ID_FOLLOWER
+     || objectEvent->localId == OBJ_EVENT_ID_NPC_FOLLOWER
+     || !ArePlayerFieldControlsLocked())
+        return FALSE;
+
+    if (gSaveBlock2Ptr->optionsTextSpeed != OPTIONS_TEXT_SPEED_INSTANT
+     && gSaveBlock2Ptr->optionsTextSpeed != OPTIONS_TEXT_SPEED_AUTO)
+        return FALSE;
+
+    switch (objectEvent->movementActionId)
+    {
+    case MOVEMENT_ACTION_WALK_SLOW_DOWN ... MOVEMENT_ACTION_WALK_NORMAL_RIGHT:
+    case MOVEMENT_ACTION_WALK_FAST_DOWN ... MOVEMENT_ACTION_WALK_FAST_RIGHT:
+    case MOVEMENT_ACTION_WALK_FASTER_DOWN ... MOVEMENT_ACTION_WALK_FASTER_RIGHT:
+    case MOVEMENT_ACTION_PLAYER_RUN_DOWN ... MOVEMENT_ACTION_PLAYER_RUN_RIGHT:
+    case MOVEMENT_ACTION_WALK_NORMAL_DIAGONAL_UP_LEFT ... MOVEMENT_ACTION_WALK_SLOW_DIAGONAL_DOWN_RIGHT:
+    case MOVEMENT_ACTION_RUN_DOWN_SLOW ... MOVEMENT_ACTION_WALK_SLOW_STAIRS_RIGHT:
+    case MOVEMENT_ACTION_WALK_FAST_DIAGONAL_UP_LEFT ... MOVEMENT_ACTION_WALK_FAST_DIAGONAL_DOWN_RIGHT:
+        return TRUE;
+    default:
+        return FALSE;
+    }
+}
+
 static void ObjectEventExecHeldMovementAction(struct ObjectEvent *objectEvent, struct Sprite *sprite)
 {
+    u32 updates;
+
     objectEvent->movementActionId = TryUpdateMovementActionOnStairs(objectEvent, objectEvent->movementActionId);
-    if (gMovementActionFuncs[objectEvent->movementActionId][sprite->sActionFuncId](objectEvent, sprite))
-        objectEvent->heldMovementFinished = TRUE;
+    updates = ShouldSpeedUpCutsceneMovement(objectEvent) ? 2 : 1;
+    while (updates-- != 0)
+    {
+        if (gMovementActionFuncs[objectEvent->movementActionId][sprite->sActionFuncId](objectEvent, sprite))
+        {
+            objectEvent->heldMovementFinished = TRUE;
+            break;
+        }
+    }
 }
 
 static bool8 ObjectEventExecSingleMovementAction(struct ObjectEvent *objectEvent, struct Sprite *sprite)

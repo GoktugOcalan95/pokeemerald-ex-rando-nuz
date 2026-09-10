@@ -13,6 +13,7 @@ MossdeepCity_StevensHouse_EventScript_HideStevensNote::
 	return
 
 MossdeepCity_StevensHouse_OnTransition:
+	call_if_set FLAG_RUN_RULE_REMOVE_STORY, RemoveStory_PrepareDive
 	call_if_eq VAR_STEVENS_HOUSE_STATE, 2, MossdeepCity_StevensHouse_EventScript_SetStevenPos
 	end
 
@@ -26,6 +27,7 @@ MossdeepCity_StevensHouse_OnFrame:
 	.2byte 0
 
 MossdeepCity_StevensHouse_EventScript_StevenGivesDive::
+	goto_if_set FLAG_RUN_RULE_REMOVE_STORY, RemoveStory_StevenDiveArrival
 	lockall
 	applymovement LOCALID_STEVENS_HOUSE_STEVEN, Common_Movement_WalkInPlaceFasterLeft
 	waitmovement 0
@@ -132,6 +134,9 @@ MossdeepCity_StevensHouse_EventScript_RockDisplay::
 	end
 
 MossdeepCity_StevensHouse_EventScript_Steven::
+	call_if_set FLAG_RUN_RULE_REMOVE_STORY, RemoveStory_LockSteven
+	goto_if_set FLAG_RUN_RULE_REMOVE_STORY, RemoveStory_StevenDive
+MossdeepCity_StevensHouse_EventScript_StevenAfterDive:
 	msgbox MossdeepCity_StevensHouse_Text_UnderwateCavernBetweenMossdeepSootopolis, MSGBOX_NPC
 	end
 

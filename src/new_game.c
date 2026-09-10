@@ -1,4 +1,5 @@
 #include "global.h"
+#include "remove_story.h"
 #include "clock.h"
 #include "new_game.h"
 #include "random.h"
@@ -236,6 +237,7 @@ void NewGameInitData(void)
     ResetDexNav();
     ClearFollowerNPCData();
     RunSetup_ApplyToNewGame();
+    InitRemoveStory();
     NewGameInitPCItems();
     InitToggleRepel();
 }

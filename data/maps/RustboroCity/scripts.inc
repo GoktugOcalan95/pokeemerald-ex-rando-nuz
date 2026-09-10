@@ -280,6 +280,7 @@ RustboroCity_EventScript_StolenGoodsTrigger4::
 	end
 
 RustboroCity_EventScript_StolenGoodsScene::
+	goto_if_set FLAG_RUN_RULE_REMOVE_STORY, RemoveStory_Release
 	msgbox RustboroCity_Text_OutOfTheWay, MSGBOX_DEFAULT
 	closemessage
 	playbgm MUS_ENCOUNTER_AQUA, FALSE

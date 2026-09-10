@@ -7,6 +7,7 @@ SootopolisCity_MapScripts::
 	.byte 0
 
 SootopolisCity_OnLoad:
+	goto_if_set FLAG_RUN_RULE_REMOVE_STORY, RemoveStory_End
 	call_if_unset FLAG_SOOTOPOLIS_ARCHIE_MAXIE_LEAVE, SootopolisCity_EventScript_LockGymDoor
 	goto_if_unset FLAG_KYOGRE_ESCAPED_SEAFLOOR_CAVERN, SootopolisCity_EventScript_LegendariesNotArrived
 	call_if_unset FLAG_SOOTOPOLIS_ARCHIE_MAXIE_LEAVE, SootopolisCity_EventScript_LockHouseDoors
@@ -47,6 +48,7 @@ SootopolisCity_OnTransition:
 	call_if_eq VAR_SOOTOPOLIS_CITY_STATE, 4, SootopolisCity_EventScript_SetExitCaveOfOriginObjPos
 	call_if_eq VAR_SOOTOPOLIS_CITY_STATE, 5, SootopolisCity_EventScript_SetOutsideGymObjPos
 	call_if_eq VAR_SOOTOPOLIS_CITY_STATE, 6, SootopolisCity_EventScript_SetExpertBlockCaveEntrance
+	call_if_set FLAG_RUN_RULE_REMOVE_STORY, RemoveStory_PositionWallace
 	end
 
 SootopolisCity_EventScript_HideMapNamePopup::
@@ -1273,6 +1275,7 @@ SootopolisCity_EventScript_ManiacRayquaza::
 SootopolisCity_EventScript_Wallace::
 	lock
 	faceplayer
+	goto_if_set FLAG_RUN_RULE_REMOVE_STORY, RemoveStory_Wallace
 	goto_if_eq VAR_SOOTOPOLIS_CITY_STATE, 4, SootopolisCity_EventScript_GoToSkyPillar
 	goto_if_set FLAG_RECEIVED_HM_WATERFALL, SootopolisCity_EventScript_GoToGym
 	goto_if_set FLAG_SOOTOPOLIS_ARCHIE_MAXIE_LEAVE, SootopolisCity_EventScript_GiveWaterfall

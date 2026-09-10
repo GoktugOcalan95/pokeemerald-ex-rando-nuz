@@ -3,6 +3,7 @@ RustboroCity_Gym_MapScripts::
 
 RustboroCity_Gym_EventScript_Roxanne::
 	trainerbattle_single TRAINER_ROXANNE_1, RustboroCity_Gym_Text_RoxanneIntro, RustboroCity_Gym_Text_RoxanneDefeat, RustboroCity_Gym_EventScript_RoxanneDefeated, NO_MUSIC
+	call_if_set FLAG_RUN_RULE_REMOVE_STORY, RemoveStory_GiveDevonTools
 	specialvar VAR_RESULT, ShouldTryRematchBattle
 	goto_if_eq VAR_RESULT, TRUE, RustboroCity_Gym_EventScript_RoxanneRematch
 	goto_if_unset FLAG_RECEIVED_TM_ROCK_TOMB, RustboroCity_Gym_EventScript_GiveRockTomb
@@ -22,6 +23,7 @@ RustboroCity_Gym_EventScript_RoxanneDefeated::
 	setvar VAR_0x8008, 1
 	call Common_EventScript_SetGymTrainers
 	call_if_eq VAR_PETALBURG_GYM_STATE, 6, Common_EventScript_ReadyPetalburgGymForBattle
+	call_if_set FLAG_RUN_RULE_REMOVE_STORY, RemoveStory_AfterRoxanne
 	goto RustboroCity_Gym_EventScript_GiveRockTomb
 	end
 

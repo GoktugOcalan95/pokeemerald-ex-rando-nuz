@@ -2,6 +2,7 @@ MagmaHideout_4F_MapScripts::
 	.byte 0
 
 MagmaHideout_4F_EventScript_Maxie::
+	goto_if_set FLAG_RUN_RULE_REMOVE_STORY, RemoveStory_Release
 	lockall
 	playbgm MUS_ENCOUNTER_MAGMA, FALSE
 	msgbox MagmaHideout_4F_Text_MaxieAwakenGroudon, MSGBOX_DEFAULT

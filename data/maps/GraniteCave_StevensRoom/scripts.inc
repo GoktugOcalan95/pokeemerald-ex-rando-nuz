@@ -4,6 +4,7 @@ GraniteCave_StevensRoom_MapScripts::
 GraniteCave_StevensRoom_EventScript_Steven::
 	lock
 	faceplayer
+	goto_if_set FLAG_RUN_RULE_REMOVE_STORY, RemoveStory_StevenLetter
 	msgbox GraniteCave_StevensRoom_Text_ImStevenLetterForMe, MSGBOX_DEFAULT
 	setvar VAR_0x8004, ITEM_LETTER
 	call Common_EventScript_PlayerHandedOverTheItem
@@ -11,6 +12,7 @@ GraniteCave_StevensRoom_EventScript_Steven::
 	msgbox GraniteCave_StevensRoom_Text_ThankYouTakeThis, MSGBOX_DEFAULT
 	giveitem ITEM_TM_STEEL_WING
 	call_if_eq VAR_RESULT, FALSE, GraniteCave_StevensRoom_EventScript_BagFull
+GraniteCave_StevensRoom_EventScript_RegisterSteven::
 	msgbox GraniteCave_StevensRoom_Text_CouldBecomeChampionLetsRegister, MSGBOX_DEFAULT
 	closemessage
 	delay 30

@@ -2,6 +2,7 @@ SeafloorCavern_Room9_MapScripts::
 	.byte 0
 
 SeafloorCavern_Room9_EventScript_ArchieAwakenKyogre::
+	goto_if_set FLAG_RUN_RULE_REMOVE_STORY, RemoveStory_Release
 	lockall
 	setvar VAR_0x8004, LOCALID_SEAFLOOR_CAVERN_ARCHIE
 	setvar VAR_0x8005, LOCALID_SEAFLOOR_CAVERN_MAXIE

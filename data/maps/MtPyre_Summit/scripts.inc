@@ -154,6 +154,8 @@ MtPyre_Summit_EventScript_OldManNewTale::
 MtPyre_Summit_EventScript_OldLady::
 	lock
 	faceplayer
+	goto_if_set FLAG_RUN_RULE_REMOVE_STORY, RemoveStory_GiveMagmaEmblem
+MtPyre_Summit_EventScript_OldLadyAfterEmblem:
 	goto_if_set FLAG_RETURNED_RED_OR_BLUE_ORB, MtPyre_Summit_EventScript_OldLadyAfterOrbsReturned
 	call_if_ge VAR_MT_PYRE_STATE, 3, MtPyre_Summit_EventScript_OldLadyOrbsReturned
 	goto_if_set FLAG_KYOGRE_ESCAPED_SEAFLOOR_CAVERN, MtPyre_Summit_EventScript_OldLadyLegendariesAwake

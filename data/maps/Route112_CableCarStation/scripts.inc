@@ -31,6 +31,8 @@ Route112_CableCarStation_EventScript_ExitCableCar::
 Route112_CableCarStation_EventScript_Attendant::
 	lock
 	faceplayer
+	goto_if_set FLAG_RUN_RULE_REMOVE_STORY, RemoveStory_CableCarGate
+Route112_CableCarStation_EventScript_OfferRide:
 	msgbox Route112_CableCarStation_Text_CableCarReadyGetOn, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, YES, Route112_CableCarStation_EventScript_RideCableCar
 	goto_if_eq VAR_RESULT, NO, Route112_CableCarStation_EventScript_DeclineRide

@@ -77,10 +77,10 @@
 #define FLAG_TERA_ORB_CHARGED 0x37
 #define FLAG_POST_JUAN_LEGENDARIES_UNLOCKED 0x38
 #define FLAG_MACHRO_ACRO_MODE 0x39
-#define FLAG_UNUSED_0x03A    0x3A // Unused Flag
-#define FLAG_UNUSED_0x03B    0x3B // Unused Flag
-#define FLAG_UNUSED_0x03C    0x3C // Unused Flag
-#define FLAG_UNUSED_0x03D    0x3D // Unused Flag
+#define FLAG_REMOVE_STORY_RECEIVED_LETTER 0x3A
+#define FLAG_REMOVE_STORY_RUSTBORO_GIFT 0x3B
+#define FLAG_REMOVE_STORY_STEEL_WING 0x3C
+#define FLAG_HIDE_REMOVE_STORY_MUSEUM_ITEM 0x3D
 #define FLAG_UNUSED_0x03E    0x3E // Unused Flag
 #define FLAG_UNUSED_0x03F    0x3F // Unused Flag
 #define FLAG_UNUSED_0x040    0x40 // Unused Flag

@@ -74,6 +74,7 @@ MossdeepCity_EventScript_VisitedMossdeep::
 	end
 
 MossdeepCity_EventScript_TeamMagmaEnterSpaceCenter::
+	goto_if_set FLAG_RUN_RULE_REMOVE_STORY, RemoveStory_Release
 	lockall
 	applymovement LOCALID_MOSSDEEP_MAXIE, MossdeepCity_Movement_MaxieGestureToSpaceCenter
 	waitmovement 0

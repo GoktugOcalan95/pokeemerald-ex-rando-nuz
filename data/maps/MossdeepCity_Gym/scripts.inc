@@ -75,6 +75,7 @@ MossdeepCity_Gym_EventScript_TateAndLizaDefeated::
 	setvar VAR_0x8008, 7
 	call Common_EventScript_SetGymTrainers
 	clearflag FLAG_HIDE_SLATEPORT_CITY_HARBOR_PATRONS
+	goto_if_set FLAG_RUN_RULE_REMOVE_STORY, MossdeepCity_Gym_EventScript_SkipInvasion
 	clearflag FLAG_HIDE_MOSSDEEP_CITY_TEAM_MAGMA
 	clearflag FLAG_HIDE_MOSSDEEP_CITY_SPACE_CENTER_1F_TEAM_MAGMA
 	clearflag FLAG_HIDE_MOSSDEEP_CITY_SPACE_CENTER_2F_TEAM_MAGMA
@@ -82,6 +83,7 @@ MossdeepCity_Gym_EventScript_TateAndLizaDefeated::
 	setvar VAR_MOSSDEEP_CITY_STATE, 1
 	setflag FLAG_HIDE_MOSSDEEP_CITY_SPACE_CENTER_1F_STEVEN
 	setvar VAR_MOSSDEEP_SPACE_CENTER_STATE, 1
+MossdeepCity_Gym_EventScript_SkipInvasion:
 	call MossdeepCity_Gym_EventScript_GiveCalmMind
 	closemessage
 	delay 30

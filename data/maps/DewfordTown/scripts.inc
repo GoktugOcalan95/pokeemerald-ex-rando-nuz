@@ -9,7 +9,9 @@ DewfordTown_OnTransition:
 DewfordTown_EventScript_Briney::
 	lock
 	faceplayer
+	goto_if_set FLAG_RUN_RULE_REMOVE_STORY, DewfordTown_EventScript_ChooseDestination
 	goto_if_unset FLAG_DELIVERED_STEVEN_LETTER, DewfordTown_EventScript_ReturnToPetalburgPrompt
+DewfordTown_EventScript_ChooseDestination:
 	message DewfordTown_Text_WhereAreWeBound
 	waitmessage
 	multichoicedefault 21, 6, MULTI_BRINEY_ON_DEWFORD, 2, FALSE

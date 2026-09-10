@@ -423,7 +423,7 @@ Route110_EventScript_MayBattleMudkip::
 Route110_EventScript_MayDefeated::
 	msgbox Route110_Text_MayTakeThis, MSGBOX_DEFAULT
 	call Route110_EventScript_GiveItemfinder
-	msgbox Route110_Text_MayExplainItemfinder, MSGBOX_DEFAULT
+	call Route110_EventScript_MayExplainReward
 	goto Route110_EventScript_RivalExit
 	end
 
@@ -453,11 +453,12 @@ Route110_EventScript_BrendanBattleMudkip::
 Route110_EventScript_BrendanDefeated::
 	msgbox Route110_Text_BrendanTakeThis, MSGBOX_DEFAULT
 	call Route110_EventScript_GiveItemfinder
-	msgbox Route110_Text_BrendanExplainItemfinder, MSGBOX_DEFAULT
+	call Route110_EventScript_BrendanExplainReward
 	goto Route110_EventScript_RivalExit
 	end
 
 Route110_EventScript_GiveItemfinder::
+	goto_if_set FLAG_RUN_RULE_EARLY_FLY, Route110_EventScript_GiveSwappedReward
 	giveitem ITEM_DOWSING_MACHINE
 	return
 
@@ -987,3 +988,27 @@ Route110_Text_KeepAnEyeOutForRival:
 	.string "Well, I had better get going.\n"
 	.string "See you again, {PLAYER}{KUN}!$"
 
+
+Route110_EventScript_MayExplainReward::
+	goto_if_set FLAG_RUN_RULE_EARLY_FLY, Route110_EventScript_ExplainSwappedReward
+	msgbox Route110_Text_MayExplainItemfinder, MSGBOX_DEFAULT
+	return
+
+Route110_EventScript_BrendanExplainReward::
+	goto_if_set FLAG_RUN_RULE_EARLY_FLY, Route110_EventScript_ExplainSwappedReward
+	msgbox Route110_Text_BrendanExplainItemfinder, MSGBOX_DEFAULT
+	return
+
+Route110_EventScript_GiveSwappedReward::
+	giveitem ITEM_HM_FLY
+	setflag FLAG_RECEIVED_HM_FLY
+	return
+
+Route110_EventScript_ExplainSwappedReward::
+	msgbox Route110_Text_ExplainSwappedReward, MSGBOX_DEFAULT
+	return
+
+Route110_Text_ExplainSwappedReward:
+	.string "That HM contains FLY!\p"
+	.string "Use FLY from the START menu to return\n"
+	.string "to places you have visited.$"

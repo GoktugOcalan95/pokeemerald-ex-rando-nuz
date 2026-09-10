@@ -93,7 +93,7 @@ Route119_EventScript_BattleMayMudkip::
 Route119_EventScript_DefeatedMay::
 	msgbox Route119_Text_MayPresentForYou, MSGBOX_DEFAULT
 	call Route119_EventScript_GiveFlyHM
-	msgbox Route119_Text_MayExplainFly, MSGBOX_DEFAULT
+	call Route119_EventScript_MayExplainReward
 	goto Route119_EventScript_RivalExitScottArrive
 	end
 
@@ -123,11 +123,12 @@ Route119_EventScript_BattleBrendanMudkip::
 Route119_EventScript_DefeatedBrendan::
 	msgbox Route119_Text_BrendanIllGiveYouThis, MSGBOX_DEFAULT
 	call Route119_EventScript_GiveFlyHM
-	msgbox Route119_Text_BrendanExplainFly, MSGBOX_DEFAULT
+	call Route119_EventScript_BrendanExplainReward
 	goto Route119_EventScript_RivalExitScottArrive
 	end
 
 Route119_EventScript_GiveFlyHM::
+	goto_if_set FLAG_RUN_RULE_EARLY_FLY, Route119_EventScript_GiveSwappedReward
 	giveitem ITEM_HM_FLY
 	setflag FLAG_RECEIVED_HM_FLY
 	return
@@ -608,3 +609,26 @@ Route119_Text_TrainerTipsDecoration:
 	.string "Pick your favorite items and create\n"
 	.string "your very own SECRET BASE exactly the\l"
 	.string "way you want.$"
+
+Route119_EventScript_MayExplainReward::
+	goto_if_set FLAG_RUN_RULE_EARLY_FLY, Route119_EventScript_ExplainSwappedReward
+	msgbox Route119_Text_MayExplainFly, MSGBOX_DEFAULT
+	return
+
+Route119_EventScript_BrendanExplainReward::
+	goto_if_set FLAG_RUN_RULE_EARLY_FLY, Route119_EventScript_ExplainSwappedReward
+	msgbox Route119_Text_BrendanExplainFly, MSGBOX_DEFAULT
+	return
+
+Route119_EventScript_GiveSwappedReward::
+	giveitem ITEM_DOWSING_MACHINE
+	return
+
+Route119_EventScript_ExplainSwappedReward::
+	msgbox Route119_Text_ExplainSwappedReward, MSGBOX_DEFAULT
+	return
+
+Route119_Text_ExplainSwappedReward:
+	.string "That is an ITEMFINDER!\p"
+	.string "Use it to search for nearby items.\n"
+	.string "Keep it for your travels!$"

@@ -1,4 +1,5 @@
 #include "global.h"
+#include "boss_rewards.h"
 #include "battle_setup.h"
 #include "braille_puzzles.h"
 #include "bike.h"
@@ -272,7 +273,7 @@ int ProcessPlayerFieldInput(struct FieldInput *input)
         return TRUE;
     }
 
-    return FALSE;
+    return BossRewards_TryStartScript();
 }
 
 void GetPlayerPosition(struct MapPosition *position)

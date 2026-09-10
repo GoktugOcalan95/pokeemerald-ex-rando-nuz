@@ -1,4 +1,5 @@
 #include "global.h"
+#include "boss_rewards.h"
 #include "data.h"
 #include "main.h"
 #include "battle.h"
@@ -1622,6 +1623,11 @@ static void CB2_EndTrainerBattle(void)
         DowngradeBadPoison();
         if (CurrentBattlePyramidLocation() == PYRAMID_LOCATION_NONE && !InTrainerHillChallenge())
         {
+            if (gBattleOutcome == B_OUTCOME_WON)
+            {
+                BossRewards_RecordVictory(TRAINER_BATTLE_PARAM.opponentA);
+                BossRewards_RecordVictory(TRAINER_BATTLE_PARAM.opponentB);
+            }
             RegisterTrainerInMatchCall();
             SetBattledTrainersFlags();
         }

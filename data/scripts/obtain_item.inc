@@ -316,3 +316,9 @@ EventScript_NoCaseForHiddenCoins::
 	setvar VAR_RESULT, 0
 	releaseall
 	end
+
+EventScript_BossReward::
+	lockall
+	call EventScript_ObtainItemMessage
+	releaseall
+	end

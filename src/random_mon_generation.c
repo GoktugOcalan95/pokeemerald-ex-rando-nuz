@@ -1,4 +1,5 @@
 #include "global.h"
+#include "boss_rewards.h"
 #include "event_data.h"
 #include "item.h"
 #include "pokemon.h"
@@ -318,6 +319,8 @@ static bool32 IsRandomItemAllowed(const struct RandomItemGeneratorOptions *optio
 {
     enum HoldEffect holdEffect = GetItemHoldEffect(item);
 
+    if (IsAbilityCustomizationItem(item))
+        return FALSE;
     if (GetItemPocket(item) == POCKET_KEY_ITEMS)
         return FALSE;
     if (GetItemPocket(item) == POCKET_TM_HM && GetItemPrice(item) == 0)

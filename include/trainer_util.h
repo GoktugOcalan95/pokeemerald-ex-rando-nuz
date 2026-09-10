@@ -7,10 +7,11 @@ struct TrainerGenerator
     u8 smartTera:1;
     u8 isFrontier:1;
     u8 trainerClass;
-    u8 padding;
+    u8 randomizerSlot;
     u8 name[TRAINER_NAME_LENGTH + 1];
     struct OriginalTrainerId otID;
     rng_value_t localRngState;
+    u32 randomizerSource;
 };
 
 rng_value_t GeneratePartySeed(const struct Trainer *trainer);

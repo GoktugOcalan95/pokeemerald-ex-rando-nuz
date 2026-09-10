@@ -15,14 +15,14 @@ DesertUnderpass_EventScript_Fossil::
 	end
 
 DesertUnderpass_EventScript_GiveClawFossil::
-	giveitem ITEM_CLAW_FOSSIL
+	giveitem_random ITEM_CLAW_FOSSIL, FLAG_HIDE_DESERT_UNDERPASS_FOSSIL
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	removeobject LOCALID_UNDERPASS_FOSSIL
 	release
 	end
 
 DesertUnderpass_EventScript_GiveRootFossil::
-	giveitem ITEM_ROOT_FOSSIL
+	giveitem_random ITEM_ROOT_FOSSIL, FLAG_HIDE_DESERT_UNDERPASS_FOSSIL
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	removeobject LOCALID_UNDERPASS_FOSSIL
 	release

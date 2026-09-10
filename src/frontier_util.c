@@ -1,4 +1,5 @@
 #include "global.h"
+#include "item_randomizer.h"
 #include "frontier_util.h"
 #include "easy_chat.h"
 #include "event_data.h"
@@ -2635,7 +2636,9 @@ void CreateFrontierBrainPokemon(void)
                   personality,
                   OTID_STRUCT_PRESET(FRONTIER_BRAIN_OTID),
                   sFrontierBrainsMons[facility][symbol][i].fixedIV);
-        SetMonData(&gParties[B_TRAINER_OPPONENT_A][monPartyId], MON_DATA_HELD_ITEM, &sFrontierBrainsMons[facility][symbol][i].heldItem);
+        u16 heldItem = RandomizeItemReward(sFrontierBrainsMons[facility][symbol][i].heldItem, ITEM_REWARD_FACILITY_HELD,
+            (u32)&sFrontierBrainsMons[facility][symbol][i], 0);
+        SetMonData(&gParties[B_TRAINER_OPPONENT_A][monPartyId], MON_DATA_HELD_ITEM, &heldItem);
         for (j = 0; j < NUM_STATS; j++)
             SetMonData(&gParties[B_TRAINER_OPPONENT_A][monPartyId], MON_DATA_HP_EV + j, &sFrontierBrainsMons[facility][symbol][i].evs[j]);
         friendship = MAX_FRIENDSHIP;

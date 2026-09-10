@@ -2156,6 +2156,32 @@
 	callstd STD_OBTAIN_ITEM
 	.endm
 
+	.macro resolveitem_random item:req, source:req, amount=1, slot=0
+	setorcopyvar VAR_0x8000, \item
+	setorcopyvar VAR_0x8001, \amount
+	callnative RandomizeGiftFromScript
+	.2byte \source
+	.byte \slot
+	.endm
+
+	.macro giveitem_random item:req, source:req, amount=1, slot=0
+	resolveitem_random \item, \source, \amount, \slot
+	callstd STD_OBTAIN_ITEM
+	.endm
+
+	.macro msgbox_randomgift text:req, type=MSGBOX_DEFAULT
+	goto_if_unset FLAG_RUN_RULE_ITEMS, .Lgift_original_\@
+	.if \type == MSGBOX_YESNO
+	msgbox Common_Text_OfferRandomizedGift, \type
+	.else
+	msgbox Common_Text_RandomizedGift, \type
+	.endif
+	goto .Lgift_end_\@
+.Lgift_original_\@:
+	msgbox \text, \type
+.Lgift_end_\@:
+	.endm
+
 	@ For picking up items in the overworld. Similar to giveitem, but with different language and
 	@ sets the flag of the last-talked to object (the item the player picked up).
 	.macro finditem item:req, amount=1
@@ -2871,6 +2897,13 @@
 	.byte \loBerry
 	.byte \hiBerry
 	giveitem VAR_RESULT
+	.endm
+
+	.macro giverandomberry_random loBerry:req, hiBerry:req, source:req, slot=0
+	callnative Script_GiveRandomBerry
+	.byte \loBerry
+	.byte \hiBerry
+	giveitem_random VAR_RESULT, \source, 1, \slot
 	.endm
 
 @ VS Seeker

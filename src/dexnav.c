@@ -1,4 +1,5 @@
 #include "global.h"
+#include "item_randomizer.h"
 #include "battle_main.h"
 #include "battle_setup.h"
 #include "bg.h"
@@ -805,7 +806,8 @@ static void SetUpDexNavSearch(void)
     sDexNavSearchDataPtr->searchLevel = searchLevel;
 
     DexNavGenerateMoveset(species, searchLevel, sDexNavSearchDataPtr->monLevel, &sDexNavSearchDataPtr->moves[0]);
-    sDexNavSearchDataPtr->heldItem = DexNavGenerateHeldItem(species, searchLevel);
+    sDexNavSearchDataPtr->heldItem = RandomizeItemReward(DexNavGenerateHeldItem(species, searchLevel), ITEM_REWARD_WILD_HELD,
+        (gSaveBlock1Ptr->location.mapGroup << 24) | (gSaveBlock1Ptr->location.mapNum << 16) | species, 3);
     sDexNavSearchDataPtr->abilityNum = DexNavGetAbilityNum(species, searchLevel);
     sDexNavSearchDataPtr->potential = DexNavGeneratePotential(searchLevel);
     DexNavProximityUpdate();

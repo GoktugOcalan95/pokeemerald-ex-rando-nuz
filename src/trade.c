@@ -1,4 +1,5 @@
 #include "global.h"
+#include "item_randomizer.h"
 #include "no_evs.h"
 #include "malloc.h"
 #include "battle_anim.h"
@@ -4600,19 +4601,20 @@ static void CreateInGameTradePokemonInternal(u8 whichPlayerMon, u8 whichInGameTr
     SetMonData(pokemon, MON_DATA_SHEEN, &inGameTrade->sheen);
     SetMonData(pokemon, MON_DATA_MET_LOCATION, &metLocation);
 
+    u16 heldItem = RandomizeItemReward(inGameTrade->heldItem, ITEM_REWARD_TRADE_HELD, whichInGameTrade, 0);
     mailNum = 0;
-    if (inGameTrade->heldItem != ITEM_NONE)
+    if (heldItem != ITEM_NONE)
     {
-        if (ItemIsMail(inGameTrade->heldItem))
+        if (ItemIsMail(heldItem))
         {
             GetInGameTradeMail(&mail, inGameTrade);
             gTradeMail[0] = mail;
             SetMonData(pokemon, MON_DATA_MAIL, &mailNum);
-            SetMonData(pokemon, MON_DATA_HELD_ITEM, &inGameTrade->heldItem);
+            SetMonData(pokemon, MON_DATA_HELD_ITEM, &heldItem);
         }
         else
         {
-            SetMonData(pokemon, MON_DATA_HELD_ITEM, &inGameTrade->heldItem);
+            SetMonData(pokemon, MON_DATA_HELD_ITEM, &heldItem);
         }
     }
     CalculateMonStats(&gParties[B_TRAINER_OPPONENT_A][0]);

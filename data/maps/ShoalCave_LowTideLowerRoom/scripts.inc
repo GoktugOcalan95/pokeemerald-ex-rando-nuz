@@ -17,7 +17,7 @@ ShoalCave_LowTideLowerRoom_EventScript_SetShoalItemMetatilesEnd::
 ShoalCave_LowTideLowerRoom_EventScript_ShoalSalt4::
 	lockall
 	goto_if_set FLAG_RECEIVED_SHOAL_SALT_4, ShoalCave_LowTideLowerRoom_EventScript_ReceivedShoalSalt
-	giveitem ITEM_SHOAL_SALT
+	giveitem_random ITEM_SHOAL_SALT, FLAG_RECEIVED_SHOAL_SALT_4
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setmetatile 18, 2, METATILE_Cave_ShoalCave_DirtPile_Small, FALSE
 	special DrawWholeMapView
@@ -34,8 +34,8 @@ ShoalCave_LowTideLowerRoom_EventScript_BlackBelt::
 	lock
 	faceplayer
 	goto_if_set FLAG_RECEIVED_FOCUS_BAND, ShoalCave_LowTideLowerRoom_EventScript_ReceivedFocusBand
-	msgbox ShoalCave_LowTideLowerRoom_Text_CanOvercomeColdWithFocus, MSGBOX_DEFAULT
-	giveitem ITEM_FOCUS_BAND
+	msgbox_randomgift ShoalCave_LowTideLowerRoom_Text_CanOvercomeColdWithFocus, MSGBOX_DEFAULT
+	giveitem_random ITEM_FOCUS_BAND, FLAG_RECEIVED_FOCUS_BAND
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_FOCUS_BAND
 	release

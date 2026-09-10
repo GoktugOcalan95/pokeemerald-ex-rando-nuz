@@ -225,10 +225,10 @@ MossdeepCity_EventScript_KingsRockBoy::
 	lock
 	faceplayer
 	goto_if_set FLAG_RECEIVED_KINGS_ROCK, MossdeepCity_EventScript_ReceivedKingsRock
-	msgbox MossdeepCity_Text_WantKingsRockStevenGaveMe, MSGBOX_YESNO
+	msgbox_randomgift MossdeepCity_Text_WantKingsRockStevenGaveMe, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, MossdeepCity_EventScript_DeclineKingsRock
 	msgbox MossdeepCity_Text_YouCanKeepIt, MSGBOX_DEFAULT
-	giveitem ITEM_KINGS_ROCK
+	giveitem_random ITEM_KINGS_ROCK, FLAG_RECEIVED_KINGS_ROCK
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_KINGS_ROCK
 	release

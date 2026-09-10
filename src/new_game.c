@@ -204,7 +204,6 @@ void NewGameInitData(void)
     DeactivateAllRoamers();
     memset(gSaveBlock1Ptr->registeredItems, 0, sizeof(gSaveBlock1Ptr->registeredItems));
     ClearBag();
-    NewGameInitPCItems();
     ClearPokeblocks();
     ClearDecorationInventories();
     InitEasyChatPhrases();
@@ -237,6 +236,7 @@ void NewGameInitData(void)
     ResetDexNav();
     ClearFollowerNPCData();
     RunSetup_ApplyToNewGame();
+    NewGameInitPCItems();
     InitToggleRepel();
 }
 

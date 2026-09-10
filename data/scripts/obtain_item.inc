@@ -104,6 +104,7 @@ EventScript_NoRoomForDecor::
 	return
 
 Std_FindItem::
+	callnative RandomizePickupFromScript
 	lock
 	faceplayer
 	waitse
@@ -176,6 +177,7 @@ EventScript_HiddenItemScript::
 	lockall
 	waitse
 	goto_if_eq VAR_0x8005, 0, EventScript_TryPickUpHiddenCoins
+	callnative RandomizeHiddenItemFromScript
 	copyvar VAR_0x8006, VAR_0x8005
 	additem VAR_0x8005, VAR_0x8009
 	copyvar VAR_0x8007, VAR_RESULT
@@ -322,3 +324,10 @@ EventScript_BossReward::
 	call EventScript_ObtainItemMessage
 	releaseall
 	end
+
+Common_Text_RandomizedGift:
+	.string "I hope this gift comes in handy!$"
+
+Common_Text_OfferRandomizedGift:
+	.string "I have a gift for you.\n"
+	.string "Would you like it?$"

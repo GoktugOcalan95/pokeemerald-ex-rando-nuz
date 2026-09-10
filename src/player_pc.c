@@ -1,4 +1,5 @@
 #include "global.h"
+#include "item_randomizer.h"
 #include "constants/songs.h"
 #include "bg.h"
 #include "decoration.h"
@@ -362,7 +363,7 @@ void NewGameInitPCItems(void)
     {
         if (sNewGamePCItems[i][0] == ITEM_NONE || sNewGamePCItems[i][1] == 0)
             break;
-        if (AddPCItem(sNewGamePCItems[i][0], sNewGamePCItems[i][1]) != TRUE)
+        if (AddPCItem(RandomizeItemReward(sNewGamePCItems[i][0], ITEM_REWARD_PC, i, 0), sNewGamePCItems[i][1]) != TRUE)
             break;
         i++;
     }

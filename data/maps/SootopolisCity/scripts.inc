@@ -707,25 +707,25 @@ SootopolisCity_EventScript_KiriGiveBerry::
 	dotimebasedevents
 	special GetPlayerBigGuyGirlString
 	goto_if_set FLAG_DAILY_SOOTOPOLIS_RECEIVED_BERRY, SootopolisCity_EventScript_KiriReceivedBerry
-	msgbox SootopolisCity_Text_NameIsKiriHaveOneOfThese, MSGBOX_DEFAULT
-	giverandomberry BERRY_ID_POMEG, BERRY_ID_NOMEL
+	msgbox_randomgift SootopolisCity_Text_NameIsKiriHaveOneOfThese, MSGBOX_DEFAULT
+	giverandomberry_random BERRY_ID_POMEG, BERRY_ID_NOMEL, FLAG_DAILY_SOOTOPOLIS_RECEIVED_BERRY
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_DAILY_SOOTOPOLIS_RECEIVED_BERRY
-	msgbox SootopolisCity_Text_GiveYouThisBerryToo, MSGBOX_DEFAULT
+	msgbox_randomgift SootopolisCity_Text_GiveYouThisBerryToo, MSGBOX_DEFAULT
 	random 2
 	goto_if_eq VAR_RESULT, 0, SootopolisCity_EventScript_GiveFigyBerry
 	goto_if_eq VAR_RESULT, 1, SootopolisCity_EventScript_GiveIapapaBerry
 	end
 
 SootopolisCity_EventScript_GiveFigyBerry::
-	giveitem ITEM_FIGY_BERRY
+	giveitem_random ITEM_FIGY_BERRY, FLAG_DAILY_SOOTOPOLIS_RECEIVED_BERRY, 1, 1
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	msgbox SootopolisCity_Text_WhatKindOfWishInYourName, MSGBOX_DEFAULT
 	release
 	end
 
 SootopolisCity_EventScript_GiveIapapaBerry::
-	giveitem ITEM_IAPAPA_BERRY
+	giveitem_random ITEM_IAPAPA_BERRY, FLAG_DAILY_SOOTOPOLIS_RECEIVED_BERRY, 1, 1
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	msgbox SootopolisCity_Text_WhatKindOfWishInYourName, MSGBOX_DEFAULT
 	release

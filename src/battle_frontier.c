@@ -1,4 +1,5 @@
 #include "global.h"
+#include "item_randomizer.h"
 #include "main.h"
 #include "battle.h"
 #include "battle_main.h"
@@ -339,7 +340,8 @@ void CreateFacilityMon(const struct TrainerMon *fmon, u16 level, u8 fixedIV, u32
     }
 
     SetMonData(dst, MON_DATA_FRIENDSHIP, &friendship);
-    SetMonData(dst, MON_DATA_HELD_ITEM, &fmon->heldItem);
+    u16 heldItem = RandomizeItemReward(fmon->heldItem, ITEM_REWARD_FACILITY_HELD, (u32)fmon, 0);
+    SetMonData(dst, MON_DATA_HELD_ITEM, &heldItem);
 
     // try to set ability. Otherwise, random of non-hidden as per vanilla
     if (fmon->ability != ABILITY_NONE)

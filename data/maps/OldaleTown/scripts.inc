@@ -71,16 +71,16 @@ OldaleTown_EventScript_GoToMartEast::
 
 OldaleTown_EventScript_ExplainPokemonMart::
 	msgbox OldaleTown_Text_ThisIsAPokemonMart, MSGBOX_DEFAULT
-	giveitem ITEM_POTION
+	giveitem_random ITEM_POTION, FLAG_RECEIVED_POTION_OLDALE
 	goto_if_eq VAR_RESULT, FALSE, OldaleTown_EventScript_BagIsFull
-	msgbox OldaleTown_Text_PotionExplanation, MSGBOX_DEFAULT
+	msgbox_randomgift OldaleTown_Text_PotionExplanation, MSGBOX_DEFAULT
 	setflag FLAG_RECEIVED_POTION_OLDALE
 	fadedefaultbgm
 	release
 	end
 
 OldaleTown_EventScript_ExplainPotion::
-	msgbox OldaleTown_Text_PotionExplanation, MSGBOX_DEFAULT
+	msgbox_randomgift OldaleTown_Text_PotionExplanation, MSGBOX_DEFAULT
 	release
 	end
 

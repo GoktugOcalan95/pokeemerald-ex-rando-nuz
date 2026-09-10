@@ -257,16 +257,16 @@ Route104_EventScript_ExpertF::
 	lock
 	faceplayer
 	goto_if_set FLAG_RECEIVED_CHESTO_BERRY_ROUTE_104, Route104_EventScript_ReceivedBerry
-	msgbox Route104_Text_PlantBerriesInSoilTakeThis, MSGBOX_DEFAULT
-	giveitem ITEM_CHESTO_BERRY
+	msgbox_randomgift Route104_Text_PlantBerriesInSoilTakeThis, MSGBOX_DEFAULT
+	giveitem_random ITEM_CHESTO_BERRY, FLAG_RECEIVED_CHESTO_BERRY_ROUTE_104
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_CHESTO_BERRY_ROUTE_104
-	msgbox Route104_Text_TrainersOftenMakeMonHoldBerries, MSGBOX_DEFAULT
+	msgbox_randomgift Route104_Text_TrainersOftenMakeMonHoldBerries, MSGBOX_DEFAULT
 	release
 	end
 
 Route104_EventScript_ReceivedBerry::
-	msgbox Route104_Text_TrainersOftenMakeMonHoldBerries, MSGBOX_DEFAULT
+	msgbox_randomgift Route104_Text_TrainersOftenMakeMonHoldBerries, MSGBOX_DEFAULT
 	release
 	end
 
@@ -275,7 +275,7 @@ Route104_EventScript_WhiteHerbFlorist::
 	faceplayer
 	goto_if_set FLAG_RECEIVED_WHITE_HERB, Route104_EventScript_ReceivedWhiteHerb
 	msgbox Route104_Text_DontNeedThisTakeIt, MSGBOX_DEFAULT
-	giveitem ITEM_WHITE_HERB
+	giveitem_random ITEM_WHITE_HERB, FLAG_RECEIVED_WHITE_HERB
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_WHITE_HERB
 	release

@@ -1,4 +1,5 @@
 #include "global.h"
+#include "item_randomizer.h"
 #include "no_evs.h"
 #include "storage_level_cap.h"
 #include "malloc.h"
@@ -1111,7 +1112,8 @@ void CreateBattleTowerMon(struct Pokemon *mon, struct BattleTowerPokemon *src)
         SetMonMoveSlot(mon, src->moves[i], i);
 
     SetMonData(mon, MON_DATA_PP_BONUSES, &src->ppBonuses);
-    SetMonData(mon, MON_DATA_HELD_ITEM, &src->heldItem);
+    u16 heldItem = RandomizeItemReward(src->heldItem, ITEM_REWARD_FACILITY_HELD, src->otId ^ src->personality, 0);
+    SetMonData(mon, MON_DATA_HELD_ITEM, &heldItem);
     SetMonData(mon, MON_DATA_FRIENDSHIP, &src->friendship);
 
     StringCopy(nickname, src->nickname);
@@ -1173,7 +1175,8 @@ void CreateBattleTowerMon_HandleLevel(struct Pokemon *mon, struct BattleTowerPok
         SetMonMoveSlot(mon, src->moves[i], i);
 
     SetMonData(mon, MON_DATA_PP_BONUSES, &src->ppBonuses);
-    SetMonData(mon, MON_DATA_HELD_ITEM, &src->heldItem);
+    u16 heldItem = RandomizeItemReward(src->heldItem, ITEM_REWARD_FACILITY_HELD, src->otId ^ src->personality, 0);
+    SetMonData(mon, MON_DATA_HELD_ITEM, &heldItem);
     SetMonData(mon, MON_DATA_FRIENDSHIP, &src->friendship);
 
     StringCopy(nickname, src->nickname);
@@ -5425,6 +5428,12 @@ static inline bool32 CanFirstMonBoostHeldItemRarity(void)
     return FALSE;
 }
 
+static void SetRandomizedWildHeldItem(u32 index, u32 species, u16 original, u32 slot)
+{
+    u16 item = RandomizeItemReward(original, ITEM_REWARD_WILD_HELD, species, slot);
+    SetMonData(&gParties[B_TRAINER_OPPONENT_A][index], MON_DATA_HELD_ITEM, &item);
+}
+
 void SetWildMonHeldItem(void)
 {
     u16 rnd;
@@ -5450,7 +5459,7 @@ void SetWildMonHeldItem(void)
                 // In active Altering Cave, use special item list
                 if (rnd < chanceNotRare)
                     continue;
-                SetMonData(&gParties[B_TRAINER_OPPONENT_A][i], MON_DATA_HELD_ITEM, &sAlteringCaveWildMonHeldItems[alteringCaveId].item);
+                SetRandomizedWildHeldItem(i, species, sAlteringCaveWildMonHeldItems[alteringCaveId].item, 2);
             }
             else
             {
@@ -5458,9 +5467,9 @@ void SetWildMonHeldItem(void)
                 if (rnd < chanceNoItem)
                     continue;
                 if (rnd < chanceNotRare)
-                    SetMonData(&gParties[B_TRAINER_OPPONENT_A][i], MON_DATA_HELD_ITEM, &gSpeciesInfo[species].itemCommon);
+                    SetRandomizedWildHeldItem(i, species, gSpeciesInfo[species].itemCommon, 0);
                 else
-                    SetMonData(&gParties[B_TRAINER_OPPONENT_A][i], MON_DATA_HELD_ITEM, &gSpeciesInfo[species].itemRare);
+                    SetRandomizedWildHeldItem(i, species, gSpeciesInfo[species].itemRare, 1);
             }
         }
         else
@@ -5468,16 +5477,16 @@ void SetWildMonHeldItem(void)
             if (gSpeciesInfo[species].itemCommon == gSpeciesInfo[species].itemRare && gSpeciesInfo[species].itemCommon != ITEM_NONE)
             {
                 // Both held items are the same, 100% chance to hold item
-                SetMonData(&gParties[B_TRAINER_OPPONENT_A][i], MON_DATA_HELD_ITEM, &gSpeciesInfo[species].itemCommon);
+                SetRandomizedWildHeldItem(i, species, gSpeciesInfo[species].itemCommon, 0);
             }
             else
             {
                 if (rnd < chanceNoItem)
                     continue;
                 if (rnd < chanceNotRare)
-                    SetMonData(&gParties[B_TRAINER_OPPONENT_A][i], MON_DATA_HELD_ITEM, &gSpeciesInfo[species].itemCommon);
+                    SetRandomizedWildHeldItem(i, species, gSpeciesInfo[species].itemCommon, 0);
                 else
-                    SetMonData(&gParties[B_TRAINER_OPPONENT_A][i], MON_DATA_HELD_ITEM, &gSpeciesInfo[species].itemRare);
+                    SetRandomizedWildHeldItem(i, species, gSpeciesInfo[species].itemRare, 1);
             }
         }
     }

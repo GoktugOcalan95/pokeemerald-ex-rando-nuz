@@ -88,7 +88,7 @@ PetalburgWoods_EventScript_DevonResearcherPostBattle::
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterDown
 	waitmovement 0
 	msgbox PetalburgWoods_Text_ThatWasAwfullyClose, MSGBOX_DEFAULT
-	giveitem ITEM_GREAT_BALL
+	giveitem_random ITEM_GREAT_BALL, FLAG_HIDE_PETALBURG_WOODS_DEVON_EMPLOYEE
 	goto_if_eq VAR_RESULT, FALSE, PetalburgWoods_EventScript_BagFull
 	goto PetalburgWoods_EventScript_DevonResearcherFinish
 	end
@@ -250,14 +250,14 @@ PetalburgWoods_EventScript_Girl::
 	faceplayer
 	goto_if_set FLAG_RECEIVED_MIRACLE_SEED, PetalburgWoods_EventScript_ExplainMiracleSeed
 	msgbox PetalburgWoods_Text_TryUsingThisItem, MSGBOX_DEFAULT
-	giveitem ITEM_MIRACLE_SEED
+	giveitem_random ITEM_MIRACLE_SEED, FLAG_RECEIVED_MIRACLE_SEED
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_MIRACLE_SEED
 	release
 	end
 
 PetalburgWoods_EventScript_ExplainMiracleSeed::
-	msgbox PetalburgWoods_Text_MiracleSeedExplanation, MSGBOX_DEFAULT
+	msgbox_randomgift PetalburgWoods_Text_MiracleSeedExplanation, MSGBOX_DEFAULT
 	release
 	end
 

@@ -1,4 +1,5 @@
 #include "global.h"
+#include "item_randomizer.h"
 #include "battle.h"
 #include "battle_gfx_sfx_util.h"
 #include "berry.h"
@@ -120,6 +121,11 @@ bool8 DoesPartyHaveEnigmaBerry(void)
     return hasItem;
 }
 
+static u32 GetScriptedMonItemSource(void)
+{
+    return (gSaveBlock1Ptr->location.mapGroup << 16) | (gSaveBlock1Ptr->location.mapNum << 8) | gSpecialVar_LastTalked;
+}
+
 void CreateScriptedWildMon(enum Species species, u8 level, enum Item item)
 {
     u8 heldItem[2];
@@ -133,6 +139,7 @@ void CreateScriptedWildMon(enum Species species, u8 level, enum Item item)
     GiveMonInitialMoveset(&gParties[B_TRAINER_OPPONENT_A][0]);
     if (item)
     {
+        item = RandomizeItemReward(item, ITEM_REWARD_GIFT_HELD, GetScriptedMonItemSource(), 0);
         heldItem[0] = item;
         heldItem[1] = item >> 8;
         SetMonData(&gParties[B_TRAINER_OPPONENT_A][0], MON_DATA_HELD_ITEM, heldItem);
@@ -152,6 +159,7 @@ void CreateScriptedDoubleWildMon(enum Species species1, u8 level1, enum Item ite
     GiveMonInitialMoveset(&gParties[B_TRAINER_OPPONENT_A][0]);
     if (item1)
     {
+        item1 = RandomizeItemReward(item1, ITEM_REWARD_GIFT_HELD, GetScriptedMonItemSource(), 0);
         heldItem1[0] = item1;
         heldItem1[1] = item1 >> 8;
         SetMonData(&gParties[B_TRAINER_OPPONENT_A][0], MON_DATA_HELD_ITEM, heldItem1);
@@ -165,6 +173,7 @@ void CreateScriptedDoubleWildMon(enum Species species1, u8 level1, enum Item ite
     GiveMonInitialMoveset(&gParties[B_TRAINER_OPPONENT_A][1]);
     if (item2)
     {
+        item2 = RandomizeItemReward(item2, ITEM_REWARD_GIFT_HELD, GetScriptedMonItemSource(), 1);
         heldItem2[0] = item2;
         heldItem2[1] = item2 >> 8;
         SetMonData(&gParties[B_TRAINER_OPPONENT_A][1], MON_DATA_HELD_ITEM, heldItem2);
@@ -390,6 +399,7 @@ u32 ScriptGiveMon(enum Species species, u8 level, enum Item item)
     CreateRandomMon(&mon, species, level);
     if (item)
     {
+        item = RandomizeItemReward(item, ITEM_REWARD_GIFT_HELD, GetScriptedMonItemSource(), 0);
         heldItem[0] = item;
         heldItem[1] = item >> 8;
         SetMonData(&mon, MON_DATA_HELD_ITEM, heldItem);
@@ -405,6 +415,7 @@ u32 ScriptGiveMon(enum Species species, u8 level, enum Item item)
 
 void ScrCmd_createmon(struct ScriptContext *ctx)
 {
+    u32 source = (u32)ctx->scriptPtr;
     u32 i;
     u8 side                   = ScriptReadByte(ctx);
     u8 slot                   = ScriptReadByte(ctx);
@@ -464,6 +475,7 @@ void ScrCmd_createmon(struct ScriptContext *ctx)
 
     monTemplate.ignoreTotalEvCheck = flags >> 26;
 
+    monTemplate.heldItem = RandomizeItemReward(monTemplate.heldItem, ITEM_REWARD_GIFT_HELD, source, slot);
     gSpecialVar_Result = ScriptGiveMonParameterized(side, slot, &monTemplate);
 }
 

@@ -5,8 +5,8 @@ DewfordTown_House2_EventScript_Man::
 	lock
 	faceplayer
 	goto_if_set FLAG_RECEIVED_SILK_SCARF, DewfordTown_House2_EventScript_ExplainSilkScarf
-	msgbox DewfordTown_House2_Text_WantYouToHaveSilkScarf, MSGBOX_DEFAULT
-	giveitem ITEM_SILK_SCARF
+	msgbox_randomgift DewfordTown_House2_Text_WantYouToHaveSilkScarf, MSGBOX_DEFAULT
+	giveitem_random ITEM_SILK_SCARF, FLAG_RECEIVED_SILK_SCARF
 	goto_if_eq VAR_RESULT, FALSE, DewfordTown_House2_EventScript_NoRoomForScarf
 	setflag FLAG_RECEIVED_SILK_SCARF
 	release
@@ -18,7 +18,7 @@ DewfordTown_House2_EventScript_NoRoomForScarf::
 	end
 
 DewfordTown_House2_EventScript_ExplainSilkScarf::
-	msgbox DewfordTown_House2_Text_ExplainSilkScarf, MSGBOX_DEFAULT
+	msgbox_randomgift DewfordTown_House2_Text_ExplainSilkScarf, MSGBOX_DEFAULT
 	release
 	end
 

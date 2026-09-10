@@ -35,8 +35,8 @@ LilycoveCity_EventScript_BerryGentleman::
 	faceplayer
 	dotimebasedevents
 	goto_if_set FLAG_DAILY_LILYCOVE_RECEIVED_BERRY, LilycoveCity_EventScript_ReceivedBerry
-	msgbox LilycoveCity_Text_BerrySuitsYou, MSGBOX_DEFAULT
-	giverandomberry BERRY_ID_CHERI, BERRY_ID_SITRUS
+	msgbox_randomgift LilycoveCity_Text_BerrySuitsYou, MSGBOX_DEFAULT
+	giverandomberry_random BERRY_ID_CHERI, BERRY_ID_SITRUS, FLAG_DAILY_LILYCOVE_RECEIVED_BERRY
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_DAILY_LILYCOVE_RECEIVED_BERRY
 	msgbox LilycoveCity_Text_BecauseYoureTrainer, MSGBOX_DEFAULT

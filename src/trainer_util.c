@@ -1,4 +1,5 @@
 #include "global.h"
+#include "item_randomizer.h"
 #include "main.h"
 #include "data.h"
 #include "move.h"
@@ -96,6 +97,8 @@ static bool32 SetCorrectAbilityNum(struct Pokemon *mon, enum Species species, en
 
 void MakeTrainerGenerator(struct TrainerGenerator *trainerGen, const struct Trainer *trainer)
 {
+    trainerGen->randomizerSource = (u32)trainer;
+    trainerGen->randomizerSlot = 0;
     trainerGen->gender = trainer->gender;
     if (trainer->aiFlags & AI_FLAG_SMART_TERA)
         trainerGen->smartTera = TRUE;
@@ -108,6 +111,8 @@ void MakeTrainerGenerator(struct TrainerGenerator *trainerGen, const struct Trai
 
 void MakePartnerGenerator(struct TrainerGenerator *trainerGen, const struct Trainer *partner)
 {
+    trainerGen->randomizerSource = (u32)partner;
+    trainerGen->randomizerSlot = 0;
     u32 otID;
     trainerGen->gender = partner->gender;
     if (partner->aiFlags & AI_FLAG_SMART_TERA)
@@ -150,7 +155,8 @@ void GenerateMonFromTrainerMon(struct Pokemon *mon, const struct TrainerMon *tra
 
     SetMonData(mon, MON_DATA_IVS, &trainerMon->iv);
     CustomTrainerPartyAssignMoves(mon, trainerMon);
-    SetMonData(mon, MON_DATA_HELD_ITEM, &trainerMon->heldItem);
+    u16 heldItem = RandomizeItemReward(trainerMon->heldItem, ITEM_REWARD_TRAINER_HELD, trainer->randomizerSource, trainer->randomizerSlot++);
+    SetMonData(mon, MON_DATA_HELD_ITEM, &heldItem);
 
     bool32 abilitySet = FALSE;
     if (trainerMon->ability)

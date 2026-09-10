@@ -11,12 +11,12 @@ Route123_BerryMastersHouse_EventScript_BerryMaster::
 	faceplayer
 	dotimebasedevents
 	goto_if_set FLAG_DAILY_BERRY_MASTER_RECEIVED_BERRY, Route123_BerryMastersHouse_EventScript_ReceivedBerryToday
-	msgbox Route123_BerryMastersHouse_Text_YoureDeservingOfBerry, MSGBOX_DEFAULT
-	giverandomberry BERRY_ID_POMEG, BERRY_ID_NOMEL
+	msgbox_randomgift Route123_BerryMastersHouse_Text_YoureDeservingOfBerry, MSGBOX_DEFAULT
+	giverandomberry_random BERRY_ID_POMEG, BERRY_ID_NOMEL, FLAG_DAILY_BERRY_MASTER_RECEIVED_BERRY
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_DAILY_BERRY_MASTER_RECEIVED_BERRY
-	msgbox Route123_BerryMastersHouse_Text_WhyBeStingyTakeAnother, MSGBOX_DEFAULT
-	giverandomberry BERRY_ID_POMEG, BERRY_ID_NOMEL
+	msgbox_randomgift Route123_BerryMastersHouse_Text_WhyBeStingyTakeAnother, MSGBOX_DEFAULT
+	giverandomberry_random BERRY_ID_POMEG, BERRY_ID_NOMEL, FLAG_DAILY_BERRY_MASTER_RECEIVED_BERRY, 1
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	msgbox Route123_BerryMastersHouse_Text_VisitPrettyPetalFlowerShop, MSGBOX_DEFAULT
 	release
@@ -58,7 +58,7 @@ Route123_BerryMastersHouse_EventScript_GavePhrase::
 
 Route123_BerryMastersHouse_EventScript_GiveNormalBerry::
 	msgbox Route123_BerryMastersHouse_Text_GoodSayingTakeThis, MSGBOX_DEFAULT
-	giverandomberry BERRY_ID_CHERI, BERRY_ID_SITRUS
+	giverandomberry_random BERRY_ID_CHERI, BERRY_ID_SITRUS, FLAG_DAILY_BERRY_MASTERS_WIFE
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	goto Route123_BerryMastersHouse_EventScript_GaveBerry
 	release
@@ -67,7 +67,7 @@ Route123_BerryMastersHouse_EventScript_GiveNormalBerry::
 Route123_BerryMastersHouse_EventScript_GiveSpelonBerry::
 	goto_if_set FLAG_RECEIVED_SPELON_BERRY, Route123_BerryMastersHouse_EventScript_GiveNormalBerry
 	msgbox Route123_BerryMastersHouse_Text_InspirationalTakeThis, MSGBOX_DEFAULT
-	giveitem ITEM_SPELON_BERRY
+	giveitem_random ITEM_SPELON_BERRY, FLAG_RECEIVED_SPELON_BERRY
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_SPELON_BERRY
 	goto Route123_BerryMastersHouse_EventScript_GaveBerry
@@ -76,7 +76,7 @@ Route123_BerryMastersHouse_EventScript_GiveSpelonBerry::
 Route123_BerryMastersHouse_EventScript_GivePamtreBerry::
 	goto_if_set FLAG_RECEIVED_PAMTRE_BERRY, Route123_BerryMastersHouse_EventScript_GiveNormalBerry
 	msgbox Route123_BerryMastersHouse_Text_InspirationalTakeThis, MSGBOX_DEFAULT
-	giveitem ITEM_PAMTRE_BERRY
+	giveitem_random ITEM_PAMTRE_BERRY, FLAG_RECEIVED_PAMTRE_BERRY
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_PAMTRE_BERRY
 	goto Route123_BerryMastersHouse_EventScript_GaveBerry
@@ -85,7 +85,7 @@ Route123_BerryMastersHouse_EventScript_GivePamtreBerry::
 Route123_BerryMastersHouse_EventScript_GiveWatmelBerry::
 	goto_if_set FLAG_RECEIVED_WATMEL_BERRY, Route123_BerryMastersHouse_EventScript_GiveNormalBerry
 	msgbox Route123_BerryMastersHouse_Text_InspirationalTakeThis, MSGBOX_DEFAULT
-	giveitem ITEM_WATMEL_BERRY
+	giveitem_random ITEM_WATMEL_BERRY, FLAG_RECEIVED_WATMEL_BERRY
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_WATMEL_BERRY
 	goto Route123_BerryMastersHouse_EventScript_GaveBerry
@@ -94,7 +94,7 @@ Route123_BerryMastersHouse_EventScript_GiveWatmelBerry::
 Route123_BerryMastersHouse_EventScript_GiveDurinBerry::
 	goto_if_set FLAG_RECEIVED_DURIN_BERRY, Route123_BerryMastersHouse_EventScript_GiveNormalBerry
 	msgbox Route123_BerryMastersHouse_Text_InspirationalTakeThis, MSGBOX_DEFAULT
-	giveitem ITEM_DURIN_BERRY
+	giveitem_random ITEM_DURIN_BERRY, FLAG_RECEIVED_DURIN_BERRY
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_DURIN_BERRY
 	goto Route123_BerryMastersHouse_EventScript_GaveBerry
@@ -103,7 +103,7 @@ Route123_BerryMastersHouse_EventScript_GiveDurinBerry::
 Route123_BerryMastersHouse_EventScript_GiveBelueBerry::
 	goto_if_set FLAG_RECEIVED_BELUE_BERRY, Route123_BerryMastersHouse_EventScript_GiveNormalBerry
 	msgbox Route123_BerryMastersHouse_Text_InspirationalTakeThis, MSGBOX_DEFAULT
-	giveitem ITEM_BELUE_BERRY
+	giveitem_random ITEM_BELUE_BERRY, FLAG_RECEIVED_BELUE_BERRY
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_BELUE_BERRY
 	goto Route123_BerryMastersHouse_EventScript_GaveBerry

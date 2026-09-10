@@ -1,4 +1,5 @@
 #include "global.h"
+#include "route_fly.h"
 #include "main.h"
 #include "text.h"
 #include "menu.h"
@@ -79,6 +80,10 @@ static EWRAM_DATA struct {
     u8 nameBuffer[0x26]; // never read
     bool8 choseFlyLocation;
     bool8 fromStartMenu;
+    u8 routeDestination;
+    u8 routeChoices[ROUTE_FLY_MAX_CHOICES];
+    u8 routeChoiceCount;
+    u8 routeWindow;
 } *sFlyMap = NULL;
 
 static bool32 sDrawFlyDestTextWindow;
@@ -115,6 +120,9 @@ static void LoadFlyDestIcons(void);
 static void CreateFlyDestIcons(void);
 static void TryCreateRedOutlineFlyDestIcons(void);
 static void SpriteCB_FlyDestIcon(struct Sprite *sprite);
+static void CB_HandleRouteFlyInput(void);
+static void OpenRouteFlyChoices(void);
+static void CreateRouteFlyDestIcons(void);
 static void CB_FadeInFlyMap(void);
 static void CB_HandleFlyMapInput(void);
 static void CB_ExitFlyMap(void);
@@ -1977,6 +1985,7 @@ static void InitFlyMap(bool32 fromStartMenu)
         else
         {
             sFlyMap->fromStartMenu = fromStartMenu;
+            sFlyMap->routeDestination = ROUTE_FLY_NONE;
             ResetPaletteFade();
             ResetSpriteData();
             FreeSpriteTileRanges();
@@ -2140,6 +2149,7 @@ static void LoadFlyDestIcons(void)
     LoadSpriteSheet(&sheet);
     LoadSpritePalette(&sFlyTargetIconsSpritePalette);
     CreateFlyDestIcons();
+    CreateRouteFlyDestIcons();
     TryCreateRedOutlineFlyDestIcons();
 }
 
@@ -2382,6 +2392,33 @@ static void CreateFlyDestIcons(void)
     }
 }
 
+static void CreateRouteFlyDestIcons(void)
+{
+    if (GetRegionMapType(gMapHeader.regionMapSectionId) != REGION_MAP_HOENN)
+        return;
+    for (u32 mapsec = MAPSEC_ROUTE_101; mapsec <= MAPSEC_ROUTE_134; mapsec++)
+    {
+        u8 choices[ROUTE_FLY_MAX_CHOICES];
+        u32 count = GetVisitedRouteFlyChoices(mapsec, choices);
+        if (count == 0)
+            continue;
+        bool32 available = FALSE;
+        for (u32 i = 0; i < count; i++)
+            available |= CanFlyToRoute(choices[i]);
+        u16 x, y, width, height;
+        GetMapSecDimensions(mapsec, &x, &y, &width, &height);
+        u8 spriteId = CreateSprite(&sFlyDestIconSpriteTemplate, (x + MAPCURSOR_X_MIN) * 8 + 4,
+            (y + MAPCURSOR_Y_MIN) * 8 + 4, 10);
+        if (spriteId != MAX_SPRITES)
+        {
+            StartSpriteAnim(&gSprites[spriteId], available ? 0 : 3);
+            gSprites[spriteId].sIconMapSec = mapsec;
+            if (available)
+                gSprites[spriteId].callback = SpriteCB_FlyDestIcon;
+        }
+    }
+}
+
 // Draw a red outline box on the mapsec if its corresponding flag has been set
 // Only used for Battle Frontier, but set up to handle more
 static void TryCreateRedOutlineFlyDestIcons(void)
@@ -2466,6 +2503,11 @@ static void CB_HandleFlyMapInput(void)
             DrawFlyDestTextWindow();
             break;
         case MAP_INPUT_A_BUTTON:
+            if (GetVisitedRouteFlyChoices(sFlyMap->regionMap.mapSecId, NULL) != 0)
+            {
+                OpenRouteFlyChoices();
+                break;
+            }
             if (sFlyMap->regionMap.mapSecType == MAPSECTYPE_CITY_CANFLY || sFlyMap->regionMap.mapSecType == MAPSECTYPE_BATTLE_FRONTIER)
             {
                 m4aSongNumStart(SE_SELECT);
@@ -2480,6 +2522,59 @@ static void CB_HandleFlyMapInput(void)
             break;
         }
     }
+}
+
+static void OpenRouteFlyChoices(void)
+{
+    struct WindowTemplate window = {
+        .bg = 0, .tilemapLeft = 3, .tilemapTop = 4, .width = 24,
+        .paletteNum = 15, .baseBlock = 0x80,
+    };
+    sFlyMap->routeChoiceCount = GetVisitedRouteFlyChoices(sFlyMap->regionMap.mapSecId, sFlyMap->routeChoices);
+    window.height = (sFlyMap->routeChoiceCount + 1) * 2;
+    sFlyMap->routeWindow = AddWindow(&window);
+    if (sFlyMap->routeWindow == WINDOW_NONE)
+        return;
+    DrawStdFrameWithCustomTileAndPalette(sFlyMap->routeWindow, FALSE, 101, 13);
+    for (u32 i = 0; i < sFlyMap->routeChoiceCount; i++)
+    {
+        u32 id = sFlyMap->routeChoices[i];
+        const u8 colors[] = {TEXT_COLOR_WHITE, CanFlyToRoute(id) ? TEXT_COLOR_DARK_GRAY : TEXT_COLOR_LIGHT_GRAY, TEXT_COLOR_LIGHT_GRAY};
+        StringCopy(gStringVar4, GetRouteFlyDestination(id)->name);
+        if (!CanFlyToRoute(id))
+            StringAppend(gStringVar4, COMPOUND_STRING(" (Surf needed)"));
+        AddTextPrinterParameterized3(sFlyMap->routeWindow, FONT_NORMAL, 8, i * 16, colors, TEXT_SKIP_DRAW, gStringVar4);
+    }
+    AddTextPrinterParameterized(sFlyMap->routeWindow, FONT_NORMAL, gText_Cancel, 8, sFlyMap->routeChoiceCount * 16, TEXT_SKIP_DRAW, NULL);
+    InitMenuInUpperLeftCornerNormal(sFlyMap->routeWindow, sFlyMap->routeChoiceCount + 1, 0);
+    CopyWindowToVram(sFlyMap->routeWindow, COPYWIN_FULL);
+    ScheduleBgCopyTilemapToVram(0);
+    m4aSongNumStart(SE_SELECT);
+    SetFlyMapCallback(CB_HandleRouteFlyInput);
+}
+
+static void CB_HandleRouteFlyInput(void)
+{
+    s32 choice = ProcessMenuInput_other();
+    if (choice == MENU_NOTHING_CHOSEN)
+        return;
+    if (choice >= 0 && choice < sFlyMap->routeChoiceCount)
+    {
+        u32 id = sFlyMap->routeChoices[choice];
+        if (!CanFlyToRoute(id))
+        {
+            m4aSongNumStart(SE_FAILURE);
+            return;
+        }
+        sFlyMap->routeDestination = id;
+        sFlyMap->choseFlyLocation = TRUE;
+        SetFlyMapCallback(CB_ExitFlyMap);
+        return;
+    }
+    ClearStdWindowAndFrameToTransparent(sFlyMap->routeWindow, TRUE);
+    RemoveWindow(sFlyMap->routeWindow);
+    ScheduleBgCopyTilemapToVram(0);
+    SetFlyMapCallback(CB_HandleFlyMapInput);
 }
 
 static void CB_ExitFlyMap(void)
@@ -2498,7 +2593,10 @@ static void CB_ExitFlyMap(void)
             {
                 struct RegionMap* tempRegionMap = &sFlyMap->regionMap;
 
-                SetFlyDestination(tempRegionMap);
+                if (sFlyMap->routeDestination != ROUTE_FLY_NONE)
+                    TrySetRouteFlyDestination(sFlyMap->routeDestination);
+                else
+                    SetFlyDestination(tempRegionMap);
                 gSkipShowMonAnim = sFlyMap->fromStartMenu;
                 ReturnToFieldFromFlyMapSelect();
             }

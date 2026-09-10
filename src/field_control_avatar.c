@@ -1,4 +1,5 @@
 #include "global.h"
+#include "route_fly.h"
 #include "boss_rewards.h"
 #include "battle_setup.h"
 #include "braille_puzzles.h"
@@ -180,6 +181,8 @@ int ProcessPlayerFieldInput(struct FieldInput *input)
     playerDirection = GetPlayerFacingDirection();
     GetPlayerPosition(&position);
     metatileBehavior = MapGridGetMetatileBehaviorAt(position.x, position.y);
+    RecordRouteFlyVisit(gSaveBlock1Ptr->location.mapGroup, gSaveBlock1Ptr->location.mapNum,
+        position.x - MAP_OFFSET, position.y - MAP_OFFSET, MetatileBehavior_IsSurfableWaterOrUnderwater(metatileBehavior));
 
     if (CheckForTrainersWantingBattle() == TRUE)
         return TRUE;

@@ -1,4 +1,5 @@
 #include "global.h"
+#include "route_fly.h"
 #include "berry_plots.h"
 #include "field_move.h"
 #include "overworld.h"
@@ -1045,6 +1046,14 @@ static u8 GetAdjustedInitialTransitionFlags(struct InitialPlayerAvatarState *pla
     else
         return PLAYER_AVATAR_FLAG_ACRO_BIKE;
 }
+
+#if TESTING
+u8 Test_GetFlyArrivalTransition(u16 behavior)
+{
+    struct InitialPlayerAvatarState state = {PLAYER_AVATAR_FLAG_ON_FOOT, DIR_SOUTH};
+    return GetAdjustedInitialTransitionFlags(&state, behavior, MAP_TYPE_ROUTE);
+}
+#endif
 
 bool8 MetatileBehavior_IsSurfableInSeafoamIslands(u16 metatileBehavior)
 {
@@ -2636,6 +2645,8 @@ static void InitObjectEventsLocal(void)
     ResetObjectEvents();
     GetCameraFocusCoords(&x, &y);
     player = GetInitialPlayerAvatarState();
+    RecordRouteFlyVisit(gSaveBlock1Ptr->location.mapGroup, gSaveBlock1Ptr->location.mapNum,
+        x - MAP_OFFSET, y - MAP_OFFSET, MetatileBehavior_IsSurfableWaterOrUnderwater(MapGridGetMetatileBehaviorAt(x, y)));
     InitPlayerAvatar(x, y, player->direction, gSaveBlock2Ptr->playerGender);
     SetPlayerAvatarTransitionFlags(player->transitionFlags);
     ResetInitialPlayerAvatarState();

@@ -1113,6 +1113,7 @@ struct SaveBlock1
     /*0x490*/ u32 money;
     /*0x494*/ u16 coins;
     u16 registeredItems[REGISTERED_ITEMS_COUNT];
+    u8 visitedRouteFly[8];
     /*0x498*/ struct ItemSlot pcItems[PC_ITEMS_COUNT];
     /*0x560 -> 0x848 is bag storage*/
     /*0x560*/ struct Bag bag;

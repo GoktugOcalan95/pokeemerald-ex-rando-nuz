@@ -8580,8 +8580,8 @@ static void Cmd_trygivecaughtmonnick(void)
         HandleBattleWindow(YESNOBOX_X_Y, 0);
         BattlePutTextOnWindow(gText_BattleYesNoChoice, B_WIN_YESNO);
         gBattleCommunication[MULTIUSE_STATE]++;
-        gBattleCommunication[CURSOR_POSITION] = 0;
-        BattleCreateYesNoCursorAt(0);
+        gBattleCommunication[CURSOR_POSITION] = P_NICKNAME_PROMPT_DEFAULT_NO ? 1 : 0;
+        BattleCreateYesNoCursorAt(gBattleCommunication[CURSOR_POSITION]);
         break;
     case 1:
         if (JOY_NEW(DPAD_UP) && gBattleCommunication[CURSOR_POSITION] != 0)

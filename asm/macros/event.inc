@@ -942,10 +942,12 @@
 
 	@ Displays a YES/NO multichoice box at the specified coordinates, and blocks script execution until the user makes a selection.
 	@ Their selection is stored in VAR_RESULT as NO (0) or YES (1). Pressing B is equivalent to answering NO
-	.macro yesnobox x:req, y:req
+	@ The default cursor position is 0 for Yes or 1 for No.
+	.macro yesnobox x:req, y:req, default=0
 	.byte SCR_OP_YESNOBOX
 	.byte \x
 	.byte \y
+	.byte \default
 	.endm
 
 	@ Displays a multichoice box from which the user can choose a selection, and blocks script execution until a selection is made.
@@ -2136,6 +2138,12 @@
 	.macro msgbox text:req, type=MSGBOX_DEFAULT
 	loadword 0, \text
 	callstd \type
+	.endm
+
+	.macro nicknameprompt text:req
+	message \text
+	waitmessage
+	yesnobox 20, 8, P_NICKNAME_PROMPT_DEFAULT_NO
 	.endm
 
 	@ Gives 'amount' of the specified 'item' to the player and prints a message with fanfare.

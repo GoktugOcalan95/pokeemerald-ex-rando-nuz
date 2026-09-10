@@ -1772,10 +1772,11 @@ bool8 ScrCmd_yesnobox(struct ScriptContext *ctx)
 {
     u8 left = ScriptReadByte(ctx);
     u8 top = ScriptReadByte(ctx);
+    u8 initialCursorPos = ScriptReadByte(ctx);
 
     Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
 
-    if (ScriptMenu_YesNo(left, top) == TRUE)
+    if (ScriptMenu_YesNo(left, top, initialCursorPos) == TRUE)
     {
         ScriptContext_Stop();
         return TRUE;

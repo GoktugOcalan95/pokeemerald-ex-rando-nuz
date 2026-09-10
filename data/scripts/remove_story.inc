@@ -77,7 +77,7 @@ RemoveStory_StevenLetter::
 	setflag FLAG_DELIVERED_STEVEN_LETTER
 RemoveStory_SteelWing:
 	goto_if_set FLAG_REMOVE_STORY_STEEL_WING, RemoveStory_Release
-	msgbox GraniteCave_StevensRoom_Text_ThankYouTakeThis, MSGBOX_DEFAULT
+	msgbox_tm GraniteCave_StevensRoom_Text_ThankYouTakeThis, ITEM_TM_STEEL_WING, MSGBOX_DEFAULT
 	giveitem ITEM_TM_STEEL_WING
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_REMOVE_STORY_STEEL_WING

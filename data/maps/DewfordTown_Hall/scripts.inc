@@ -242,7 +242,7 @@ DewfordTown_Hall_EventScript_SludgeBombMan::
 	faceplayer
 	call Common_EventScript_BufferTrendyPhrase
 	goto_if_set FLAG_RECEIVED_TM_SLUDGE_BOMB, DewfordTown_Hall_EventScript_ReceivedSludgeBomb
-	msgbox DewfordTown_Hall_Text_GiveYouSludgeBomb, MSGBOX_DEFAULT
+	msgbox_tm DewfordTown_Hall_Text_GiveYouSludgeBomb, ITEM_TM_SLUDGE_BOMB, MSGBOX_DEFAULT
 	giveitem ITEM_TM_SLUDGE_BOMB
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_TM_SLUDGE_BOMB
@@ -250,7 +250,7 @@ DewfordTown_Hall_EventScript_SludgeBombMan::
 	end
 
 DewfordTown_Hall_EventScript_ReceivedSludgeBomb::
-	msgbox DewfordTown_Hall_Text_LoveSludgeBombButTrendInToo, MSGBOX_DEFAULT
+	msgbox_tm DewfordTown_Hall_Text_LoveSludgeBombButTrendInToo, ITEM_TM_SLUDGE_BOMB, MSGBOX_DEFAULT
 	release
 	end
 

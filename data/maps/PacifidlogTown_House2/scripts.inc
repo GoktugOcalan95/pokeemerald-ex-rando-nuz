@@ -42,7 +42,7 @@ PacifidlogTown_House2_EventScript_GiveReturn::
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_FANCLUB_TM_THIS_WEEK
 	special SetPacifidlogTMReceivedDay
-	msgbox PacifidlogTown_House2_Text_ExplainReturnFrustration, MSGBOX_DEFAULT
+	msgbox_tm PacifidlogTown_House2_Text_ExplainReturnFrustration, ITEM_TM_RETURN, MSGBOX_DEFAULT
 	release
 	end
 
@@ -57,7 +57,7 @@ PacifidlogTown_House2_EventScript_GiveFrustration::
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_FANCLUB_TM_THIS_WEEK
 	special SetPacifidlogTMReceivedDay
-	msgbox PacifidlogTown_House2_Text_ExplainReturnFrustration, MSGBOX_DEFAULT
+	msgbox_tm PacifidlogTown_House2_Text_ExplainReturnFrustration, ITEM_TM_FRUSTRATION, MSGBOX_DEFAULT
 	release
 	end
 

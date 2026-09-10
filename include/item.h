@@ -135,39 +135,8 @@ static inline enum TMHMIndex GetItemTMHMIndex(enum Item item)
     }
 }
 
-static inline enum Move GetItemTMHMMoveId(enum Item item)
-{
-    switch (item)
-    {
-    /* Expands to:
-        * case ITEM_TM_FOCUS_PUNCH:
-        *     return MOVE_FOCUS_PUNCH;
-        * case ITEM_TM_DRAGON_CLAW:
-        *      return MOVE_DRAGON_CLAW;
-        * etc */
-    FOREACH_TM(UNPACK_ITEM_TO_TM_MOVE_ID)
-    FOREACH_HM(UNPACK_ITEM_TO_HM_MOVE_ID)
-    default:
-        return MOVE_NONE;
-    }
-}
-
-static inline enum Item GetTMHMItemIdFromMoveId(enum Move move)
-{
-    switch (move)
-    {
-    /* Expands to:
-        * case MOVE_FOCUS_PUNCH:
-        *     return ITEM_TM_FOCUS_PUNCH;
-        * case MOVE_DRAGON_CLAW:
-        *      return ITEM_TM_DRAGON_CLAW;
-        * etc */
-    FOREACH_TM(UNPACK_TM_MOVE_TO_ITEM_ID)
-    FOREACH_HM(UNPACK_HM_MOVE_TO_ITEM_ID)
-    default:
-        return ITEM_NONE;
-    }
-}
+enum Move GetItemTMHMMoveId(enum Item item);
+enum Item GetTMHMItemIdFromMoveId(enum Move move);
 
 #undef UNPACK_ITEM_TO_TM_INDEX
 #undef UNPACK_ITEM_TO_HM_INDEX
@@ -181,10 +150,7 @@ static inline enum Item GetTMHMItemId(enum TMHMIndex index)
     return gTMHMItemMoveIds[index].itemId;
 }
 
-static inline enum Move GetTMHMMoveId(enum TMHMIndex index)
-{
-    return gTMHMItemMoveIds[index].moveId;
-}
+enum Move GetTMHMMoveId(enum TMHMIndex index);
 
 #define GET_BERRY_ID(_berry) case ITEM_##_berry##_BERRY: return BERRY_ID_##_berry;
 #define GET_BERRY_ITEM_ID(_berry) case BERRY_ID_##_berry: return ITEM_##_berry##_BERRY;

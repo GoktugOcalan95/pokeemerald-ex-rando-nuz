@@ -182,3 +182,34 @@ MoveTutor_AfterChooseBoxMon::
 	special CanTeachMoveBoxMon
 	waitstate
 	return
+
+MoveTutor_EventScript_RandomDeclined::
+	msgbox MoveTutor_Text_RandomDeclined, MSGBOX_DEFAULT
+	release
+	end
+
+MoveTutor_EventScript_RandomTaught::
+	msgbox MoveTutor_Text_RandomTaught, MSGBOX_DEFAULT
+	release
+	end
+
+MoveTutor_Text_RandomOffer:
+	.string "I can teach {STR_VAR_1}.\n"
+	.string "Would you like me to teach it?$"
+
+MoveTutor_Text_RandomWhichMon:
+	.string "Which POKéMON should learn it?$"
+
+MoveTutor_Text_RandomDeclined:
+	.string "Come back if you change your mind.$"
+
+MoveTutor_Text_RandomTaught:
+	.string "Keep practicing with your POKéMON!$"
+
+MoveTutor_Text_RandomTMOffer:
+	.string "This TM teaches {STR_VAR_2}.\n"
+	.string "Would you like it?$"
+
+MoveTutor_Text_RandomTMDescription:
+	.string "This TM teaches {STR_VAR_2}.\p"
+	.string "{STR_VAR_3}$"

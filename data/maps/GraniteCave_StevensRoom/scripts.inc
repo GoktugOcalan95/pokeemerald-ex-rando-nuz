@@ -9,7 +9,7 @@ GraniteCave_StevensRoom_EventScript_Steven::
 	setvar VAR_0x8004, ITEM_LETTER
 	call Common_EventScript_PlayerHandedOverTheItem
 	setflag FLAG_DELIVERED_STEVEN_LETTER
-	msgbox GraniteCave_StevensRoom_Text_ThankYouTakeThis, MSGBOX_DEFAULT
+	msgbox_tm GraniteCave_StevensRoom_Text_ThankYouTakeThis, ITEM_TM_STEEL_WING, MSGBOX_DEFAULT
 	giveitem ITEM_TM_STEEL_WING
 	call_if_eq VAR_RESULT, FALSE, GraniteCave_StevensRoom_EventScript_BagFull
 GraniteCave_StevensRoom_EventScript_RegisterSteven::

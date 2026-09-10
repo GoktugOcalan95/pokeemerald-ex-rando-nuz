@@ -22,7 +22,7 @@ FortreeCity_House2_EventScript_HiddenPowerGiver::
 	giveitem ITEM_TM_HIDDEN_POWER
 	goto_if_eq VAR_RESULT, 0, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_TM_HIDDEN_POWER
-	msgbox FortreeCity_House2_Text_ExplainHiddenPower, MSGBOX_DEFAULT
+	msgbox_tm FortreeCity_House2_Text_ExplainHiddenPower, ITEM_TM_HIDDEN_POWER, MSGBOX_DEFAULT
 	release
 	end
 
@@ -32,7 +32,7 @@ FortreeCity_House2_EventScript_Greeting::
 	return
 
 FortreeCity_House2_EventScript_ExplainHiddenPower::
-	msgbox FortreeCity_House2_Text_ExplainHiddenPower, MSGBOX_DEFAULT
+	msgbox_tm FortreeCity_House2_Text_ExplainHiddenPower, ITEM_TM_HIDDEN_POWER, MSGBOX_DEFAULT
 	release
 	end
 

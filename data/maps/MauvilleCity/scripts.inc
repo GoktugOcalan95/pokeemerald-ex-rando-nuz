@@ -431,7 +431,7 @@ MauvilleCity_EventScript_BegunNewMauville::
 	end
 
 MauvilleCity_EventScript_CompletedNewMauville::
-	msgbox MauvilleCity_Text_WattsonThanksTakeTM, MSGBOX_DEFAULT
+	msgbox_tm MauvilleCity_Text_WattsonThanksTakeTM, ITEM_TM_THUNDERBOLT, MSGBOX_DEFAULT
 	giveitem ITEM_TM_THUNDERBOLT
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_GOT_TM_THUNDERBOLT_FROM_WATTSON

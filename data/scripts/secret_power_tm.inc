@@ -36,7 +36,7 @@ Route111_Text_DontHaveAnyRoom:
 Route111_EventScript_SecretPowerMan::
 	lock
 	faceplayer
-	msgbox Route111_Text_MakingRoomUseTMToMakeYourOwn, MSGBOX_YESNO
+	msgbox_tm Route111_Text_MakingRoomUseTMToMakeYourOwn, ITEM_TM_SECRET_POWER, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, YES, Route111_EventScript_GiveSecretPower
 	msgbox Route111_Text_DontWantThis, MSGBOX_DEFAULT
 	release
@@ -45,7 +45,7 @@ Route111_EventScript_SecretPowerMan::
 Route111_EventScript_GiveSecretPower::
 	giveitem ITEM_TM_SECRET_POWER
 	goto_if_eq VAR_RESULT, FALSE, Route111_EventScript_NoRoomForSecretPower
-	msgbox Route111_Text_ExplainSecretPower, MSGBOX_DEFAULT
+	msgbox_tm Route111_Text_ExplainSecretPower, ITEM_TM_SECRET_POWER, MSGBOX_DEFAULT
 	closemessage
 	setflag FLAG_RECEIVED_SECRET_POWER
 	clearflag FLAG_HIDE_SLATEPORT_CITY_TM_SALESMAN

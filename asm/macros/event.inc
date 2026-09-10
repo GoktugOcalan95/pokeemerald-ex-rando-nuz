@@ -2752,7 +2752,23 @@
 	msgbox \tradeCompleteMsg, MSGBOX_DEFAULT
 	.endm
 
+	.macro msgbox_tm text:req, item:req, type=MSGBOX_DEFAULT
+	goto_if_unset FLAG_RUN_RULE_TMS_TUTORS, .LnormalTMText\@
+	callnative ScriptPrepareRandomizedTMText
+	.2byte \item
+	.if \type == MSGBOX_YESNO
+		msgbox MoveTutor_Text_RandomTMOffer, \type
+	.else
+		msgbox MoveTutor_Text_RandomTMDescription, \type
+	.endif
+	goto .LendTMText\@
+.LnormalTMText\@:
+	msgbox \text, \type
+.LendTMText\@:
+	.endm
+
 	.macro move_tutor moveId:req, wantTeachingMsg:req, monSelectMsg:req, declinedJmp:req, taughtJmp:req, flagId=0
+	goto_if_set FLAG_RUN_RULE_TMS_TUTORS, .LrandomTutor\@
 	.if \flagId
 		goto_if_set \flagId, \taughtJmp
 	.endif
@@ -2770,6 +2786,26 @@
 		setflag \flagId
 	.endif
 	goto \taughtJmp
+.LrandomTutor\@:
+	setvar VAR_0x8005, \moveId
+	callnative ScriptRandomizeTutorMove
+	.if \flagId
+		goto_if_set \flagId, MoveTutor_EventScript_RandomTaught
+	.endif
+	msgbox MoveTutor_Text_RandomOffer, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, MoveTutor_EventScript_RandomDeclined
+	.if \flagId
+		call MoveTutor_EventScript_CanOnlyBeLearnedOnce
+		goto_if_eq VAR_RESULT, NO, MoveTutor_EventScript_RandomDeclined
+	.endif
+	msgbox MoveTutor_Text_RandomWhichMon, MSGBOX_DEFAULT
+	call MoveTutor_EventScript_OpenBox
+	goto_if_eq VAR_RESULT, FALSE, MoveTutor_EventScript_RandomDeclined
+	.if \flagId
+		setflag \flagId
+	.endif
+	goto MoveTutor_EventScript_RandomTaught
+
 	.endm
 
 	.macro chooseboxmon selectionType=SELECT_PC_MON_NORMAL

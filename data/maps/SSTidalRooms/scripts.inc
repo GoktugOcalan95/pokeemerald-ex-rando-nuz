@@ -9,12 +9,12 @@ SSTidalRooms_EventScript_SnatchGiver::
 	giveitem ITEM_TM_SNATCH
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_TM_SNATCH
-	msgbox SSTidalRooms_Text_ExplainSnatch, MSGBOX_DEFAULT
+	msgbox_tm SSTidalRooms_Text_ExplainSnatch, ITEM_TM_SNATCH, MSGBOX_DEFAULT
 	release
 	end
 
 SSTidalRooms_EventScript_ExplainSnatch::
-	msgbox SSTidalRooms_Text_ExplainSnatch, MSGBOX_DEFAULT
+	msgbox_tm SSTidalRooms_Text_ExplainSnatch, ITEM_TM_SNATCH, MSGBOX_DEFAULT
 	release
 	end
 

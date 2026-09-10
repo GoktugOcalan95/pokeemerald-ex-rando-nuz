@@ -9,12 +9,12 @@ LilycoveCity_House2_EventScript_FatMan::
 	giveitem ITEM_TM_REST
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_TM_REST
-	msgbox LilycoveCity_House2_Text_SleepIsEssential, MSGBOX_DEFAULT
+	msgbox_tm LilycoveCity_House2_Text_SleepIsEssential, ITEM_TM_REST, MSGBOX_DEFAULT
 	release
 	end
 
 LilycoveCity_House2_EventScript_ReceivedRest::
-	msgbox LilycoveCity_House2_Text_SleepIsEssential, MSGBOX_DEFAULT
+	msgbox_tm LilycoveCity_House2_Text_SleepIsEssential, ITEM_TM_REST, MSGBOX_DEFAULT
 	release
 	end
 

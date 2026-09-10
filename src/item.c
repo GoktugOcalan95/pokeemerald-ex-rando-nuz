@@ -1,4 +1,5 @@
 #include "global.h"
+#include "teaching_randomizer.h"
 #include "bag_categories.h"
 #include "no_evs.h"
 #include "slateport_shops.h"
@@ -68,6 +69,24 @@ const struct TmHmIndexKey gTMHMItemMoveIds[NUM_ALL_MACHINES + 1] =
 
 #undef UNPACK_TM_ITEM_ID
 #undef UNPACK_HM_ITEM_ID
+
+enum Move GetTMHMMoveId(enum TMHMIndex index)
+{
+    return GetRandomizedMachineMove(index);
+}
+
+enum Move GetItemTMHMMoveId(enum Item item)
+{
+    return GetTMHMMoveId(GetItemTMHMIndex(item));
+}
+
+enum Item GetTMHMItemIdFromMoveId(enum Move move)
+{
+    for (u32 index = 1; index <= NUM_ALL_MACHINES; index++)
+        if (GetTMHMMoveId(index) == move)
+            return GetTMHMItemId(index);
+    return ITEM_NONE;
+}
 
 STATIC_ASSERT(ITEMS_COUNT <= 1024, PackedBagItemIds);
 STATIC_ASSERT(MAX_BAG_ITEM_CAPACITY <= 1023, PackedBagQuantities);
@@ -892,6 +911,9 @@ u32 GetItemHoldEffectParam(enum Item itemId)
 const u8 *GetItemDescription(enum Item itemId)
 {
     itemId = SanitizeItemId(itemId);
+    if (FlagGet(FLAG_RUN_RULE_TMS_TUTORS) && GetItemTMHMIndex(itemId) > 0
+        && GetItemTMHMIndex(itemId) <= NUM_TECHNICAL_MACHINES)
+        return GetRandomizedMoveDescription(GetItemTMHMMoveId(itemId), 106);
     return GetFrostbiteItemDescription(itemId, gItemsInfo[itemId].description);
 }
 

@@ -202,12 +202,12 @@ SlateportCity_BattleTentLobby_EventScript_TormentGiver::
 	giveitem ITEM_TM_TORMENT
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_TM_TORMENT
-	msgbox SlateportCity_BattleTentLobby_Text_ExplainTorment, MSGBOX_DEFAULT
+	msgbox_tm SlateportCity_BattleTentLobby_Text_ExplainTorment, ITEM_TM_TORMENT, MSGBOX_DEFAULT
 	release
 	end
 
 SlateportCity_BattleTentLobby_EventScript_ReceivedTorment::
-	msgbox SlateportCity_BattleTentLobby_Text_ExplainTorment, MSGBOX_DEFAULT
+	msgbox_tm SlateportCity_BattleTentLobby_Text_ExplainTorment, ITEM_TM_TORMENT, MSGBOX_DEFAULT
 	release
 	end
 

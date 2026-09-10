@@ -1,4 +1,5 @@
 #include "global.h"
+#include "teaching_randomizer.h"
 #include "debug.h"
 #include "malloc.h"
 #include "battle.h"
@@ -2688,6 +2689,8 @@ static const u8 *const sScrollableMultichoiceOptions[][MAX_SCROLL_MULTI_LENGTH] 
 
 static u32 BuildScrollableMultichoiceItems(u32 menu, u32 count, struct ListMenuItem *items)
 {
+    static EWRAM_DATA u8 tutorNames[10][64] = {0};
+    static const u8 costs[2][10] = {{16, 24, 24, 24, 48, 48, 48, 48, 48, 48}, {16, 24, 24, 24, 24, 48, 48, 48, 48, 48}};
     u32 shown = 0;
     for (u32 i = 0; i < count; i++)
     {
@@ -2696,6 +2699,17 @@ static u32 BuildScrollableMultichoiceItems(u32 menu, u32 count, struct ListMenuI
           || (menu == SCROLL_MULTI_BERRY_POWDER_VENDOR && i >= 4 && i <= 9)))
             continue;
         items[shown].name = sScrollableMultichoiceOptions[menu][i];
+        if (FlagGet(FLAG_RUN_RULE_TMS_TUTORS) && i < 10
+            && (menu == SCROLL_MULTI_BF_MOVE_TUTOR_1 || menu == SCROLL_MULTI_BF_MOVE_TUTOR_2))
+        {
+            u32 tutor = menu == SCROLL_MULTI_BF_MOVE_TUTOR_2;
+            u8 *end = StringCopy(tutorNames[i], COMPOUND_STRING("{FONT_SMALL}"));
+            end = StringCopy(end, GetMoveName(GetFrontierTutorMove(tutor, i)));
+            end = StringCopy(end, COMPOUND_STRING("{CLEAR_TO 86}"));
+            end = ConvertIntToDecimalStringN(end, costs[tutor][i], STR_CONV_MODE_LEFT_ALIGN, 2);
+            StringCopy(end, COMPOUND_STRING("BP{FONT_NORMAL}"));
+            items[shown].name = tutorNames[i];
+        }
         items[shown++].id = i;
     }
     return shown;
@@ -3266,7 +3280,10 @@ static void ShowBattleFrontierTutorMoveDescription(enum ScrollMulti menu, u16 se
     if (menu == SCROLL_MULTI_BF_MOVE_TUTOR_1 || menu == SCROLL_MULTI_BF_MOVE_TUTOR_2)
     {
         FillWindowPixelRect(sTutorMoveAndElevatorWindowId, PIXEL_FILL(1), 0, 0, 96, 48);
-        if (menu == SCROLL_MULTI_BF_MOVE_TUTOR_2)
+        if (FlagGet(FLAG_RUN_RULE_TMS_TUTORS) && selection < 10)
+            AddTextPrinterParameterized(sTutorMoveAndElevatorWindowId, FONT_NORMAL,
+                GetRandomizedMoveDescription(GetFrontierTutorMove(menu == SCROLL_MULTI_BF_MOVE_TUTOR_2, selection), 96), 0, 1, 0, NULL);
+        else if (menu == SCROLL_MULTI_BF_MOVE_TUTOR_2)
             AddTextPrinterParameterized(sTutorMoveAndElevatorWindowId, FONT_NORMAL, sBattleFrontier_TutorMoveDescriptions2[selection], 0, 1, 0, NULL);
         else
             AddTextPrinterParameterized(sTutorMoveAndElevatorWindowId, FONT_NORMAL, sBattleFrontier_TutorMoveDescriptions1[selection], 0, 1, 0, NULL);

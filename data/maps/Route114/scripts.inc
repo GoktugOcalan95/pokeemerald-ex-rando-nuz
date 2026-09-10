@@ -45,12 +45,12 @@ Route114_EventScript_RoarGentleman::
 	giveitem ITEM_TM_ROAR
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_TM_ROAR
-	msgbox Route114_Text_ExplainRoar, MSGBOX_DEFAULT
+	msgbox_tm Route114_Text_ExplainRoar, ITEM_TM_ROAR, MSGBOX_DEFAULT
 	release
 	end
 
 Route114_EventScript_ReceivedRoar::
-	msgbox Route114_Text_ExplainRoar, MSGBOX_DEFAULT
+	msgbox_tm Route114_Text_ExplainRoar, ITEM_TM_ROAR, MSGBOX_DEFAULT
 	release
 	end
 

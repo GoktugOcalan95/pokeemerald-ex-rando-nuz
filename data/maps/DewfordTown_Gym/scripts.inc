@@ -170,14 +170,14 @@ DewfordTown_Gym_EventScript_BrawlyDefeated::
 DewfordTown_Gym_EventScript_GiveBulkUp::
 	giveitem ITEM_TM_BULK_UP
 	goto_if_eq VAR_RESULT, 0, Common_EventScript_BagIsFull
-	msgbox DewfordTown_Gym_Text_ExplainBulkUp, MSGBOX_DEFAULT
+	msgbox_tm DewfordTown_Gym_Text_ExplainBulkUp, ITEM_TM_BULK_UP, MSGBOX_DEFAULT
 	setflag FLAG_RECEIVED_TM_BULK_UP
 	return
 
 DewfordTown_Gym_EventScript_GiveBulkUp2:
 	giveitem ITEM_TM_BULK_UP
 	goto_if_eq VAR_RESULT, 0, Common_EventScript_ShowBagIsFull
-	msgbox DewfordTown_Gym_Text_ExplainBulkUp, MSGBOX_DEFAULT
+	msgbox_tm DewfordTown_Gym_Text_ExplainBulkUp, ITEM_TM_BULK_UP, MSGBOX_DEFAULT
 	setflag FLAG_RECEIVED_TM_BULK_UP
 	release
 	end

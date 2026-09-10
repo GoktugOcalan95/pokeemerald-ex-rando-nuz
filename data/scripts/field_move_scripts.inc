@@ -460,3 +460,22 @@ EventScript_CannotFlyHere::
 
 Text_CannotFlyHere:
 	.string "You can't use FLY here.$"
+
+EventScript_ToggleRepel::
+	lockall
+	callnative ToggleRepelEncounters
+	goto_if_set FLAG_DEBUG_NO_ENCOUNTER, EventScript_ToggleRepelDisabled
+	msgbox_timed Text_WildEncountersEnabled
+	releaseall
+	end
+
+EventScript_ToggleRepelDisabled::
+	msgbox_timed Text_WildEncountersDisabled
+	releaseall
+	end
+
+Text_WildEncountersDisabled:
+	.string "Wild encounters disabled.$"
+
+Text_WildEncountersEnabled:
+	.string "Wild encounters enabled.$"

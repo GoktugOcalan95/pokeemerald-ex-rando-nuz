@@ -14006,6 +14006,22 @@ const struct ItemInfo gItemsInfo[] =
         .iconPalette = gItemIconPalette_Bicycle,
     },
 
+    [ITEM_TOGGLE_REPEL] =
+    {
+        .name = ITEM_NAME("Toggle Repel"),
+        .price = 0,
+        .description = COMPOUND_STRING(
+            "Toggles encounters.\n"
+            "Fishing and forced\n"
+            "encounters remain."),
+        .importance = 1,
+        .pocket = POCKET_KEY_ITEMS,
+        .type = ITEM_USE_FIELD,
+        .fieldUseFunc = ItemUseOutOfBattle_ToggleRepel,
+        .iconPic = gItemIcon_Repel,
+        .iconPalette = gItemIconPalette_Repel,
+    },
+
     [ITEM_MACH_BIKE] =
     {
         .name = ITEM_NAME("Mach Bike"),

@@ -1581,3 +1581,31 @@ void ItemUseOutOfBattle_TownMap(u8 taskId)
 }
 
 #undef tUsingRegisteredKeyItem
+
+extern const u8 EventScript_ToggleRepel[];
+
+void InitToggleRepel(void)
+{
+    FlagClear(FLAG_DEBUG_NO_ENCOUNTER);
+    AddBagItem(ITEM_TOGGLE_REPEL, 1);
+}
+
+void ToggleRepelEncounters(void)
+{
+    if (FlagGet(FLAG_DEBUG_NO_ENCOUNTER))
+        FlagClear(FLAG_DEBUG_NO_ENCOUNTER);
+    else
+        FlagSet(FLAG_DEBUG_NO_ENCOUNTER);
+}
+
+static void ItemUseOnFieldCB_ToggleRepel(u8 taskId)
+{
+    ScriptContext_SetupScript(EventScript_ToggleRepel);
+    DestroyTask(taskId);
+}
+
+void ItemUseOutOfBattle_ToggleRepel(u8 taskId)
+{
+    sItemUseOnFieldCB = ItemUseOnFieldCB_ToggleRepel;
+    SetUpItemUseOnFieldCallback(taskId);
+}

@@ -29,6 +29,7 @@
 #include "mail.h"
 #include "battle_records.h"
 #include "item.h"
+#include "item_use.h"
 #include "pokedex.h"
 #include "apprentice.h"
 #include "frontier_util.h"
@@ -236,6 +237,7 @@ void NewGameInitData(void)
     ResetDexNav();
     ClearFollowerNPCData();
     RunSetup_ApplyToNewGame();
+    InitToggleRepel();
 }
 
 static void ResetMiniGamesRecords(void)

@@ -60,20 +60,20 @@
 #define FLAG_RUN_RULE_FROSTBITE 0x26
 #define FLAG_RUN_RULE_SETUP_MOVE_PP 0x27
 #define FLAG_RUN_RULE_INSTANT_CATCH 0x28
-#define FLAG_UNUSED_0x029    0x29 // Unused Flag
-#define FLAG_UNUSED_0x02A    0x2A // Unused Flag
-#define FLAG_UNUSED_0x02B    0x2B // Unused Flag
-#define FLAG_UNUSED_0x02C    0x2C // Unused Flag
-#define FLAG_UNUSED_0x02D    0x2D // Unused Flag
-#define FLAG_UNUSED_0x02E    0x2E // Unused Flag
-#define FLAG_UNUSED_0x02F    0x2F // Unused Flag
-#define FLAG_UNUSED_0x030    0x30 // Unused Flag
-#define FLAG_UNUSED_0x031    0x31 // Unused Flag
-#define FLAG_UNUSED_0x032    0x32 // Unused Flag
-#define FLAG_UNUSED_0x033    0x33 // Unused Flag
-#define FLAG_UNUSED_0x034    0x34 // Unused Flag
-#define FLAG_UNUSED_0x035    0x35 // Unused Flag
-#define FLAG_UNUSED_0x036    0x36 // Unused Flag
+#define FLAG_RUN_RULE_ENCOUNTERS 0x29
+#define FLAG_RUN_RULE_TRAINERS 0x2A
+#define FLAG_RUN_RULE_ABILITIES 0x2B
+#define FLAG_RUN_RULE_ITEMS 0x2C
+#define FLAG_RUN_RULE_BAN_SLATEPORT 0x2D
+#define FLAG_RUN_RULE_BAN_GIMMICKS 0x2E
+#define FLAG_RUN_RULE_BAN_BATTLE_ITEMS 0x2F
+#define FLAG_RUN_RULE_LEARNSETS 0x30
+#define FLAG_RUN_RULE_TMS_TUTORS 0x31
+#define FLAG_RUN_RULE_ENEMY_STAB 0x32
+#define FLAG_RUN_RULE_REMOVE_STORY 0x33
+#define FLAG_RUN_RULE_EARLY_SURF 0x34
+#define FLAG_RUN_RULE_EARLY_FLY 0x35
+#define FLAG_RUN_RULE_AUTO_HEAL 0x36
 #define FLAG_UNUSED_0x037    0x37 // Unused Flag
 #define FLAG_UNUSED_0x038    0x38 // Unused Flag
 #define FLAG_UNUSED_0x039    0x39 // Unused Flag

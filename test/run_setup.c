@@ -4,6 +4,8 @@
 #include "gpu_regs.h"
 #include "run_setup.h"
 #include "save.h"
+#include "text.h"
+#include "constants/vars.h"
 #include "test/test.h"
 #include "constants/flags.h"
 
@@ -68,269 +70,6 @@ TEST("Run setup clears its tilemap before the introduction")
     ResetBgsAndClearDma3BusyFlags(FALSE);
 }
 
-TEST("Run setup drafts start with defaults after discard")
-{
-    RunSetup_Begin();
-    RunSetup_SetFullCompatibility(TRUE);
-    RunSetup_SetReusableTMs(TRUE);
-    RunSetup_SetNoEVGain(TRUE);
-    EXPECT(RunSetup_GetFullCompatibility());
-    EXPECT(RunSetup_GetReusableTMs());
-    EXPECT(RunSetup_GetNoEVGain());
-
-    RunSetup_Discard();
-    RunSetup_Begin();
-    EXPECT(!RunSetup_GetFullCompatibility());
-    EXPECT(!RunSetup_GetReusableTMs());
-    EXPECT(!RunSetup_GetNoEVGain());
-    RunSetup_Discard();
-}
-
-TEST("Run setup confirmation Back retains the draft")
-{
-    RunSetup_Begin();
-    RunSetup_SetFullCompatibility(TRUE);
-    RunSetup_SetReusableTMs(TRUE);
-    RunSetup_EnterConfirmation();
-    RunSetup_ReturnToDraft();
-
-    EXPECT(RunSetup_GetFullCompatibility());
-    EXPECT(RunSetup_GetReusableTMs());
-    RunSetup_Discard();
-}
-
-TEST("Run setup draft does not change the loaded save")
-{
-    FlagSet(FLAG_RUN_RULE_FULL_COMPATIBILITY);
-    FlagSet(FLAG_RUN_RULE_REUSABLE_TMS);
-    RunSetup_Begin();
-    EXPECT(!RunSetup_GetFullCompatibility());
-    EXPECT(!RunSetup_GetReusableTMs());
-    RunSetup_EnterConfirmation();
-    RunSetup_Confirm();
-
-    EXPECT(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY));
-    EXPECT(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS));
-    RunSetup_Discard();
-    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
-    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
-}
-
-TEST("Run setup applies a confirmed draft to the new save")
-{
-    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
-    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
-    RunSetup_Begin();
-    RunSetup_SetFullCompatibility(TRUE);
-    RunSetup_SetReusableTMs(TRUE);
-    RunSetup_EnterConfirmation();
-    RunSetup_Confirm();
-    RunSetup_ApplyToNewGame();
-
-    EXPECT(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY));
-    EXPECT(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS));
-
-    InitEventData();
-    RunSetup_ApplyToNewGame();
-    EXPECT(!FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY));
-    EXPECT(!FlagGet(FLAG_RUN_RULE_REUSABLE_TMS));
-}
-
-TEST("Run setup applies reusable TMs independently of full compatibility")
-{
-    bool32 reusableTMs;
-    bool32 fullCompatibility;
-
-    PARAMETRIZE { reusableTMs = FALSE; fullCompatibility = FALSE; }
-    PARAMETRIZE { reusableTMs = FALSE; fullCompatibility = TRUE; }
-    PARAMETRIZE { reusableTMs = TRUE; fullCompatibility = FALSE; }
-    PARAMETRIZE { reusableTMs = TRUE; fullCompatibility = TRUE; }
-
-    FlagSet(FLAG_RUN_RULE_REUSABLE_TMS);
-    FlagSet(FLAG_RUN_RULE_FULL_COMPATIBILITY);
-    RunSetup_Begin();
-    RunSetup_SetReusableTMs(reusableTMs);
-    RunSetup_SetFullCompatibility(fullCompatibility);
-    RunSetup_EnterConfirmation();
-    RunSetup_SetReusableTMs(!reusableTMs);
-    RunSetup_Confirm();
-    RunSetup_ApplyToNewGame();
-
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), reusableTMs);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), fullCompatibility);
-    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
-    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
-}
-
-TEST("Run setup does not apply unconfirmed reusable TMs")
-{
-    RunSetup_Begin();
-    RunSetup_SetReusableTMs(TRUE);
-    RunSetup_EnterConfirmation();
-    RunSetup_ApplyToNewGame();
-    EXPECT(!FlagGet(FLAG_RUN_RULE_REUSABLE_TMS));
-}
-
-TEST("Run setup scrolling keeps the selected row visible")
-{
-    u32 selection;
-    u32 top;
-    u32 count;
-    u32 expected;
-
-    PARAMETRIZE { selection = 1; top = 0; count = 2; expected = 0; }
-    PARAMETRIZE { selection = 3; top = 0; count = 4; expected = 0; }
-    PARAMETRIZE { selection = 3; top = 0; count = 8; expected = 0; }
-    PARAMETRIZE { selection = 4; top = 0; count = 8; expected = 1; }
-    PARAMETRIZE { selection = 7; top = 1; count = 8; expected = 4; }
-    PARAMETRIZE { selection = 2; top = 3; count = 8; expected = 2; }
-    PARAMETRIZE { selection = 0; top = 3; count = 8; expected = 0; }
-    PARAMETRIZE { selection = 7; top = 0; count = 8; expected = 4; }
-    PARAMETRIZE { selection = 8; top = 0; count = 9; expected = 5; }
-    PARAMETRIZE { selection = 6; top = 0; count = 8; expected = 3; }
-    PARAMETRIZE { selection = 4; top = 5; count = 8; expected = 4; }
-
-    EXPECT_EQ(RunSetup_GetScrollTop(selection, top, count), expected);
-}
-
-TEST("Run setup presets replace the draft without changing the loaded save")
-{
-    enum RunSetupPreset preset;
-    bool32 bishey;
-    bool32 rules;
-
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; bishey = FALSE; rules = FALSE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; bishey = FALSE; rules = TRUE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; bishey = TRUE; rules = TRUE; }
-
-    RunSetup_Begin();
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_VANILLA);
-    FlagSet(FLAG_RUN_RULE_FULL_COMPATIBILITY);
-    RunSetup_SetFullCompatibility(!bishey);
-    FlagSet(FLAG_RUN_RULE_REUSABLE_TMS);
-    RunSetup_SetReusableTMs(!bishey);
-    FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
-    RunSetup_SetNoEVGain(!rules);
-    FlagSet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE);
-    RunSetup_SetOpponentHPPercentage(!rules);
-    FlagSet(FLAG_RUN_RULE_LEVEL_CAPS);
-    RunSetup_SetLevelCaps(!rules);
-    FlagSet(FLAG_RUN_RULE_FROSTBITE);
-    RunSetup_SetFrostbite(!bishey);
-    FlagSet(FLAG_RUN_RULE_INSTANT_CATCH);
-    RunSetup_SetInstantCatch(!bishey);
-    FlagSet(FLAG_RUN_RULE_SETUP_MOVE_PP);
-    RunSetup_SetSetupMovePP(!rules);
-    RunSetup_SetPreset(preset);
-    EXPECT_EQ(RunSetup_GetFullCompatibility(), bishey);
-    EXPECT(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY));
-    EXPECT_EQ(RunSetup_GetReusableTMs(), bishey);
-    EXPECT(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS));
-    EXPECT_EQ(RunSetup_GetNoEVGain(), rules);
-    EXPECT(FlagGet(FLAG_RUN_RULE_NO_EV_GAIN));
-    EXPECT_EQ(RunSetup_GetOpponentHPPercentage(), rules);
-    EXPECT(FlagGet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE));
-    EXPECT_EQ(RunSetup_GetLevelCaps(), rules);
-    EXPECT(FlagGet(FLAG_RUN_RULE_LEVEL_CAPS));
-    EXPECT_EQ(RunSetup_GetFrostbite(), bishey);
-    EXPECT(FlagGet(FLAG_RUN_RULE_FROSTBITE));
-    EXPECT_EQ(RunSetup_GetInstantCatch(), bishey);
-    EXPECT(FlagGet(FLAG_RUN_RULE_INSTANT_CATCH));
-    EXPECT_EQ(RunSetup_GetSetupMovePP(), rules);
-    EXPECT(FlagGet(FLAG_RUN_RULE_SETUP_MOVE_PP));
-    EXPECT_EQ(RunSetup_GetPreset(), preset);
-    RunSetup_EnterConfirmation();
-    RunSetup_Confirm();
-    RunSetup_ApplyToNewGame();
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), bishey);
-    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), bishey);
-    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_NO_EV_GAIN), rules);
-    FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE), rules);
-    FlagClear(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_LEVEL_CAPS), rules);
-    FlagClear(FLAG_RUN_RULE_LEVEL_CAPS);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FROSTBITE), bishey);
-    FlagClear(FLAG_RUN_RULE_FROSTBITE);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_INSTANT_CATCH), bishey);
-    FlagClear(FLAG_RUN_RULE_INSTANT_CATCH);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_SETUP_MOVE_PP), rules);
-    FlagClear(FLAG_RUN_RULE_SETUP_MOVE_PP);
-}
-
-TEST("Run setup preset names follow individual edits")
-{
-    enum RunSetupPreset preset;
-    bool32 enabled;
-
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; enabled = FALSE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; enabled = FALSE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; enabled = TRUE; }
-
-    RunSetup_Begin();
-    RunSetup_SetPreset(preset);
-    RunSetup_SetReusableTMs(!enabled);
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
-    RunSetup_SetReusableTMs(enabled);
-    EXPECT_EQ(RunSetup_GetPreset(), preset);
-    RunSetup_SetFullCompatibility(!enabled);
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
-    RunSetup_SetFullCompatibility(enabled);
-    EXPECT_EQ(RunSetup_GetPreset(), preset);
-    RunSetup_Discard();
-    RunSetup_Begin();
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_VANILLA);
-    RunSetup_SetNoEVGain(TRUE);
-    RunSetup_SetOpponentHPPercentage(TRUE);
-    RunSetup_SetLevelCaps(TRUE);
-    RunSetup_SetSetupMovePP(TRUE);
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_NUZLOCKE);
-    RunSetup_SetFullCompatibility(TRUE);
-    RunSetup_SetReusableTMs(TRUE);
-    RunSetup_SetFrostbite(TRUE);
-    RunSetup_SetInstantCatch(TRUE);
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_BISHEY);
-    RunSetup_Discard();
-}
-
-TEST("Run setup presets cannot change a confirmation and survive returning to the draft")
-{
-    RunSetup_Begin();
-    RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
-    RunSetup_EnterConfirmation();
-    RunSetup_SetPreset(RUN_SETUP_PRESET_VANILLA);
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_BISHEY);
-    EXPECT(RunSetup_GetFullCompatibility());
-    EXPECT(RunSetup_GetReusableTMs());
-    RunSetup_ReturnToDraft();
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_BISHEY);
-    RunSetup_SetPreset(RUN_SETUP_PRESET_VANILLA);
-    EXPECT(!RunSetup_GetFullCompatibility());
-    EXPECT(!RunSetup_GetReusableTMs());
-    RunSetup_Discard();
-    RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_VANILLA);
-}
-
-TEST("Run setup rejects Custom and invalid preset choices")
-{
-    enum RunSetupPreset preset;
-
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_CUSTOM; }
-    PARAMETRIZE { preset = -1; }
-    PARAMETRIZE { preset = 255; }
-
-    RunSetup_Begin();
-    RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
-    RunSetup_SetPreset(preset);
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_BISHEY);
-    EXPECT(RunSetup_GetFullCompatibility());
-    EXPECT(RunSetup_GetReusableTMs());
-    RunSetup_Discard();
-}
-
 TEST("Run setup clears background graphics before Birch changes character base")
 {
     volatile u16 *background = (volatile u16 *)VRAM;
@@ -353,466 +92,226 @@ TEST("Run setup clears background graphics before Birch changes character base")
     sprites[0] = previousSpritePixel;
 }
 
-TEST("Run setup No EV gain is independent and locked during confirmation")
-{
-    bool32 enabled;
-    bool32 otherRules;
-
-    PARAMETRIZE { enabled = FALSE; otherRules = FALSE; }
-    PARAMETRIZE { enabled = FALSE; otherRules = TRUE; }
-    PARAMETRIZE { enabled = TRUE; otherRules = FALSE; }
-    PARAMETRIZE { enabled = TRUE; otherRules = TRUE; }
-
-    FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
-    RunSetup_Begin();
-    RunSetup_SetNoEVGain(enabled);
-    RunSetup_SetFullCompatibility(otherRules);
-    RunSetup_SetReusableTMs(otherRules);
-    EXPECT(FlagGet(FLAG_RUN_RULE_NO_EV_GAIN));
-    RunSetup_EnterConfirmation();
-    RunSetup_SetNoEVGain(!enabled);
-    EXPECT_EQ(RunSetup_GetNoEVGain(), enabled);
-    RunSetup_ReturnToDraft();
-    EXPECT_EQ(RunSetup_GetNoEVGain(), enabled);
-    RunSetup_EnterConfirmation();
-    RunSetup_Confirm();
-    RunSetup_SetNoEVGain(!enabled);
-    RunSetup_ApplyToNewGame();
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_NO_EV_GAIN), enabled);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), otherRules);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), otherRules);
-    FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
-    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
-    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
-}
-
-TEST("Run setup rejects unconfirmed No EV gain and clears stale rule flags")
-{
-    FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
-    RunSetup_Begin();
-    RunSetup_SetNoEVGain(TRUE);
-    RunSetup_EnterConfirmation();
-    RunSetup_ApplyToNewGame();
-    EXPECT(!FlagGet(FLAG_RUN_RULE_NO_EV_GAIN));
-    RunSetup_SetNoEVGain(TRUE);
-    EXPECT(!RunSetup_GetNoEVGain());
-}
-
-TEST("Run setup No EV gain participates in preset matching")
+TEST("Run setup defaults, presets and edits stay draft-only until START")
 {
     enum RunSetupPreset preset;
-    bool32 enabled;
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; }
+    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; }
 
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; enabled = FALSE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; enabled = TRUE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; enabled = TRUE; }
-
+    InitEventData();
     RunSetup_Begin();
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_VANILLA);
     RunSetup_SetPreset(preset);
-    RunSetup_SetNoEVGain(!enabled);
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
-    RunSetup_SetNoEVGain(enabled);
     EXPECT_EQ(RunSetup_GetPreset(), preset);
+    for (u32 i = 0; i < RUN_SETUP_SETTING_COUNT; i++)
+    {
+        const struct RunSetupSettingInfo *info = &gRunSetupSettings[i];
+        EXPECT_EQ(RunSetup_GetValue(i), info->presets[preset]);
+        if (info->storageId < VARS_START)
+            EXPECT_EQ(FlagGet(info->storageId), FALSE);
+        else
+            EXPECT_EQ(VarGet(info->storageId), 0);
+    }
+    RunSetup_SetReusableTMs(!RunSetup_GetReusableTMs());
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
+    RunSetup_SetPreset(preset);
+    RunSetup_Confirm();
+    RunSetup_SetPreset(RUN_SETUP_PRESET_CUSTOM);
+    RunSetup_SetPreset((enum RunSetupPreset)-1);
+    RunSetup_SetPreset((preset + 1) % RUN_SETUP_PRESET_COUNT);
+    RunSetup_SetReusableTMs(!RunSetup_GetReusableTMs());
+    EXPECT_EQ(RunSetup_GetPreset(), preset);
+    RunSetup_ApplyToNewGame();
+    for (u32 i = 0; i < RUN_SETUP_SETTING_COUNT; i++)
+    {
+        const struct RunSetupSettingInfo *info = &gRunSetupSettings[i];
+        u32 expected = info->presets[preset];
+        if (info->storageId < VARS_START)
+            EXPECT_EQ(FlagGet(info->storageId), expected);
+        else
+            EXPECT_EQ(VarGet(info->storageId), i == RUN_SETUP_GOOD_MOVE_CHANCE ? expected * 10 : expected);
+    }
+    InitEventData();
+}
+
+TEST("Run setup discards drafts and refuses to apply settings without START")
+{
+    RunSetup_Begin();
+    RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
+    RunSetup_ApplyToNewGame();
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_VANILLA);
+    for (u32 i = 0; i < RUN_SETUP_SETTING_COUNT; i++)
+    {
+        u16 storage = gRunSetupSettings[i].storageId;
+        EXPECT_EQ(RunSetup_GetValue(i), 0);
+        if (storage < VARS_START)
+            EXPECT_EQ(FlagGet(storage), FALSE);
+        else
+            EXPECT_EQ(VarGet(storage), 0);
+    }
+    RunSetup_SetFullCompatibility(TRUE);
+    EXPECT_EQ(RunSetup_GetFullCompatibility(), FALSE);
+    RunSetup_Begin();
+    RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
+    RunSetup_Discard();
+    RunSetup_Confirm();
+    RunSetup_ApplyToNewGame();
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), FALSE);
+}
+
+TEST("Run setup disabled children retain choices but have no saved effect")
+{
+    RunSetup_Begin();
+    RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
+    RunSetup_SetValue(RUN_SETUP_ITEMS, 0);
+    RunSetup_SetValue(RUN_SETUP_LEARNSETS, 0);
+    RunSetup_SetValue(RUN_SETUP_TMS_TUTORS, 0);
+    EXPECT(!RunSetup_IsAvailable(RUN_SETUP_BAN_SLATEPORT));
+    EXPECT(!RunSetup_IsAvailable(RUN_SETUP_BAN_GIMMICKS));
+    EXPECT(!RunSetup_IsAvailable(RUN_SETUP_BAN_BATTLE_ITEMS));
+    EXPECT(!RunSetup_IsAvailable(RUN_SETUP_GOOD_MOVE_CHANCE));
+    RunSetup_SetValue(RUN_SETUP_BAN_SLATEPORT, 0);
+    RunSetup_SetValue(RUN_SETUP_GOOD_MOVE_CHANCE, 10);
+    EXPECT_EQ(RunSetup_GetValue(RUN_SETUP_BAN_SLATEPORT), 1);
+    EXPECT_EQ(RunSetup_GetValue(RUN_SETUP_GOOD_MOVE_CHANCE), 3);
+    RunSetup_SetValue(RUN_SETUP_ITEMS, 1);
+    RunSetup_SetValue(RUN_SETUP_TMS_TUTORS, 1);
+    EXPECT(RunSetup_IsAvailable(RUN_SETUP_GOOD_MOVE_CHANCE));
+    EXPECT_EQ(RunSetup_GetValue(RUN_SETUP_BAN_SLATEPORT), 1);
+    RunSetup_SetValue(RUN_SETUP_TMS_TUTORS, 0);
+    RunSetup_SetValue(RUN_SETUP_LEARNSETS, 1);
+    EXPECT(RunSetup_IsAvailable(RUN_SETUP_GOOD_MOVE_CHANCE));
+    RunSetup_SetValue(RUN_SETUP_ITEMS, 0);
+    RunSetup_SetValue(RUN_SETUP_LEARNSETS, 0);
+    RunSetup_Confirm();
+    RunSetup_ApplyToNewGame();
+    EXPECT(!FlagGet(FLAG_RUN_RULE_BAN_SLATEPORT));
+    EXPECT(!FlagGet(FLAG_RUN_RULE_BAN_BATTLE_ITEMS));
+    EXPECT_EQ(VarGet(VAR_RUN_RULE_GOOD_MOVE_CHANCE), 0);
+    InitEventData();
+}
+
+TEST("Run setup preset replacement clears inactive child choices")
+{
+    RunSetup_Begin();
+    RunSetup_SetValue(RUN_SETUP_ITEMS, 1);
+    RunSetup_SetValue(RUN_SETUP_BAN_SLATEPORT, 1);
+    RunSetup_SetValue(RUN_SETUP_ITEMS, 0);
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
+    RunSetup_SetPreset(RUN_SETUP_PRESET_VANILLA);
+    RunSetup_SetValue(RUN_SETUP_ITEMS, 1);
+    EXPECT_EQ(RunSetup_GetValue(RUN_SETUP_BAN_SLATEPORT), 0);
+    RunSetup_SetValue(RUN_SETUP_ITEMS, 2);
+    RunSetup_SetValue(RUN_SETUP_SETTING_COUNT, 1);
+    RunSetup_SetValue((enum RunSetupSetting)-1, 1);
+    EXPECT_EQ(RunSetup_GetValue(RUN_SETUP_ITEMS), 1);
+    EXPECT(!RunSetup_IsAvailable(RUN_SETUP_SETTING_COUNT));
+    RunSetup_SetValue(RUN_SETUP_DIFFICULTY, 3);
+    EXPECT_EQ(RunSetup_GetValue(RUN_SETUP_DIFFICULTY), 0);
     RunSetup_Discard();
 }
 
-TEST("Run setup opponent HP percentage is independent and locked during confirmation")
+TEST("Run setup saves and reloads every setting and numeric choice")
 {
-    bool32 enabled;
-    bool32 otherRules;
+    u32 chance;
+    u32 difficulty;
+    PARAMETRIZE { chance = 0; difficulty = 0; }
+    PARAMETRIZE { chance = 3; difficulty = 1; }
+    PARAMETRIZE { chance = 10; difficulty = 2; }
 
-    PARAMETRIZE { enabled = FALSE; otherRules = FALSE; }
-    PARAMETRIZE { enabled = FALSE; otherRules = TRUE; }
-    PARAMETRIZE { enabled = TRUE; otherRules = FALSE; }
-    PARAMETRIZE { enabled = TRUE; otherRules = TRUE; }
-
-    FlagSet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE);
+    InitEventData();
     RunSetup_Begin();
-    RunSetup_SetOpponentHPPercentage(enabled);
-    RunSetup_SetFullCompatibility(otherRules);
-    RunSetup_SetReusableTMs(otherRules);
-    EXPECT(FlagGet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE));
-    RunSetup_EnterConfirmation();
-    RunSetup_SetOpponentHPPercentage(!enabled);
-    EXPECT_EQ(RunSetup_GetOpponentHPPercentage(), enabled);
-    RunSetup_ReturnToDraft();
-    EXPECT_EQ(RunSetup_GetOpponentHPPercentage(), enabled);
-    RunSetup_EnterConfirmation();
-    RunSetup_Confirm();
-    RunSetup_SetOpponentHPPercentage(!enabled);
-    RunSetup_ApplyToNewGame();
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE), enabled);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), otherRules);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), otherRules);
-    FlagClear(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE);
-    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
-    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
-}
-
-TEST("Run setup rejects unconfirmed opponent HP percentage and clears stale rule flags")
-{
-    FlagSet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE);
-    RunSetup_Begin();
-    RunSetup_SetOpponentHPPercentage(TRUE);
-    RunSetup_EnterConfirmation();
-    RunSetup_ApplyToNewGame();
-    EXPECT(!FlagGet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE));
-    RunSetup_SetOpponentHPPercentage(TRUE);
-    EXPECT(!RunSetup_GetOpponentHPPercentage());
-}
-
-TEST("Run setup opponent HP percentage participates in preset matching")
-{
-    enum RunSetupPreset preset;
-    bool32 enabled;
-
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; enabled = FALSE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; enabled = TRUE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; enabled = TRUE; }
-
-    RunSetup_Begin();
-    RunSetup_SetPreset(preset);
-    RunSetup_SetOpponentHPPercentage(!enabled);
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
-    RunSetup_SetOpponentHPPercentage(enabled);
-    EXPECT_EQ(RunSetup_GetPreset(), preset);
-    RunSetup_SetOpponentHPPercentage(!enabled);
-    RunSetup_SetPreset(preset);
-    EXPECT_EQ(RunSetup_GetOpponentHPPercentage(), enabled);
-    RunSetup_Discard();
-}
-
-TEST("Run setup level caps is independent and locked during confirmation")
-{
-    bool32 enabled;
-    bool32 otherRules;
-
-    PARAMETRIZE { enabled = FALSE; otherRules = FALSE; }
-    PARAMETRIZE { enabled = FALSE; otherRules = TRUE; }
-    PARAMETRIZE { enabled = TRUE; otherRules = FALSE; }
-    PARAMETRIZE { enabled = TRUE; otherRules = TRUE; }
-
-    FlagSet(FLAG_RUN_RULE_LEVEL_CAPS);
-    RunSetup_Begin();
-    RunSetup_SetLevelCaps(enabled);
-    RunSetup_SetFullCompatibility(otherRules);
-    RunSetup_SetReusableTMs(otherRules);
-    EXPECT(FlagGet(FLAG_RUN_RULE_LEVEL_CAPS));
-    RunSetup_EnterConfirmation();
-    RunSetup_SetLevelCaps(!enabled);
-    EXPECT_EQ(RunSetup_GetLevelCaps(), enabled);
-    RunSetup_ReturnToDraft();
-    EXPECT_EQ(RunSetup_GetLevelCaps(), enabled);
-    RunSetup_EnterConfirmation();
-    RunSetup_Confirm();
-    RunSetup_SetLevelCaps(!enabled);
-    RunSetup_ApplyToNewGame();
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_LEVEL_CAPS), enabled);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), otherRules);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), otherRules);
-    FlagClear(FLAG_RUN_RULE_LEVEL_CAPS);
-    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
-    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
-}
-
-TEST("Run setup rejects unconfirmed level caps and clears stale rule flags")
-{
-    FlagSet(FLAG_RUN_RULE_LEVEL_CAPS);
-    RunSetup_Begin();
-    RunSetup_SetLevelCaps(TRUE);
-    RunSetup_EnterConfirmation();
-    RunSetup_ApplyToNewGame();
-    EXPECT(!FlagGet(FLAG_RUN_RULE_LEVEL_CAPS));
-    RunSetup_SetLevelCaps(TRUE);
-    EXPECT(!RunSetup_GetLevelCaps());
-}
-
-TEST("Run setup level caps participates in preset matching")
-{
-    enum RunSetupPreset preset;
-    bool32 enabled;
-
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; enabled = FALSE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; enabled = TRUE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; enabled = TRUE; }
-
-    RunSetup_Begin();
-    RunSetup_SetPreset(preset);
-    RunSetup_SetLevelCaps(!enabled);
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
-    RunSetup_SetLevelCaps(enabled);
-    EXPECT_EQ(RunSetup_GetPreset(), preset);
-    RunSetup_SetLevelCaps(!enabled);
-    RunSetup_SetPreset(preset);
-    EXPECT_EQ(RunSetup_GetLevelCaps(), enabled);
-    RunSetup_Discard();
-}
-
-TEST("Run setup Frostbite is independent and locked during confirmation")
-{
-    bool32 enabled;
-    bool32 otherRules;
-
-    PARAMETRIZE { enabled = FALSE; otherRules = FALSE; }
-    PARAMETRIZE { enabled = FALSE; otherRules = TRUE; }
-    PARAMETRIZE { enabled = TRUE; otherRules = FALSE; }
-    PARAMETRIZE { enabled = TRUE; otherRules = TRUE; }
-
-    FlagSet(FLAG_RUN_RULE_FROSTBITE);
-    RunSetup_Begin();
-    RunSetup_SetFrostbite(enabled);
-    RunSetup_SetFullCompatibility(otherRules);
-    RunSetup_SetReusableTMs(otherRules);
-    EXPECT(FlagGet(FLAG_RUN_RULE_FROSTBITE));
-    RunSetup_EnterConfirmation();
-    RunSetup_SetFrostbite(!enabled);
-    EXPECT_EQ(RunSetup_GetFrostbite(), enabled);
-    RunSetup_ReturnToDraft();
-    EXPECT_EQ(RunSetup_GetFrostbite(), enabled);
-    RunSetup_EnterConfirmation();
-    RunSetup_Confirm();
-    RunSetup_SetFrostbite(!enabled);
-    RunSetup_ApplyToNewGame();
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FROSTBITE), enabled);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), otherRules);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), otherRules);
-    FlagClear(FLAG_RUN_RULE_FROSTBITE);
-    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
-    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
-}
-
-TEST("Run setup rejects unconfirmed Frostbite and clears stale rule flags")
-{
-    FlagSet(FLAG_RUN_RULE_FROSTBITE);
-    RunSetup_Begin();
-    RunSetup_SetFrostbite(TRUE);
-    RunSetup_EnterConfirmation();
-    RunSetup_ApplyToNewGame();
-    EXPECT(!FlagGet(FLAG_RUN_RULE_FROSTBITE));
-    RunSetup_SetFrostbite(TRUE);
-    EXPECT(!RunSetup_GetFrostbite());
-}
-
-TEST("Run setup Frostbite participates in preset matching")
-{
-    enum RunSetupPreset preset;
-    bool32 enabled;
-
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; enabled = FALSE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; enabled = FALSE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; enabled = TRUE; }
-
-    RunSetup_Begin();
-    RunSetup_SetPreset(preset);
-    RunSetup_SetFrostbite(!enabled);
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
-    RunSetup_SetFrostbite(enabled);
-    EXPECT_EQ(RunSetup_GetPreset(), preset);
-    RunSetup_SetFrostbite(!enabled);
-    RunSetup_SetPreset(preset);
-    EXPECT_EQ(RunSetup_GetFrostbite(), enabled);
-    RunSetup_Discard();
-}
-
-TEST("Run setup Frostbite survives saving and loading")
-{
-    bool32 enabled;
-
-    PARAMETRIZE { enabled = FALSE; }
-    PARAMETRIZE { enabled = TRUE; }
-
-    RunSetup_Begin();
-    RunSetup_SetFrostbite(enabled);
-    RunSetup_EnterConfirmation();
+    RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
+    RunSetup_SetValue(RUN_SETUP_BAN_GIMMICKS, 1);
+    RunSetup_SetValue(RUN_SETUP_GOOD_MOVE_CHANCE, chance);
+    RunSetup_SetValue(RUN_SETUP_DIFFICULTY, difficulty);
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    if (enabled)
-        FlagClear(FLAG_RUN_RULE_FROSTBITE);
-    else
-        FlagSet(FLAG_RUN_RULE_FROSTBITE);
+    InitEventData();
     EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FROSTBITE), enabled);
-    FlagClear(FLAG_RUN_RULE_FROSTBITE);
+    for (u32 i = 0; i < RUN_SETUP_SETTING_COUNT; i++)
+    {
+        if (gRunSetupSettings[i].storageId < VARS_START)
+            EXPECT(FlagGet(gRunSetupSettings[i].storageId));
+    }
+    EXPECT_EQ(VarGet(VAR_RUN_RULE_GOOD_MOVE_CHANCE), chance * 10);
+    EXPECT_EQ(VarGet(VAR_RUN_RULE_DIFFICULTY), difficulty);
+    InitEventData();
 }
 
-
-TEST("Run setup SetupMovePP is independent and locked during confirmation")
+TEST("Run setup category navigation covers all rows and remembers positions")
 {
-    bool32 enabled;
-    bool32 otherRules;
+    struct RunSetupNavigation navigation = {0};
+    u32 total = 0;
+    bool8 seen[RUN_SETUP_SETTING_COUNT] = {0};
 
-    PARAMETRIZE { enabled = FALSE; otherRules = FALSE; }
-    PARAMETRIZE { enabled = FALSE; otherRules = TRUE; }
-    PARAMETRIZE { enabled = TRUE; otherRules = FALSE; }
-    PARAMETRIZE { enabled = TRUE; otherRules = TRUE; }
-
-    FlagSet(FLAG_RUN_RULE_SETUP_MOVE_PP);
-    RunSetup_Begin();
-    RunSetup_SetSetupMovePP(enabled);
-    RunSetup_SetFullCompatibility(otherRules);
-    RunSetup_SetReusableTMs(otherRules);
-    EXPECT(FlagGet(FLAG_RUN_RULE_SETUP_MOVE_PP));
-    RunSetup_EnterConfirmation();
-    RunSetup_SetSetupMovePP(!enabled);
-    EXPECT_EQ(RunSetup_GetSetupMovePP(), enabled);
-    RunSetup_ReturnToDraft();
-    EXPECT_EQ(RunSetup_GetSetupMovePP(), enabled);
-    RunSetup_EnterConfirmation();
-    RunSetup_Confirm();
-    RunSetup_SetSetupMovePP(!enabled);
-    RunSetup_ApplyToNewGame();
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_SETUP_MOVE_PP), enabled);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), otherRules);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), otherRules);
-    FlagClear(FLAG_RUN_RULE_SETUP_MOVE_PP);
-    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
-    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
+    for (u32 category = 0; category < RUN_SETUP_CATEGORY_COUNT; category++)
+    {
+        u32 count = RunSetup_GetCategoryCount(category);
+        EXPECT_EQ(navigation.category, category);
+        EXPECT_EQ(navigation.selection[category], 0);
+        for (u32 row = 0; row < count; row++)
+        {
+            enum RunSetupSetting setting = RunSetup_GetCategorySetting(category, row);
+            EXPECT(setting < RUN_SETUP_SETTING_COUNT);
+            EXPECT(!seen[setting]);
+            seen[setting] = TRUE;
+            total++;
+        }
+        RunSetup_MoveSelection(&navigation, TRUE);
+        EXPECT_EQ(navigation.selection[category], count + 1);
+        EXPECT(count <= RUN_SETUP_VISIBLE_ROWS);
+        RunSetup_SwitchCategory(&navigation, FALSE, FALSE);
+    }
+    EXPECT_EQ(total, RUN_SETUP_SETTING_COUNT);
+    EXPECT_EQ(navigation.category, 0);
+    EXPECT_EQ(navigation.selection[0], RunSetup_GetCategoryCount(0) + 1);
+    RunSetup_MoveSelection(&navigation, FALSE);
+    EXPECT_EQ(navigation.selection[0], 0);
+    RunSetup_MoveSelection(&navigation, FALSE);
+    EXPECT_EQ(navigation.selection[0], 1);
+    RunSetup_SwitchCategory(&navigation, TRUE, TRUE);
+    EXPECT_EQ(navigation.category, RUN_SETUP_CATEGORY_MISC);
+    EXPECT_EQ(navigation.selection[RUN_SETUP_CATEGORY_MISC], 1);
+    RunSetup_MoveSelection(&navigation, FALSE);
+    EXPECT_EQ(navigation.selection[RUN_SETUP_CATEGORY_MISC], 2);
+    EXPECT_EQ(RunSetup_GetCategorySetting(RUN_SETUP_CATEGORY_COUNT, 0), RUN_SETUP_SETTING_COUNT);
 }
 
-TEST("Run setup rejects unconfirmed SetupMovePP and clears stale rule flags")
+TEST("Run setup labels, values and help fit the four-row layout")
 {
-    FlagSet(FLAG_RUN_RULE_SETUP_MOVE_PP);
-    RunSetup_Begin();
-    RunSetup_SetSetupMovePP(TRUE);
-    RunSetup_EnterConfirmation();
-    RunSetup_ApplyToNewGame();
-    EXPECT(!FlagGet(FLAG_RUN_RULE_SETUP_MOVE_PP));
-    RunSetup_SetSetupMovePP(TRUE);
-    EXPECT(!RunSetup_GetSetupMovePP());
+    for (u32 i = 0; i < RUN_SETUP_SETTING_COUNT; i++)
+    {
+        const struct RunSetupSettingInfo *info = &gRunSetupSettings[i];
+        u32 x = info->dependency == RUN_SETUP_DEPENDENCY_NONE ? 16 : 24;
+        u32 labelWidth = GetStringWidth(FONT_NORMAL, info->label, 0);
+        EXPECT(GetStringWidth(FONT_SMALL, info->help, 0) <= 208);
+        for (u32 choice = 0; choice < info->choiceCount; choice++)
+            EXPECT(x + labelWidth + 8 + GetStringWidth(FONT_NORMAL, info->choices[choice], 0) <= 208);
+        for (u32 j = i + 1; j < RUN_SETUP_SETTING_COUNT; j++)
+            EXPECT(info->storageId != gRunSetupSettings[j].storageId);
+    }
 }
 
-TEST("Run setup SetupMovePP participates in preset matching")
+TEST("Run setup Enemy STAB requires trainer randomization")
 {
-    enum RunSetupPreset preset;
-    bool32 enabled;
-
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; enabled = FALSE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; enabled = TRUE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; enabled = TRUE; }
+    bool32 trainers;
+    PARAMETRIZE { trainers = FALSE; }
+    PARAMETRIZE { trainers = TRUE; }
 
     RunSetup_Begin();
-    RunSetup_SetPreset(preset);
-    RunSetup_SetSetupMovePP(!enabled);
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
-    RunSetup_SetSetupMovePP(enabled);
-    EXPECT_EQ(RunSetup_GetPreset(), preset);
-    RunSetup_SetSetupMovePP(!enabled);
-    RunSetup_SetPreset(preset);
-    EXPECT_EQ(RunSetup_GetSetupMovePP(), enabled);
-    RunSetup_Discard();
-}
-
-TEST("Run setup SetupMovePP survives saving and loading")
-{
-    bool32 enabled;
-
-    PARAMETRIZE { enabled = FALSE; }
-    PARAMETRIZE { enabled = TRUE; }
-
-    RunSetup_Begin();
-    RunSetup_SetSetupMovePP(enabled);
-    RunSetup_EnterConfirmation();
+    RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
+    RunSetup_SetValue(RUN_SETUP_TRAINERS, FALSE);
+    EXPECT(!RunSetup_IsAvailable(RUN_SETUP_ENEMY_STAB));
+    RunSetup_SetValue(RUN_SETUP_ENEMY_STAB, FALSE);
+    EXPECT_EQ(RunSetup_GetValue(RUN_SETUP_ENEMY_STAB), TRUE);
+    RunSetup_SetValue(RUN_SETUP_TRAINERS, trainers);
+    EXPECT_EQ(RunSetup_IsAvailable(RUN_SETUP_ENEMY_STAB), trainers);
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    if (enabled)
-        FlagClear(FLAG_RUN_RULE_SETUP_MOVE_PP);
-    else
-        FlagSet(FLAG_RUN_RULE_SETUP_MOVE_PP);
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_SETUP_MOVE_PP), enabled);
-    FlagClear(FLAG_RUN_RULE_SETUP_MOVE_PP);
-}
-
-
-TEST("Run setup InstantCatch is independent and locked during confirmation")
-{
-    bool32 enabled;
-    bool32 otherRules;
-
-    PARAMETRIZE { enabled = FALSE; otherRules = FALSE; }
-    PARAMETRIZE { enabled = FALSE; otherRules = TRUE; }
-    PARAMETRIZE { enabled = TRUE; otherRules = FALSE; }
-    PARAMETRIZE { enabled = TRUE; otherRules = TRUE; }
-
-    FlagSet(FLAG_RUN_RULE_INSTANT_CATCH);
-    RunSetup_Begin();
-    RunSetup_SetInstantCatch(enabled);
-    RunSetup_SetFullCompatibility(otherRules);
-    RunSetup_SetReusableTMs(otherRules);
-    EXPECT(FlagGet(FLAG_RUN_RULE_INSTANT_CATCH));
-    RunSetup_EnterConfirmation();
-    RunSetup_SetInstantCatch(!enabled);
-    EXPECT_EQ(RunSetup_GetInstantCatch(), enabled);
-    RunSetup_ReturnToDraft();
-    EXPECT_EQ(RunSetup_GetInstantCatch(), enabled);
-    RunSetup_EnterConfirmation();
-    RunSetup_Confirm();
-    RunSetup_SetInstantCatch(!enabled);
-    RunSetup_ApplyToNewGame();
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_INSTANT_CATCH), enabled);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY), otherRules);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_REUSABLE_TMS), otherRules);
-    FlagClear(FLAG_RUN_RULE_INSTANT_CATCH);
-    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
-    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
-}
-
-TEST("Run setup rejects unconfirmed InstantCatch and clears stale rule flags")
-{
-    FlagSet(FLAG_RUN_RULE_INSTANT_CATCH);
-    RunSetup_Begin();
-    RunSetup_SetInstantCatch(TRUE);
-    RunSetup_EnterConfirmation();
-    RunSetup_ApplyToNewGame();
-    EXPECT(!FlagGet(FLAG_RUN_RULE_INSTANT_CATCH));
-    RunSetup_SetInstantCatch(TRUE);
-    EXPECT(!RunSetup_GetInstantCatch());
-}
-
-TEST("Run setup InstantCatch participates in preset matching")
-{
-    enum RunSetupPreset preset;
-    bool32 enabled;
-
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; enabled = FALSE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; enabled = FALSE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; enabled = TRUE; }
-
-    RunSetup_Begin();
-    RunSetup_SetPreset(preset);
-    RunSetup_SetInstantCatch(!enabled);
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
-    RunSetup_SetInstantCatch(enabled);
-    EXPECT_EQ(RunSetup_GetPreset(), preset);
-    RunSetup_SetInstantCatch(!enabled);
-    RunSetup_SetPreset(preset);
-    EXPECT_EQ(RunSetup_GetInstantCatch(), enabled);
-    RunSetup_Discard();
-}
-
-TEST("Run setup InstantCatch survives saving and loading")
-{
-    bool32 enabled;
-
-    PARAMETRIZE { enabled = FALSE; }
-    PARAMETRIZE { enabled = TRUE; }
-
-    RunSetup_Begin();
-    RunSetup_SetInstantCatch(enabled);
-    RunSetup_EnterConfirmation();
-    RunSetup_Confirm();
-    RunSetup_ApplyToNewGame();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    if (enabled)
-        FlagClear(FLAG_RUN_RULE_INSTANT_CATCH);
-    else
-        FlagSet(FLAG_RUN_RULE_INSTANT_CATCH);
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_INSTANT_CATCH), enabled);
-    FlagClear(FLAG_RUN_RULE_INSTANT_CATCH);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_ENEMY_STAB), trainers);
+    InitEventData();
 }

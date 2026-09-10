@@ -56,7 +56,6 @@ TEST("No EV gain run rule survives saving and loading")
 
     RunSetup_Begin();
     RunSetup_SetNoEVGain(enabled);
-    RunSetup_EnterConfirmation();
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
     Save_ResetSaveCounters();

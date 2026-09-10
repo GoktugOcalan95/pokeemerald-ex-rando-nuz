@@ -46,7 +46,6 @@ TEST("Level caps run rule and progression survive saving and loading")
     ResetLevelCapProgress();
     RunSetup_Begin();
     RunSetup_SetLevelCaps(enabled);
-    RunSetup_EnterConfirmation();
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
     FlagSet(FLAG_BADGE01_GET);

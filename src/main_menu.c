@@ -104,9 +104,7 @@
  * Task_RunSetup_Init / Task_RunSetup_ProcessInput
  *  - Display a new draft and let the user configure the run.
  *  - Back discards the draft and returns to the main menu.
- * Task_RunSetup_ProcessConfirmationInput
- *  - Back returns to setup with the draft intact.
- *  - A confirms the draft and advances to Task_NewGameBirchSpeech_Init.
+ *  - START finalizes the draft and advances to Task_NewGameBirchSpeech_Init.
  *
  * Task_HandleMainMenuBPressed
  *  - Clean up the main menu and go back to CB2_InitTitleScreen.
@@ -202,11 +200,8 @@ static void Task_HandleMainMenuBPressed(u8);
 static void Task_RunSetup_Init(u8);
 static void Task_RunSetup_FadeIn(u8);
 static void Task_RunSetup_ProcessInput(u8);
-static void Task_RunSetup_ProcessConfirmationInput(u8);
 static void Task_RunSetup_FadeOut(u8);
 static void DrawRunSetupScreen(u8);
-static void DrawRunSetupConfirmationScreen(u8);
-static void DrawRunSetupList(u8 taskId, bool32 review);
 static void Task_NewGameBirchSpeech_Init(u8);
 static void Task_DisplayMainMenuInvalidActionError(u8);
 static void AddBirchSpeechObjects(u8);
@@ -476,33 +471,35 @@ static const u8 *const sRunSetupPresetNames[] =
     [RUN_SETUP_PRESET_BISHEY] = sText_RunSetupBishey,
     [RUN_SETUP_PRESET_CUSTOM] = sText_RunSetupCustom,
 };
-static const u8 sText_RunSetupTitle[] = _("Run Setup");
-static const u8 sText_RunSetupFullCompatibility[] = _("Full compatibility");
-static const u8 sText_RunSetupSetupMovePP[] = _("Setup move PP");
-static const u8 sText_RunSetupSetupMovePPHelp[] = _("Limit selected setup moves to 1 PP.\nApplies to both sides; healing works.");
-static const u8 sText_RunSetupInstantCatch[] = _("Instant catch");
-static const u8 sText_RunSetupInstantCatchHelp[] = _("Guarantee valid wild catches with\na short animation. Balls are used.");
-static const u8 sText_RunSetupFrostbite[] = _("Frostbite");
-static const u8 sText_RunSetupFrostbiteHelp[] = _("Replace Freeze: act, half special\ndamage, lose 1/16 HP each turn.");
-static const u8 sText_RunSetupLevelCaps[] = _("Level caps");
-static const u8 sText_RunSetupLevelCapsHelp[] = _("Limit leveling until the next badge.\nLast Gym: Lv. 58 until Champion.");
-static const u8 sText_RunSetupOpponentHPPercentage[] = _("Opponent HP %");
-static const u8 sText_RunSetupOpponentHPPercentageHelp[] = _("Show opponent HP percentages.\nDoubles: START swaps bars/numbers.");
-static const u8 sText_RunSetupNoEVGain[] = _("No EV gain");
-static const u8 sText_RunSetupNoEVGainHelp[] = _("Prevent EV gain from battles\nand EV-raising items.");
-static const u8 sText_RunSetupReusableTMs[] = _("Reusable TMs");
-static const u8 sText_RunSetupReusableTMsHelp[] = _("Teach TM moves without\nusing up the TM.");
-static const u8 sText_RunSetupOff[] = _("Off");
-static const u8 sText_RunSetupOn[] = _("On");
-static const u8 sText_RunSetupHelp[] = _("All Pokémon can learn every\nTM, HM, and tutor move.");
-static const u8 sText_RunSetupConfirmTitle[] = _("Confirm Setup");
-static const u8 sText_RunSetupConfirmPrompt[] = _("Begin with these rules?\nThey are fixed for this run.");
-static const u8 sText_RunSetupControls[] = _("A: Change  START: Begin  B: Back");
-static const u8 sText_RunSetupConfirmControls[] = _("A: Confirm  B: Back");
-static const u8 sText_RunSetupUp[] = _("{UP_ARROW}");
-static const u8 sText_RunSetupDown[] = _("{DOWN_ARROW}");
+static const u8 sText_RunSetupTitle[] = _("RUN RULES");
+static const u8 sText_RunSetupControls[] = _("{COLOR RED}{LEFT_ARROW}/{RIGHT_ARROW}{COLOR BLUE}: Change   {COLOR RED}L/R{COLOR BLUE}: Category");
+static const u8 sText_RunSetupBegin[] = _("{COLOR RED}START{COLOR BLUE}: Begin");
 static const u8 sText_RunSetupLeft[] = _("{LEFT_ARROW}");
 static const u8 sText_RunSetupRight[] = _("{RIGHT_ARROW}");
+static const u8 sText_RunSetupCategoryHelp[] = _("Use L/R to switch categories.\nSTART begins with these settings.");
+static const u8 sText_RunSetupItemsDisabled[] = _("Enable Randomize items to edit.\nFilters are inactive while Off.");
+static const u8 sText_RunSetupMovesDisabled[] = _("Enable randomized learnsets or\nTMs/tutors to edit this chance.");
+static const u8 sText_RunSetupTrainersDisabled[] = _("Enable Randomize trainers to edit.\nEnemy moves stay unchanged while Off.");
+static const u8 sText_RunSetupInactive[] = _("-");
+static const u8 sText_RunSetupCategoryPOKEMON[] = _("Pokémon");
+static const u8 sText_RunSetupCategoryMOVES[] = _("Moves");
+static const u8 sText_RunSetupCategoryTRAINERS[] = _("Trainers");
+static const u8 sText_RunSetupCategoryBATTLE[] = _("Battle");
+static const u8 sText_RunSetupCategoryTRAINING[] = _("Training");
+static const u8 sText_RunSetupCategoryITEMS[] = _("Items");
+static const u8 sText_RunSetupCategoryPROGRESSION[] = _("Progression");
+static const u8 sText_RunSetupCategoryMISC[] = _("Misc");
+static const u8 *const sRunSetupCategoryNames[] =
+{
+    [RUN_SETUP_CATEGORY_POKEMON] = sText_RunSetupCategoryPOKEMON,
+    [RUN_SETUP_CATEGORY_MOVES] = sText_RunSetupCategoryMOVES,
+    [RUN_SETUP_CATEGORY_TRAINERS] = sText_RunSetupCategoryTRAINERS,
+    [RUN_SETUP_CATEGORY_BATTLE] = sText_RunSetupCategoryBATTLE,
+    [RUN_SETUP_CATEGORY_TRAINING] = sText_RunSetupCategoryTRAINING,
+    [RUN_SETUP_CATEGORY_ITEMS] = sText_RunSetupCategoryITEMS,
+    [RUN_SETUP_CATEGORY_PROGRESSION] = sText_RunSetupCategoryPROGRESSION,
+    [RUN_SETUP_CATEGORY_MISC] = sText_RunSetupCategoryMISC,
+};
 static const u8 sRunSetupTextColors[2][3] =
 {
     {10, 2, 3},
@@ -513,25 +510,18 @@ static const u8 sRunSetupAccentColors[2][3] =
     {10, 8, 0},
     {9, 8, 0},
 };
-
-static const struct
+static const u8 sRunSetupHeaderColors[] = {10, 6, 0};
+static const u8 sRunSetupControlColors[2][3] =
 {
-    const u8 *label;
-    const u8 *help;
-    bool32 (*getValue)(void);
-    void (*setValue)(bool32);
-} sRunSetupSettings[] =
-{
-    {sText_RunSetupFullCompatibility, sText_RunSetupHelp, RunSetup_GetFullCompatibility, RunSetup_SetFullCompatibility},
-    {sText_RunSetupReusableTMs, sText_RunSetupReusableTMsHelp, RunSetup_GetReusableTMs, RunSetup_SetReusableTMs},
-    {sText_RunSetupNoEVGain, sText_RunSetupNoEVGainHelp, RunSetup_GetNoEVGain, RunSetup_SetNoEVGain},
-    {sText_RunSetupOpponentHPPercentage, sText_RunSetupOpponentHPPercentageHelp, RunSetup_GetOpponentHPPercentage, RunSetup_SetOpponentHPPercentage},
-    {sText_RunSetupLevelCaps, sText_RunSetupLevelCapsHelp, RunSetup_GetLevelCaps, RunSetup_SetLevelCaps},
-    {sText_RunSetupFrostbite, sText_RunSetupFrostbiteHelp, RunSetup_GetFrostbite, RunSetup_SetFrostbite},
-    {sText_RunSetupInstantCatch, sText_RunSetupInstantCatchHelp, RunSetup_GetInstantCatch, RunSetup_SetInstantCatch},
-    {sText_RunSetupSetupMovePP, sText_RunSetupSetupMovePPHelp, RunSetup_GetSetupMovePP, RunSetup_SetSetupMovePP},
+    {10, 4, 0},
+    {9, 4, 0},
 };
-
+static const u8 sRunSetupDisabledColors[2][3] =
+{
+    {10, 3, 0},
+    {9, 3, 0},
+};
+static EWRAM_DATA struct RunSetupNavigation sRunSetupNavigation = {0};
 
 static const struct BgTemplate sMainMenuBgTemplates[] = {
     {
@@ -1389,10 +1379,7 @@ static void HighlightSelectedMainMenuItem(enum PartyMenuType menuType, u8 select
     }
 }
 
-#define tRunSetupSelection data[0]
 #define tRunSetupStartIntro data[1]
-#define tRunSetupTop data[2]
-#define tRunSetupDraftSelection data[3]
 
 static void Task_RunSetup_Init(u8 taskId)
 {
@@ -1401,8 +1388,7 @@ static void Task_RunSetup_Init(u8 taskId)
     LoadMainMenuWindowFrameTiles(0, RUN_SETUP_BORDER_TILE);
     DeactivateAllTextPrinters();
     FillBgTilemapBufferRect_Palette0(0, 0, 0, 0, DISPLAY_TILE_WIDTH, DISPLAY_TILE_HEIGHT);
-    gTasks[taskId].tRunSetupSelection = 0;
-    gTasks[taskId].tRunSetupTop = 0;
+    memset(&sRunSetupNavigation, 0, sizeof(sRunSetupNavigation));
     gTasks[taskId].tRunSetupStartIntro = FALSE;
     DrawRunSetupScreen(taskId);
     BeginNormalPaletteFade(PALETTES_ALL, 0, 16, 0, RGB_BLACK);
@@ -1417,17 +1403,18 @@ static void Task_RunSetup_FadeIn(u8 taskId)
 
 static void Task_RunSetup_ProcessInput(u8 taskId)
 {
-    u16 selection = gTasks[taskId].tRunSetupSelection;
+    u32 category = sRunSetupNavigation.category;
+    u32 selection = sRunSetupNavigation.selection[category];
 
     if (JOY_NEW(START_BUTTON))
     {
         PlaySE(SE_SELECT);
-        RunSetup_EnterConfirmation();
-        gTasks[taskId].tRunSetupDraftSelection = selection;
-        gTasks[taskId].tRunSetupSelection = 0;
-        gTasks[taskId].tRunSetupTop = 0;
-        DrawRunSetupConfirmationScreen(taskId);
-        gTasks[taskId].func = Task_RunSetup_ProcessConfirmationInput;
+        RunSetup_Confirm();
+        gTasks[taskId].tRunSetupStartIntro = TRUE;
+        RunSetup_ClearDisplayTilemap();
+        CopyBgTilemapBufferToVram(0);
+        BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
+        gTasks[taskId].func = Task_RunSetup_FadeOut;
     }
     else if (JOY_NEW(B_BUTTON))
     {
@@ -1436,9 +1423,14 @@ static void Task_RunSetup_ProcessInput(u8 taskId)
         BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
         gTasks[taskId].func = Task_RunSetup_FadeOut;
     }
-    else if (JOY_NEW(A_BUTTON | DPAD_LEFT | DPAD_RIGHT))
+    else if (JOY_NEW(L_BUTTON | R_BUTTON))
     {
+        RunSetup_SwitchCategory(&sRunSetupNavigation, JOY_NEW(L_BUTTON), FALSE);
         PlaySE(SE_SELECT);
+        DrawRunSetupScreen(taskId);
+    }
+    else if (JOY_NEW(DPAD_LEFT | DPAD_RIGHT))
+    {
         if (selection == 0)
         {
             enum RunSetupPreset preset = RunSetup_GetPreset();
@@ -1449,56 +1441,28 @@ static void Task_RunSetup_ProcessInput(u8 taskId)
                 preset = preset >= RUN_SETUP_PRESET_COUNT - 1 ? 0 : preset + 1;
             RunSetup_SetPreset(preset);
         }
+        else if (selection == 1)
+        {
+            RunSetup_SwitchCategory(&sRunSetupNavigation, JOY_NEW(DPAD_LEFT), TRUE);
+        }
         else
         {
-            sRunSetupSettings[selection - 1].setValue(!sRunSetupSettings[selection - 1].getValue());
+            enum RunSetupSetting setting = RunSetup_GetCategorySetting(category, selection - 2);
+            u32 count = gRunSetupSettings[setting].choiceCount;
+            u32 value = RunSetup_GetValue(setting);
+
+            if (!RunSetup_IsAvailable(setting))
+                return;
+            RunSetup_SetValue(setting, (value + (JOY_NEW(DPAD_LEFT) ? count - 1 : 1)) % count);
         }
+        PlaySE(SE_SELECT);
         DrawRunSetupScreen(taskId);
     }
     else if (JOY_REPEAT(DPAD_UP | DPAD_DOWN))
     {
-        if (JOY_REPEAT(DPAD_UP))
-            selection = selection == 0 ? ARRAY_COUNT(sRunSetupSettings) : selection - 1;
-        else
-            selection = (selection + 1) % (ARRAY_COUNT(sRunSetupSettings) + 1);
-        gTasks[taskId].tRunSetupSelection = selection;
+        RunSetup_MoveSelection(&sRunSetupNavigation, JOY_REPEAT(DPAD_UP));
         PlaySE(SE_SELECT);
         DrawRunSetupScreen(taskId);
-    }
-}
-
-static void Task_RunSetup_ProcessConfirmationInput(u8 taskId)
-{
-    u16 selection = gTasks[taskId].tRunSetupSelection;
-
-    if (JOY_NEW(B_BUTTON))
-    {
-        PlaySE(SE_SELECT);
-        RunSetup_ReturnToDraft();
-        gTasks[taskId].tRunSetupSelection = gTasks[taskId].tRunSetupDraftSelection;
-        gTasks[taskId].tRunSetupTop = 0;
-        DrawRunSetupScreen(taskId);
-        gTasks[taskId].func = Task_RunSetup_ProcessInput;
-    }
-    else if (JOY_NEW(A_BUTTON))
-    {
-        PlaySE(SE_SELECT);
-        RunSetup_Confirm();
-        gTasks[taskId].tRunSetupStartIntro = TRUE;
-        RunSetup_ClearDisplayTilemap();
-        CopyBgTilemapBufferToVram(0);
-        BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
-        gTasks[taskId].func = Task_RunSetup_FadeOut;
-    }
-    else if (JOY_REPEAT(DPAD_UP | DPAD_DOWN))
-    {
-        if (JOY_REPEAT(DPAD_UP))
-            selection = selection == 0 ? ARRAY_COUNT(sRunSetupSettings) : selection - 1;
-        else
-            selection = (selection + 1) % (ARRAY_COUNT(sRunSetupSettings) + 1);
-        gTasks[taskId].tRunSetupSelection = selection;
-        PlaySE(SE_SELECT);
-        DrawRunSetupConfirmationScreen(taskId);
     }
 }
 
@@ -1524,88 +1488,94 @@ static void Task_RunSetup_FadeOut(u8 taskId)
 
 static void DrawRunSetupScreen(u8 taskId)
 {
-    DrawRunSetupList(taskId, FALSE);
-}
-
-static void DrawRunSetupConfirmationScreen(u8 taskId)
-{
-    DrawRunSetupList(taskId, TRUE);
-}
-
-static void DrawRunSetupList(u8 taskId, bool32 review)
-{
-    u32 selection = gTasks[taskId].tRunSetupSelection;
-    u32 count = ARRAY_COUNT(sRunSetupSettings);
-    u32 top = RunSetup_GetScrollTop(selection == 0 ? 0 : selection - 1, gTasks[taskId].tRunSetupTop, count);
+    u32 category = sRunSetupNavigation.category;
+    u32 selection = sRunSetupNavigation.selection[category];
+    u32 count = RunSetup_GetCategoryCount(category);
     bool32 presetSelected = selection == 0;
+    bool32 categorySelected = selection == 1;
     const u8 *presetName = sRunSetupPresetNames[RunSetup_GetPreset()];
     u32 presetX = GetStringRightAlignXOffset(FONT_NORMAL, presetName, 198);
-    const u8 *help = review ? sText_RunSetupConfirmPrompt : presetSelected ? sText_RunSetupPresetHelp : sRunSetupSettings[selection - 1].help;
-    const u8 *controls = review ? sText_RunSetupConfirmControls : sText_RunSetupControls;
+    const u8 *help = presetSelected ? sText_RunSetupPresetHelp : sText_RunSetupCategoryHelp;
     u8 position[16];
     u8 *str;
 
-    gTasks[taskId].tRunSetupTop = top;
-
-    FillWindowPixelBuffer(0, PIXEL_FILL(10));
-    AddTextPrinterParameterized3(0, FONT_NORMAL, 8, 0, sRunSetupAccentColors[0], TEXT_SKIP_DRAW, review ? sText_RunSetupConfirmTitle : sText_RunSetupTitle);
-    if (!presetSelected)
+    if (selection >= 2)
     {
-        str = ConvertIntToDecimalStringN(position, selection, STR_CONV_MODE_LEFT_ALIGN, 3);
-        *str++ = CHAR_SLASH;
-        ConvertIntToDecimalStringN(str, count, STR_CONV_MODE_LEFT_ALIGN, 3);
-        AddTextPrinterParameterized3(0, FONT_SMALL, GetStringRightAlignXOffset(FONT_SMALL, position, 216), 2, sRunSetupTextColors[0], TEXT_SKIP_DRAW, position);
+        enum RunSetupSetting setting = RunSetup_GetCategorySetting(category, selection - 2);
+
+        help = gRunSetupSettings[setting].help;
+        if (!RunSetup_IsAvailable(setting))
+        {
+            switch (gRunSetupSettings[setting].dependency)
+            {
+            case RUN_SETUP_DEPENDENCY_ITEMS:
+                help = sText_RunSetupItemsDisabled;
+                break;
+            case RUN_SETUP_DEPENDENCY_TRAINERS:
+                help = sText_RunSetupTrainersDisabled;
+                break;
+            default:
+                help = sText_RunSetupMovesDisabled;
+                break;
+            }
+        }
     }
+    FillWindowPixelBuffer(0, PIXEL_FILL(10));
+    AddTextPrinterParameterized3(0, FONT_NORMAL, 8, 0, sRunSetupHeaderColors, TEXT_SKIP_DRAW, sText_RunSetupTitle);
+    if (presetSelected)
+        FillWindowPixelRect(0, PIXEL_FILL(9), 76, 0, 140, 16);
+    AddTextPrinterParameterized3(0, FONT_SMALL, 80, 2, sRunSetupTextColors[presetSelected], TEXT_SKIP_DRAW, sText_RunSetupPreset);
+    AddTextPrinterParameterized3(0, FONT_NORMAL, presetX, 0, sRunSetupAccentColors[presetSelected], TEXT_SKIP_DRAW, presetName);
     if (presetSelected)
     {
-        FillWindowPixelRect(0, PIXEL_FILL(9), 2, 19, 212, 16);
-        AddTextPrinterParameterized3(0, FONT_NORMAL, 4, 19, sRunSetupAccentColors[1], TEXT_SKIP_DRAW, gText_SelectorArrow3);
+        AddTextPrinterParameterized3(0, FONT_SMALL, presetX - 12, 2, sRunSetupControlColors[1], TEXT_SKIP_DRAW, sText_RunSetupLeft);
+        AddTextPrinterParameterized3(0, FONT_SMALL, 204, 2, sRunSetupControlColors[1], TEXT_SKIP_DRAW, sText_RunSetupRight);
     }
-    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 19, sRunSetupTextColors[presetSelected], TEXT_SKIP_DRAW, sText_RunSetupPreset);
-    AddTextPrinterParameterized3(0, FONT_NORMAL, presetX, 19, sRunSetupAccentColors[presetSelected], TEXT_SKIP_DRAW, presetName);
-    if (presetSelected && !review)
+    if (categorySelected)
+        FillWindowPixelRect(0, PIXEL_FILL(9), 2, 17, 212, 18);
+    AddTextPrinterParameterized3(0, FONT_NORMAL, 16, 17, sRunSetupAccentColors[categorySelected], TEXT_SKIP_DRAW, sRunSetupCategoryNames[category]);
+    if (categorySelected)
     {
-        AddTextPrinterParameterized3(0, FONT_SMALL, presetX - 12, 21, sRunSetupAccentColors[1], TEXT_SKIP_DRAW, sText_RunSetupLeft);
-        AddTextPrinterParameterized3(0, FONT_SMALL, 204, 21, sRunSetupAccentColors[1], TEXT_SKIP_DRAW, sText_RunSetupRight);
+        AddTextPrinterParameterized3(0, FONT_SMALL, 4, 19, sRunSetupControlColors[1], TEXT_SKIP_DRAW, sText_RunSetupLeft);
+        AddTextPrinterParameterized3(0, FONT_SMALL, 20 + GetStringWidth(FONT_NORMAL, sRunSetupCategoryNames[category], 0), 19, sRunSetupControlColors[1], TEXT_SKIP_DRAW, sText_RunSetupRight);
     }
+    str = ConvertIntToDecimalStringN(position, category + 1, STR_CONV_MODE_LEFT_ALIGN, 2);
+    *str++ = CHAR_SLASH;
+    ConvertIntToDecimalStringN(str, RUN_SETUP_CATEGORY_COUNT, STR_CONV_MODE_LEFT_ALIGN, 2);
+    AddTextPrinterParameterized3(0, FONT_SMALL, GetStringRightAlignXOffset(FONT_SMALL, position, 208), 19, sRunSetupTextColors[categorySelected], TEXT_SKIP_DRAW, position);
     FillWindowPixelRect(0, PIXEL_FILL(3), 4, 35, 216, 1);
 
-    for (u32 row = 0; row < RUN_SETUP_VISIBLE_ROWS && top + row < count; row++)
+    for (u32 row = 0; row < RUN_SETUP_VISIBLE_ROWS && row < count; row++)
     {
-        u32 index = top + row;
+        enum RunSetupSetting setting = RunSetup_GetCategorySetting(category, row);
+        const struct RunSetupSettingInfo *info = &gRunSetupSettings[setting];
         u32 y = 37 + row * 16;
-        bool32 selected = index + 1 == selection;
-        const u8 *label = sRunSetupSettings[index].label;
-        bool32 enabled = sRunSetupSettings[index].getValue();
-        const u8 *value = enabled ? sText_RunSetupOn : sText_RunSetupOff;
-        const u8 *colors = enabled ? sRunSetupAccentColors[selected] : sRunSetupTextColors[selected];
+        bool32 selected = row + 2 == selection;
+        bool32 available = RunSetup_IsAvailable(setting);
+        u32 value = RunSetup_GetValue(setting);
+        const u8 *valueText = available ? info->choices[value] : sText_RunSetupInactive;
+        const u8 *labelColors = available ? sRunSetupTextColors[selected] : sRunSetupDisabledColors[selected];
+        const u8 *valueColors = !available ? sRunSetupDisabledColors[selected] : value ? sRunSetupAccentColors[selected] : sRunSetupTextColors[selected];
 
         if (selected)
         {
             FillWindowPixelRect(0, PIXEL_FILL(9), 2, y, 212, 16);
             AddTextPrinterParameterized3(0, FONT_NORMAL, 4, y, sRunSetupAccentColors[1], TEXT_SKIP_DRAW, gText_SelectorArrow3);
         }
-        AddTextPrinterParameterized3(0, FONT_NORMAL, 16, y, sRunSetupTextColors[selected], TEXT_SKIP_DRAW, label);
-        AddTextPrinterParameterized3(0, FONT_NORMAL, GetStringRightAlignXOffset(FONT_NORMAL, value, 208), y, colors, TEXT_SKIP_DRAW, value);
+        AddTextPrinterParameterized3(0, FONT_NORMAL, info->dependency == RUN_SETUP_DEPENDENCY_NONE ? 16 : 24, y, labelColors, TEXT_SKIP_DRAW, info->label);
+        AddTextPrinterParameterized3(0, FONT_NORMAL, GetStringRightAlignXOffset(FONT_NORMAL, valueText, 208), y, valueColors, TEXT_SKIP_DRAW, valueText);
     }
-    if (top > 0)
-        AddTextPrinterParameterized3(0, FONT_SMALL, 216, 37, sRunSetupAccentColors[0], TEXT_SKIP_DRAW, sText_RunSetupUp);
-    if (top + RUN_SETUP_VISIBLE_ROWS < count)
-        AddTextPrinterParameterized3(0, FONT_SMALL, 216, 85, sRunSetupAccentColors[0], TEXT_SKIP_DRAW, sText_RunSetupDown);
-
     FillWindowPixelRect(0, PIXEL_FILL(3), 4, 101, 216, 1);
     AddTextPrinterParameterized3(0, FONT_SMALL, 8, 103, sRunSetupTextColors[0], TEXT_SKIP_DRAW, help);
     FillWindowPixelRect(0, PIXEL_FILL(3), 4, 130, 216, 1);
-    AddTextPrinterParameterized3(0, FONT_SMALL, 4, 132, sRunSetupAccentColors[0], TEXT_SKIP_DRAW, controls);
+    AddTextPrinterParameterized3(0, FONT_SMALL, 4, 132, sRunSetupAccentColors[0], TEXT_SKIP_DRAW, sText_RunSetupControls);
+    AddTextPrinterParameterized3(0, FONT_SMALL, GetStringRightAlignXOffset(FONT_SMALL, sText_RunSetupBegin, 216), 132, sRunSetupAccentColors[0], TEXT_SKIP_DRAW, sText_RunSetupBegin);
     PutWindowTilemap(0);
     DrawMainMenuWindowBorder(&sWindowTemplates_RunSetup[0], RUN_SETUP_BORDER_TILE);
     CopyWindowToVram(0, COPYWIN_FULL);
 }
 
-#undef tRunSetupSelection
 #undef tRunSetupStartIntro
-#undef tRunSetupTop
-#undef tRunSetupDraftSelection
 
 #define tPlayerSpriteId data[2]
 #define tBG1HOFS data[4]

@@ -1497,6 +1497,7 @@ static void DrawRunSetupScreen(u8 taskId)
     bool32 categorySelected = selection == 1;
     const u8 *presetName = sRunSetupPresetNames[RunSetup_GetPreset()];
     u32 presetX = GetStringRightAlignXOffset(FONT_NORMAL, presetName, 198);
+    u32 presetLabelX = GetStringRightAlignXOffset(FONT_NORMAL, sText_RunSetupNuzlocke, 198) - 20 - GetStringWidth(FONT_SMALL, sText_RunSetupPreset, 0);
     const u8 *help = presetSelected ? sText_RunSetupPresetHelp : sText_RunSetupCategoryHelp;
     u8 position[16];
     u8 *str;
@@ -1525,8 +1526,8 @@ static void DrawRunSetupScreen(u8 taskId)
     FillWindowPixelBuffer(0, PIXEL_FILL(10));
     AddTextPrinterParameterized3(0, FONT_NORMAL, 8, 0, sRunSetupHeaderColors, TEXT_SKIP_DRAW, sText_RunSetupTitle);
     if (presetSelected)
-        FillWindowPixelRect(0, PIXEL_FILL(9), 76, 0, 140, 16);
-    AddTextPrinterParameterized3(0, FONT_SMALL, 80, 2, sRunSetupTextColors[presetSelected], TEXT_SKIP_DRAW, sText_RunSetupPreset);
+        FillWindowPixelRect(0, PIXEL_FILL(9), presetLabelX - 4, 0, 220 - presetLabelX, 16);
+    AddTextPrinterParameterized3(0, FONT_SMALL, presetLabelX, 2, sRunSetupTextColors[presetSelected], TEXT_SKIP_DRAW, sText_RunSetupPreset);
     AddTextPrinterParameterized3(0, FONT_NORMAL, presetX, 0, sRunSetupAccentColors[presetSelected], TEXT_SKIP_DRAW, presetName);
     if (presetSelected)
     {

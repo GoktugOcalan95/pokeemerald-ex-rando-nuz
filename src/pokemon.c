@@ -1,4 +1,5 @@
 #include "global.h"
+#include "learnset_randomizer.h"
 #include "teaching_randomizer.h"
 #include "ability_randomizer.h"
 #include "species_randomizer.h"
@@ -3327,7 +3328,7 @@ const struct LevelUpMove *GetSpeciesLevelUpLearnset(enum Species species)
     const struct LevelUpMove *learnset = gSpeciesInfo[SanitizeSpeciesId(species)].levelUpLearnset;
     if (learnset == NULL)
         return gSpeciesInfo[SPECIES_NONE].levelUpLearnset;
-    return learnset;
+    return GetRandomizedLearnset(SanitizeSpeciesId(species), learnset);
 }
 
 const u16 *GetSpeciesTeachableLearnset(enum Species species)

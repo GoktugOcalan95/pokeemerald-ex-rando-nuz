@@ -60,7 +60,7 @@
 #define PSS_LABEL_WINDOW_CONTEST_MOVES_TITLE 3
 
 // Button control text (upper right)
-#define PSS_LABEL_WINDOW_PROMPT_UTILITY 4 // Handles "Switch", "Info", and "Cancel" prompts. Also handles the "Rename" and "IVs"/"EVs"/"STATS" prompts if P_SUMMARY_SCREEN_RENAME and P_SUMMARY_SCREEN_IV_EV_INFO are true, respectively
+#define PSS_LABEL_WINDOW_PROMPT_UTILITY 4 // Handles "Switch", "Info", and "Cancel" prompts. Also handles the "Rename" and stat-view prompts if P_SUMMARY_SCREEN_RENAME and P_SUMMARY_SCREEN_IV_EV_INFO are true, respectively
 #define PSS_LABEL_WINDOW_PROMPT_INFO 5 // unused
 #define PSS_LABEL_WINDOW_PROMPT_SWITCH 6 // unused
 #define PSS_LABEL_WINDOW_UNUSED1 7
@@ -470,9 +470,9 @@ static const struct WindowTemplate sSummaryTemplate[] =
     },
     [PSS_LABEL_WINDOW_PROMPT_UTILITY] = {
         .bg = 0,
-        .tilemapLeft = 22,
+        .tilemapLeft = 20,
         .tilemapTop = 0,
-        .width = 8,
+        .width = 10,
         .height = 2,
         .paletteNum = 7,
         .baseBlock = 89,
@@ -481,10 +481,10 @@ static const struct WindowTemplate sSummaryTemplate[] =
         .bg = 0,
         .tilemapLeft = 22,
         .tilemapTop = 0,
-        .width = 8,
+        .width = 6,
         .height = 2,
         .paletteNum = 7,
-        .baseBlock = 105,
+        .baseBlock = 109,
     },
     [PSS_LABEL_WINDOW_PROMPT_SWITCH] = {
         .bg = 0,
@@ -1665,9 +1665,24 @@ static void CloseSummaryScreen(u8 taskId)
     }
 }
 
+static void PrintSkillsPageTitle(s16 mode)
+{
+    const u8 *title = COMPOUND_STRING("POKéMON STATS");
+
+    if (mode == SUMMARY_SKILLS_MODE_IVS)
+        title = COMPOUND_STRING("POKéMON IVs");
+    else if (mode == SUMMARY_SKILLS_MODE_EVS)
+        title = COMPOUND_STRING("POKéMON EVs");
+
+    FillWindowPixelBuffer(PSS_LABEL_WINDOW_POKEMON_SKILLS_TITLE, PIXEL_FILL(0));
+    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_TITLE, title, 2, 1, 0, 1);
+}
+
 // Update skills page tilemap
 static void ChangeStatLabel(s16 mode)
 {
+    PrintSkillsPageTitle(mode);
+
     if (!P_SUMMARY_SCREEN_IV_EV_TILESET)
         return;
 
@@ -1824,7 +1839,7 @@ static u8 IncrementSkillsStatsMode(u8 mode)
     switch (mode)
     {
     case SUMMARY_SKILLS_MODE_STATS:
-        if (P_SUMMARY_SCREEN_EV_ONLY)
+        if (P_SUMMARY_SCREEN_EV_ONLY && !FlagGet(FLAG_RUN_RULE_NO_EV_GAIN))
         {
             sMonSummaryScreen->skillsPageMode = SUMMARY_SKILLS_MODE_EVS;
             return SUMMARY_SKILLS_MODE_EVS;
@@ -1836,7 +1851,7 @@ static u8 IncrementSkillsStatsMode(u8 mode)
         }
 
     case SUMMARY_SKILLS_MODE_IVS:
-        if (P_SUMMARY_SCREEN_IV_ONLY)
+        if (P_SUMMARY_SCREEN_IV_ONLY || FlagGet(FLAG_RUN_RULE_NO_EV_GAIN))
         {
             sMonSummaryScreen->skillsPageMode = SUMMARY_SKILLS_MODE_STATS;
             return SUMMARY_SKILLS_MODE_STATS;
@@ -3272,7 +3287,7 @@ static void PrintPageNamesAndStats(void)
     int statsXPos;
 
     PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_INFO_TITLE, gText_PkmnInfo, 2, 1, 0, 1);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_TITLE, gText_PkmnSkills, 2, 1, 0, 1);
+    PrintSkillsPageTitle(SUMMARY_SKILLS_MODE_STATS);
     PrintTextOnWindow(PSS_LABEL_WINDOW_BATTLE_MOVES_TITLE, gText_BattleMoves, 2, 1, 0, 1);
     PrintTextOnWindow(PSS_LABEL_WINDOW_CONTEST_MOVES_TITLE, gText_ContestMoves, 2, 1, 0, 1);
 
@@ -4784,9 +4799,9 @@ static inline bool32 ShouldShowIvEvPrompt(void)
 static inline void ShowUtilityPrompt(s16 mode)
 {
     const u8* promptText = NULL;
-    const u8* gText_SkillPageIvs = COMPOUND_STRING("IVs");
-    const u8* gText_SkillPageEvs = COMPOUND_STRING("EVs");
-    const u8* gText_SkillPageStats = COMPOUND_STRING("STATS");
+    const u8* gText_SkillPageIvs = COMPOUND_STRING("Show IVs");
+    const u8* gText_SkillPageEvs = COMPOUND_STRING("Show EVs");
+    const u8* gText_SkillPageStats = COMPOUND_STRING("Show Stats");
     const u8* gText_Rename = COMPOUND_STRING("RENAME");
 
     if (sMonSummaryScreen->currPageIndex == PSS_PAGE_INFO)
@@ -4802,14 +4817,14 @@ static inline void ShowUtilityPrompt(s16 mode)
         {
             if (mode == SUMMARY_SKILLS_MODE_STATS)
             {
-                if (P_SUMMARY_SCREEN_EV_ONLY)
+                if (P_SUMMARY_SCREEN_EV_ONLY && !FlagGet(FLAG_RUN_RULE_NO_EV_GAIN))
                     promptText = gText_SkillPageEvs;
                 else
                     promptText = gText_SkillPageIvs;
             }
             else if (mode == SUMMARY_SKILLS_MODE_IVS)
             {
-                if (P_SUMMARY_SCREEN_IV_ONLY)
+                if (P_SUMMARY_SCREEN_IV_ONLY || FlagGet(FLAG_RUN_RULE_NO_EV_GAIN))
                     promptText = gText_SkillPageStats;
                 else
                     promptText = gText_SkillPageEvs;
@@ -4839,7 +4854,7 @@ static inline void ShowUtilityPrompt(s16 mode)
     FillWindowPixelBuffer(PSS_LABEL_WINDOW_PROMPT_UTILITY, PIXEL_FILL(0));
     PutWindowTilemap(PSS_LABEL_WINDOW_PROMPT_UTILITY);
 
-    int stringXPos = GetStringRightAlignXOffset(FONT_NORMAL, promptText, 62);
+    int stringXPos = GetStringRightAlignXOffset(FONT_NORMAL, promptText, GetWindowAttribute(PSS_LABEL_WINDOW_PROMPT_UTILITY, WINDOW_WIDTH) * 8 - 2);
     int iconXPos = stringXPos - 16;
     if (iconXPos < 0)
         iconXPos = 0;

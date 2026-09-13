@@ -378,7 +378,7 @@ TEST("Run setup Slateport limit is independent and saves both choices")
     {
         RunSetup_Begin();
         RunSetup_SetPreset(preset);
-        EXPECT_EQ(RunSetup_GetValue(RUN_SETUP_LIMIT_SLATEPORT_SHOP), preset == RUN_SETUP_PRESET_BISHEY);
+        EXPECT_EQ(RunSetup_GetValue(RUN_SETUP_LIMIT_SLATEPORT_SHOP), preset != RUN_SETUP_PRESET_VANILLA);
         RunSetup_Discard();
     }
     InitEventData();

@@ -191,6 +191,7 @@ u32 GetNoOfHitsToKOBattlerDmg(u32 dmg, enum BattlerId battlerDef);
 u32 GetNoOfHitsToKOBattler(enum BattlerId battlerAtk, enum BattlerId battlerDef, u32 moveIndex, enum DamageCalcContext calcContext, enum AiConsiderEndure considerEndure);
 u32 GetBestNoOfHitsToKO(enum BattlerId battlerAtk, enum BattlerId battlerDef, enum DamageCalcContext calcContext);
 uq4_12_t AI_GetMoveEffectiveness(enum Move move, enum BattlerId battlerAtk, enum BattlerId battlerDef);
+bool32 AI_HasUsableMovePP(enum BattlerId battler, u32 slot);
 enum Move *GetMovesArray(enum BattlerId battler);
 bool32 IsConfusionMoveEffect(enum BattleMoveEffects moveEffect);
 bool32 HasMove(enum BattlerId battlerId, enum Move move);

@@ -1587,8 +1587,8 @@ void StealTargetItem(enum BattlerId battlerStealer, enum BattlerId itemBattler, 
     }
     else
     {
-        RecordItemEffectBattle(battlerStealer, GetItemHoldEffect(gLastUsedItem));
         gBattleMons[battlerStealer].item = gLastUsedItem;
+        RecordItemEffectBattle(battlerStealer, GetItemHoldEffect(gLastUsedItem));
 
         gBattleMons[battlerStealer].volatiles.unburdenActive = FALSE;
         BtlController_EmitSetMonData(battlerStealer, B_COMM_TO_CONTROLLER, REQUEST_HELDITEM_BATTLE, 0, sizeof(gLastUsedItem), &gLastUsedItem); // set attacker item

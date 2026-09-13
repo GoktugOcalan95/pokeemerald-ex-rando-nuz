@@ -44,7 +44,7 @@ bool32 IsRunTrainerBattle(u16 trainerId)
         && (gBattleTypeFlags & BATTLE_TYPE_TRAINER)
         && !(gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_FRONTIER | BATTLE_TYPE_CATCH_TUTORIAL
             | BATTLE_TYPE_EREADER_TRAINER | BATTLE_TYPE_TRAINER_HILL | BATTLE_TYPE_SECRET_BASE
-            | BATTLE_TYPE_RECORDED));
+            | (TESTING ? 0 : BATTLE_TYPE_RECORDED)));
 }
 
 u16 GetRunTrainerSpecies(u16 trainerId, u32 slot, u16 original)

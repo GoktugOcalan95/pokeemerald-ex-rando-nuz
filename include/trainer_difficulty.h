@@ -8,6 +8,8 @@ enum RunTrainerDifficulty
     RUN_TRAINER_UNFAIR,
 };
 
+bool32 UsesRunTrainerKnowledge(void);
+u64 GetRunTrainerAIFlags(u16 trainerId, u64 authored);
 u32 GetRunTrainerDifficulty(void);
 bool32 IsRunTrainerBoss(u16 trainerId);
 u32 GetRunTrainerPartySize(u16 trainerId, u32 originalCount);

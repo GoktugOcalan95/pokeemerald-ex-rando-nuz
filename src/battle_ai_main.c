@@ -1,4 +1,5 @@
 #include "global.h"
+#include "trainer_difficulty.h"
 #include "main.h"
 #include "malloc.h"
 #include "battle.h"
@@ -283,7 +284,7 @@ static u64 GetAiFlags(u16 trainerId, enum BattlerId battler)
         else if (gBattleTypeFlags & (BATTLE_TYPE_FRONTIER | BATTLE_TYPE_EREADER_TRAINER | BATTLE_TYPE_TRAINER_HILL | BATTLE_TYPE_SECRET_BASE))
             flags = AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT;
         else
-            flags = GetTrainerAIFlagsFromId(trainerId);
+            flags = GetRunTrainerAIFlags(trainerId, GetTrainerAIFlagsFromId(trainerId));
     }
 
     if (IsDoubleBattle() && flags != 0)
@@ -304,6 +305,13 @@ static u64 GetAiFlags(u16 trainerId, enum BattlerId battler)
 
     return flags;
 }
+
+#if TESTING
+u64 Test_GetTrainerAiFlags(u16 trainerId, enum BattlerId battler)
+{
+    return GetAiFlags(trainerId, battler);
+}
+#endif
 
 void BattleAI_SetupFlags(void)
 {
@@ -600,13 +608,35 @@ u32 BattleAI_ChooseMoveIndex(enum BattlerId battler)
     return chosen.moveIndex;
 }
 
+static void RecordVisibleSpeciesAndTypes(enum BattlerId battler, struct AiPartyMon *known)
+{
+    known->species = gBattleMons[battler].species;
+    known->status = gBattleMons[battler].status1;
+    GetBattlerTypes(battler, FALSE, known->visibleTypes);
+    if (UsesRunTrainerKnowledge() && !IsAiBattlerAware(battler))
+    {
+        u16 disguise = GetIllusionMonSpecies(battler);
+        if (disguise != SPECIES_NONE)
+        {
+            if (GetActiveGimmick(battler) != GIMMICK_TERA
+                && known->visibleTypes[0] == GetSpeciesType(known->species, 0)
+                && known->visibleTypes[1] == GetSpeciesType(known->species, 1))
+            {
+                known->visibleTypes[0] = GetSpeciesType(disguise, 0);
+                known->visibleTypes[1] = GetSpeciesType(disguise, 1);
+            }
+            known->species = disguise;
+        }
+    }
+}
+
 static void CopyBattlerDataToAIParty(u32 bPosition, enum BattleTrainer trainer)
 {
     enum BattlerId battler = GetBattlerAtPosition(bPosition);
     struct AiPartyMon *aiMon = &gAiPartyData->mons[trainer][gBattlerPartyIndexes[battler]];
     struct BattlePokemon *bMon = &gBattleMons[battler];
 
-    aiMon->species = bMon->species;
+    RecordVisibleSpeciesAndTypes(battler, aiMon);
     aiMon->level = bMon->level;
     aiMon->status = bMon->status1;
     aiMon->gender = GetBattlerGender(battler);
@@ -706,7 +736,7 @@ void Ai_UpdateSwitchInData(enum BattlerId battler)
 
 void Ai_UpdateFaintData(enum BattlerId battler)
 {
-    struct AiPartyMon *aiMon = &gAiPartyData->mons[GetBattlerSide(battler)][gBattlerPartyIndexes[battler]];
+    struct AiPartyMon *aiMon = &gAiPartyData->mons[GetBattlerTrainer(battler)][gBattlerPartyIndexes[battler]];
     ClearBattlerMoveHistory(battler);
     ClearBattlerAbilityHistory(battler);
     ClearBattlerItemEffectHistory(battler);
@@ -738,12 +768,19 @@ void SetBattlerAiData(enum BattlerId battler, struct AiLogicData *aiData)
     enum Ability ability;
     enum HoldEffect holdEffect;
 
+    if (UsesRunTrainerKnowledge() && !IsAiBattlerAware(battler))
+        RecordVisibleSpeciesAndTypes(battler, &gAiPartyData->mons[GetBattlerTrainer(battler)][gBattlerPartyIndexes[battler]]);
     ability = aiData->abilities[battler] = AI_DecideKnownAbilityForTurn(battler);
     aiData->items[battler] = gBattleMons[battler].item;
+    if (UsesRunTrainerKnowledge() && !IsAiBattlerAware(battler) && !IsAiFlagPresent(AI_FLAG_ITEM_OMNISCIENCE))
+        aiData->items[battler] = gAiPartyData->mons[GetBattlerTrainer(battler)][gBattlerPartyIndexes[battler]].item;
     holdEffect = aiData->holdEffects[battler] = AI_DecideHoldEffectForTurn(battler);
     aiData->lastUsedMove[battler] = (gLastMoves[battler] == MOVE_UNAVAILABLE) ? MOVE_NONE : gLastMoves[battler];
     aiData->hpPercents[battler] = GetHealthPercentage(battler);
-    aiData->moveLimitations[battler] = CheckMoveLimitations(battler, 0, ~(MOVE_LIMITATION_UNUSABLE));
+    u32 limitationMask = ~(MOVE_LIMITATION_UNUSABLE);
+    if (UsesRunTrainerKnowledge() && !IsAiBattlerAware(battler) && !IsAiFlagPresent(AI_FLAG_MOVE_OMNISCIENCE))
+        limitationMask &= ~(MOVE_LIMITATION_PP | MOVE_LIMITATION_CHOICE_ITEM | MOVE_LIMITATION_ASSAULT_VEST | MOVE_LIMITATION_STUFF_CHEEKS);
+    aiData->moveLimitations[battler] = CheckMoveLimitations(battler, 0, limitationMask);
     aiData->speedStats[battler] = GetBattlerTotalSpeedStat(battler, ability, holdEffect);
     aiData->dragonDartsHitsBothTarget = 0;
 
@@ -901,7 +938,8 @@ static u32 PpStallReduction(enum Move move, enum BattlerId battlerAtk, enum Batt
 {
     if (move == MOVE_NONE)
         return 0;
-    u32 tempBattleMonIndex = 0;
+    enum BattlerId tempBattleMonIndex = battlerDef;
+    enum Gimmick savedGimmick = GetActiveGimmick(tempBattleMonIndex);
     u32 totalStallValue = 0;
     u32 returnValue = 0;
     struct Pokemon *party = GetBattlerParty(battlerDef);
@@ -916,13 +954,30 @@ static u32 PpStallReduction(enum Move move, enum BattlerId battlerAtk, enum Batt
     memcpy(&backupBattleMon, &gBattleMons[tempBattleMonIndex], sizeof(struct BattlePokemon));
     for (u32 partyIndex = 0; partyIndex < PARTY_SIZE; partyIndex++)
     {
-        u32 currentStallValue = gAiBattleData->playerStallMons[partyIndex];
-        if (currentStallValue == 0 || GetMonData(&party[partyIndex], MON_DATA_HP) == 0)
-            continue;
-        PokemonToBattleMon(&party[partyIndex], &gBattleMons[tempBattleMonIndex]);
+        u32 currentStallValue = gAiBattleData->playerStallMons[GetBattlerTrainer(battlerDef)][partyIndex];
         ctx.battlerDef = tempBattleMonIndex;
-        ctx.abilities[ctx.battlerDef] = AI_DecideKnownAbilityForTurn(ctx.battlerDef);
-        ctx.holdEffects[ctx.battlerDef] = AI_DecideHoldEffectForTurn(ctx.battlerDef);
+        if (UsesRunTrainerKnowledge() && !IsAiBattlerAware(battlerDef))
+        {
+            const struct AiPartyMon *known = &gAiPartyData->mons[GetBattlerTrainer(battlerDef)][partyIndex];
+            if (!currentStallValue || !known->wasSentInBattle || known->isFainted || known->species == SPECIES_NONE)
+                continue;
+            memset(&gBattleMons[tempBattleMonIndex], 0, sizeof(struct BattlePokemon));
+            gBattleMons[tempBattleMonIndex].species = known->species;
+            for (u32 type = 0; type < 3; type++)
+                gBattleMons[tempBattleMonIndex].types[type] = known->visibleTypes[type];
+            SetActiveGimmick(tempBattleMonIndex, GIMMICK_NONE);
+            gBattleMons[tempBattleMonIndex].status1 = known->status;
+            ctx.abilities[ctx.battlerDef] = known->ability;
+            ctx.holdEffects[ctx.battlerDef] = known->heldEffect;
+        }
+        else
+        {
+            if (currentStallValue == 0 || GetMonData(&party[partyIndex], MON_DATA_HP) == 0)
+                continue;
+            PokemonToBattleMon(&party[partyIndex], &gBattleMons[tempBattleMonIndex]);
+            ctx.abilities[ctx.battlerDef] = AI_DecideKnownAbilityForTurn(ctx.battlerDef);
+            ctx.holdEffects[ctx.battlerDef] = AI_DecideHoldEffectForTurn(ctx.battlerDef);
+        }
         if (AI_CanMoveBeBlockedByTarget(&ctx)
          || CalcTypeEffectivenessMultiplier(&ctx) == UQ_4_12(0.0))
             totalStallValue += currentStallValue;
@@ -934,10 +989,18 @@ static u32 PpStallReduction(enum Move move, enum BattlerId battlerAtk, enum Batt
             returnValue = PP_STALL_SCORE_REDUCTION;
     }
 
+    SetActiveGimmick(tempBattleMonIndex, savedGimmick);
     memcpy(&gBattleMons[tempBattleMonIndex], &backupBattleMon, sizeof(struct BattlePokemon));
 
     return returnValue;
 }
+
+#if TESTING
+u32 Test_PpStallReduction(enum Move move, enum BattlerId attacker, enum BattlerId defender)
+{
+    return PpStallReduction(move, attacker, defender);
+}
+#endif
 
 static void DoAIScoreProcessing(enum BattlerId battlerAtk, enum BattlerId battlerDef)
 {

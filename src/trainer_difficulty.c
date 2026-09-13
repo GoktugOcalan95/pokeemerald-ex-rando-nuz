@@ -1,5 +1,7 @@
 #include "global.h"
 #include "battle.h"
+#include "battle_setup.h"
+#include "constants/battle_ai.h"
 #include "data.h"
 #include "event_data.h"
 #include "pokemon.h"
@@ -125,4 +127,25 @@ u16 PickRunTrainerMega(u16 trainerId, u32 slot, u16 *stone)
     }
     *stone = ITEM_NONE;
     return SPECIES_NONE;
+}
+
+bool32 UsesRunTrainerKnowledge(void)
+{
+    return (FlagGet(FLAG_RUN_RULE_TRAINERS) || GetRunTrainerDifficulty() != RUN_TRAINER_NORMAL)
+        && (IsRunTrainerBattle(TRAINER_BATTLE_PARAM.opponentA)
+            || ((gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS) && IsRunTrainerBattle(TRAINER_BATTLE_PARAM.opponentB)));
+}
+
+u64 GetRunTrainerAIFlags(u16 trainerId, u64 authored)
+{
+    if (!IsRunTrainerBattle(trainerId))
+        return authored;
+    bool32 boss = IsRunTrainerBoss(trainerId);
+    u32 difficulty = GetRunTrainerDifficulty();
+    u64 flags = FlagGet(FLAG_RUN_RULE_TRAINERS) ? (boss ? AI_FLAG_BASIC_TRAINER : AI_FLAG_CHECK_BAD_MOVE) : authored;
+    if (difficulty == RUN_TRAINER_UNFAIR || (difficulty == RUN_TRAINER_HARD && boss))
+        flags |= AI_FLAG_SMART_MON_CHOICES | AI_FLAG_SMART_SWITCHING;
+    if (difficulty == RUN_TRAINER_UNFAIR && boss)
+        flags |= AI_FLAG_PP_STALL_PREVENTION;
+    return flags;
 }

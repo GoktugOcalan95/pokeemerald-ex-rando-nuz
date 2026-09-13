@@ -29,25 +29,26 @@ void RecordKnownMove(enum BattlerId battler, enum Move move)
     if (moveIndex < MAX_MON_MOVES && gBattleHistory->usedMoves[battler][moveIndex] == MOVE_NONE)
     {
         gBattleHistory->usedMoves[battler][moveIndex] = move;
-        gAiPartyData->mons[GetBattlerSide(battler)][gBattlerPartyIndexes[battler]].moves[moveIndex] = move;
+        gAiPartyData->mons[GetBattlerTrainer(battler)][gBattlerPartyIndexes[battler]].moves[moveIndex] = move;
     }
 }
 
 void RecordAllMoves(enum BattlerId battler)
 {
-    memcpy(gAiPartyData->mons[GetBattlerSide(battler)][gBattlerPartyIndexes[battler]].moves, gBattleMons[battler].moves, MAX_MON_MOVES * sizeof(u16));
+    memcpy(gAiPartyData->mons[GetBattlerTrainer(battler)][gBattlerPartyIndexes[battler]].moves, gBattleMons[battler].moves, MAX_MON_MOVES * sizeof(u16));
 }
 
 void RecordAbilityBattle(enum BattlerId battlerId, enum Ability abilityId)
 {
     gBattleHistory->abilities[battlerId] = abilityId;
-    gAiPartyData->mons[GetBattlerSide(battlerId)][gBattlerPartyIndexes[battlerId]].ability = abilityId;
+    gAiPartyData->mons[GetBattlerTrainer(battlerId)][gBattlerPartyIndexes[battlerId]].ability = abilityId;
 }
 
 void RecordItemEffectBattle(enum BattlerId battlerId, enum HoldEffect itemEffect)
 {
     gBattleHistory->itemEffects[battlerId] = itemEffect;
-    gAiPartyData->mons[GetBattlerSide(battlerId)][gBattlerPartyIndexes[battlerId]].heldEffect = itemEffect;
+    gAiPartyData->mons[GetBattlerTrainer(battlerId)][gBattlerPartyIndexes[battlerId]].item = itemEffect == HOLD_EFFECT_NONE ? ITEM_NONE : gBattleMons[battlerId].item;
+    gAiPartyData->mons[GetBattlerTrainer(battlerId)][gBattlerPartyIndexes[battlerId]].heldEffect = itemEffect;
 }
 
 void ClearBattlerAbilityHistory(enum BattlerId battlerId)

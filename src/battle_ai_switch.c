@@ -1,4 +1,5 @@
 #include "global.h"
+#include "trainer_difficulty.h"
 #include "battle.h"
 #include "constants/battle_ai.h"
 #include "battle_ai_main.h"
@@ -304,8 +305,22 @@ static inline bool32 SetSwitchinAndSwitch(enum BattlerId battler, u32 switchinId
     return TRUE;
 }
 
+static enum Move GetKnownChoiceMove(enum BattlerId battler)
+{
+    if (UsesRunTrainerKnowledge() && !IsAiBattlerAware(battler)
+        && !IsHoldEffectChoice(gAiLogicData->holdEffects[battler])
+        && gAiLogicData->abilities[battler] != ABILITY_GORILLA_TACTICS)
+        return MOVE_NONE;
+    return gBattleStruct->choicedMove[battler];
+}
+
 static bool32 AI_DoesChoiceEffectBlockMove(enum BattlerId battler, enum Move move)
 {
+    if (UsesRunTrainerKnowledge() && !IsAiBattlerAware(battler))
+    {
+        enum Move locked = GetKnownChoiceMove(battler);
+        return locked != MOVE_NONE && locked != MOVE_UNAVAILABLE && locked != move;
+    }
     // Choice locked into something else
     if (gAiLogicData->lastUsedMove[battler] != MOVE_NONE && gAiLogicData->lastUsedMove[battler] != move
     && (IsHoldEffectChoice(GetBattlerHoldEffect(battler) && IsBattlerItemEnabled(battler))
@@ -1335,7 +1350,7 @@ void GetShouldSwitchMoveData(struct SwitchAiContext *switchContext)
     for (u32 moveIndex = 0; moveIndex < MAX_MON_MOVES; moveIndex++)
     {
         playerMove = SMART_SWITCHING_OMNISCIENT ? gBattleMons[switchContext->opposingBattler].moves[moveIndex] : playerMoves[moveIndex];
-        if (playerMove != MOVE_NONE && !IsBattleMoveStatus(playerMove) && GetMoveEffect(playerMove) != EFFECT_FOCUS_PUNCH && gBattleMons[switchContext->opposingBattler].pp[moveIndex] > 0)
+        if (playerMove != MOVE_NONE && !IsBattleMoveStatus(playerMove) && GetMoveEffect(playerMove) != EFFECT_FOCUS_PUNCH && AI_HasUsableMovePP(switchContext->opposingBattler, moveIndex))
         {
             hitsToKOAI = GetNoOfHitsToKOBattler(switchContext->opposingBattler, switchContext->battler, moveIndex, AI_DEFENDING, CONSIDER_ENDURE);
             if (hitsToKOAI < minHitsToKOAI && !AI_DoesChoiceEffectBlockMove(switchContext->opposingBattler, playerMove))
@@ -2081,10 +2096,10 @@ static s32 GetMaxDamagePlayerCouldDealToSwitchin(enum BattlerId battler, enum Ba
     for (u32 moveIndex = 0; moveIndex < MAX_MON_MOVES; moveIndex++)
     {
         playerMove = SMART_SWITCHING_OMNISCIENT ? gBattleMons[opposingBattler].moves[moveIndex] : playerMoves[moveIndex];
-        if (playerMove != MOVE_NONE && !IsBattleMoveStatus(playerMove) && GetMoveEffect(playerMove) != EFFECT_FOCUS_PUNCH && gBattleMons[opposingBattler].pp[moveIndex] > 0)
+        if (playerMove != MOVE_NONE && !IsBattleMoveStatus(playerMove) && GetMoveEffect(playerMove) != EFFECT_FOCUS_PUNCH && AI_HasUsableMovePP(opposingBattler, moveIndex))
         {
             damageTaken = AI_GetDamage(opposingBattler, battler, moveIndex, AI_SWITCHIN_DEFENDING, gAiLogicData);
-            if (playerMove == gBattleStruct->choicedMove[opposingBattler]) // If player is choiced, only care about the choice locked move
+            if (playerMove == GetKnownChoiceMove(opposingBattler)) // If player is choiced, only care about the choice locked move
             {
                 *bestPlayerMove = playerMove;
                 return damageTaken;
@@ -2108,14 +2123,14 @@ static s32 GetMaxPriorityDamagePlayerCouldDealToSwitchin(enum BattlerId battler,
     for (u32 moveIndex = 0; moveIndex < MAX_MON_MOVES; moveIndex++)
     {
         // If player is choiced into a non-priority move, AI understands that it can't deal priority damage
-        if (gBattleStruct->choicedMove[opposingBattler] != MOVE_NONE && GetMovePriority(gBattleStruct->choicedMove[opposingBattler]) < 1)
+        if (GetKnownChoiceMove(opposingBattler) != MOVE_NONE && GetMovePriority(GetKnownChoiceMove(opposingBattler)) < 1)
             break;
         playerMove = SMART_SWITCHING_OMNISCIENT ? gBattleMons[opposingBattler].moves[moveIndex] : playerMoves[moveIndex];
         if (GetBattleMovePriority(opposingBattler, gAiLogicData->abilities[opposingBattler], playerMove) > 0
-            && playerMove != MOVE_NONE && !IsBattleMoveStatus(playerMove) && GetMoveEffect(playerMove) != EFFECT_FOCUS_PUNCH && gBattleMons[opposingBattler].pp[moveIndex] > 0)
+            && playerMove != MOVE_NONE && !IsBattleMoveStatus(playerMove) && GetMoveEffect(playerMove) != EFFECT_FOCUS_PUNCH && AI_HasUsableMovePP(opposingBattler, moveIndex))
         {
             damageTaken = AI_GetDamage(opposingBattler, battler, moveIndex, AI_SWITCHIN_DEFENDING, gAiLogicData);
-            if (playerMove == gBattleStruct->choicedMove[opposingBattler]) // If player is choiced, only care about the choice locked move
+            if (playerMove == GetKnownChoiceMove(opposingBattler)) // If player is choiced, only care about the choice locked move
             {
                 *bestPlayerPriorityMove = playerMove;
                 return damageTaken;

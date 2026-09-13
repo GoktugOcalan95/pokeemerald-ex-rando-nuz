@@ -1,4 +1,5 @@
 #include "global.h"
+#include "trainer_difficulty.h"
 #include "frostbite.h"
 #include "battle_z_move.h"
 #include "malloc.h"
@@ -334,6 +335,8 @@ static bool32 ShouldFailForIllusion(enum Species illusionSpecies, enum BattlerId
     u32 learnsetMoveIndex;
     const struct LevelUpMove *learnset;
 
+    if (UsesRunTrainerKnowledge())
+        return TRUE;
     if (gBattleHistory->abilities[battlerId] == ABILITY_ILLUSION)
         return FALSE;
 
@@ -370,7 +373,7 @@ void SetBattlerData(enum BattlerId battlerId)
     if (!BattlerHasAi(battlerId) && gAiThinkingStruct->saved[battlerId].saved)
     {
         enum Species species, illusionSpecies;
-        enum BattleSide side = GetBattlerSide(battlerId);
+        enum BattleTrainer side = GetBattlerTrainer(battlerId);
 
         // Simulate Illusion
         species = gBattleMons[battlerId].species;
@@ -385,14 +388,16 @@ void SetBattlerData(enum BattlerId battlerId)
                 gBattleMons[battlerId].types[1] = GetSpeciesType(illusionSpecies, 1);
             }
             species = illusionSpecies;
+            if (UsesRunTrainerKnowledge())
+                gBattleMons[battlerId].species = illusionSpecies;
         }
 
         // Use the known battler's ability.
         if (gAiPartyData->mons[side][gBattlerPartyIndexes[battlerId]].ability != ABILITY_NONE)
             gBattleMons[battlerId].ability = gAiPartyData->mons[side][gBattlerPartyIndexes[battlerId]].ability;
         // Check if mon can only have one ability.
-        else if (GetSpeciesAbility(species, 1) == ABILITY_NONE
-                || GetSpeciesAbility(species, 1) == GetSpeciesAbility(species, 0))
+        else if (!UsesRunTrainerKnowledge() && (GetSpeciesAbility(species, 1) == ABILITY_NONE
+                || GetSpeciesAbility(species, 1) == GetSpeciesAbility(species, 0)))
             gBattleMons[battlerId].ability = GetSpeciesAbility(species, 0);
         // The ability is unknown.
         else
@@ -1775,12 +1780,19 @@ enum Ability AI_DecideKnownAbilityForTurn(enum BattlerId battlerId)
     if (IsAiBattlerAware(battlerId) || (IsAiBattlerAssumingStab(battlerId) && ASSUME_STAB_SEES_ABILITY) || IsAiFlagPresent(AI_FLAG_ABILITY_OMNISCIENCE))
         return knownAbility;
 
+    if (UsesRunTrainerKnowledge())
+    {
+        if ((gBattleMons[battlerId].volatiles.gastroAcid || IsNeutralizingGasOnField()) && knownAbility == ABILITY_NONE)
+            return ABILITY_NONE;
+        return gAiPartyData->mons[GetBattlerTrainer(battlerId)][gBattlerPartyIndexes[battlerId]].ability;
+    }
+
     // Check neutralizing gas, gastro acid
     if (knownAbility == ABILITY_NONE)
         return knownAbility;
 
-    if (gAiPartyData->mons[GetBattlerSide(battlerId)][gBattlerPartyIndexes[battlerId]].ability != ABILITY_NONE)
-        return gAiPartyData->mons[GetBattlerSide(battlerId)][gBattlerPartyIndexes[battlerId]].ability;
+    if (gAiPartyData->mons[GetBattlerTrainer(battlerId)][gBattlerPartyIndexes[battlerId]].ability != ABILITY_NONE)
+        return gAiPartyData->mons[GetBattlerTrainer(battlerId)][gBattlerPartyIndexes[battlerId]].ability;
 
     // Abilities that prevent fleeing - treat as always known
     if (knownAbility == ABILITY_SHADOW_TAG || knownAbility == ABILITY_MAGNET_PULL || knownAbility == ABILITY_ARENA_TRAP)
@@ -1813,7 +1825,7 @@ enum HoldEffect AI_DecideHoldEffectForTurn(enum BattlerId battlerId)
         return holdEffect;
 
     if (!IsAiBattlerAware(battlerId) && !IsAiFlagPresent(AI_FLAG_ITEM_OMNISCIENCE))
-        holdEffect = gAiPartyData->mons[GetBattlerSide(battlerId)][gBattlerPartyIndexes[battlerId]].heldEffect;
+        holdEffect = gAiPartyData->mons[GetBattlerTrainer(battlerId)][gBattlerPartyIndexes[battlerId]].heldEffect;
     else
         holdEffect = GetBattlerHoldEffectIgnoreNegation(battlerId);
 
@@ -2559,7 +2571,7 @@ bool32 CanIndexMoveFaintTarget(enum BattlerId battlerAtk, enum BattlerId battler
 
 enum Move *GetMovesArray(enum BattlerId battler)
 {
-    if (IsAiBattlerAware(battler) || IsAiBattlerAware(GetPartnerBattler(battler)) || IsAiFlagPresent(AI_FLAG_MOVE_OMNISCIENCE))
+    if (IsAiBattlerAware(battler) || (!UsesRunTrainerKnowledge() && IsAiBattlerAware(GetPartnerBattler(battler))) || IsAiFlagPresent(AI_FLAG_MOVE_OMNISCIENCE))
         return gBattleMons[battler].moves;
     else
         return gBattleHistory->usedMoves[battler];
@@ -6744,4 +6756,11 @@ bool32 ShouldUsePledgeMove(enum BattlerId battlerAtk, enum BattlerId battlerDef,
     }
 
     return FALSE;
+}
+
+bool32 AI_HasUsableMovePP(enum BattlerId battler, u32 slot)
+{
+    if (UsesRunTrainerKnowledge() && !IsAiBattlerAware(battler) && !IsAiFlagPresent(AI_FLAG_MOVE_OMNISCIENCE))
+        return TRUE;
+    return gBattleMons[battler].pp[slot] != 0;
 }

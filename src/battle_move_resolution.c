@@ -6192,7 +6192,7 @@ static void UpdateStallMons(struct BattleCalcValues *cv)
     if (!IsDoubleBattle() || target == TARGET_SELECTED)
     {
         if (gSpecialStatuses[cv->battlerDef].updateStallMons)
-            gAiBattleData->playerStallMons[gBattlerPartyIndexes[cv->battlerDef]]++;
+            gAiBattleData->playerStallMons[GetBattlerTrainer(cv->battlerDef)][gBattlerPartyIndexes[cv->battlerDef]]++;
     }
     //  Handling for moves that target multiple opponents in doubles not handled currently
 }

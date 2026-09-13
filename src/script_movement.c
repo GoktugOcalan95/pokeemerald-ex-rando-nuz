@@ -241,9 +241,9 @@ static void ScriptMovement_TakeStep(u8 taskId, u8 moveScrId, u8 objEventId, cons
         // a non-player object collides with an active follower Pokémon,
         // put that follower into a pokeball.
         // sTimer helps limit this expensive check
-        // Accelerated movement can advance the step timer twice per frame.
+        // Accelerated movement can advance the step timer three times per frame.
         if (OW_FOLLOWERS_SCRIPT_MOVEMENT
-         && (gSprites[obj->spriteId].sTimer == 1 || gSprites[obj->spriteId].sTimer == 2)
+         && (gSprites[obj->spriteId].sTimer >= 1 && gSprites[obj->spriteId].sTimer <= 3)
          && (objEventId = GetObjectObjectCollidesWith(obj, 0, 0, TRUE)) < OBJECT_EVENTS_COUNT
             // switch `obj` to follower
          && ((obj = &gObjectEvents[objEventId])->movementType == MOVEMENT_TYPE_FOLLOW_PLAYER)

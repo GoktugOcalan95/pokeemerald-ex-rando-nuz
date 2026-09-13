@@ -124,7 +124,7 @@ static u32 MeasureCutsceneMovement(u32 action, u32 speed, bool32 locked, bool32 
     return frames;
 }
 
-TEST("Cutscene movement doubles travel speed without changing endpoints")
+TEST("Cutscene movement triples travel speed without changing endpoints")
 {
     static const u8 actions[] = {
         MOVEMENT_ACTION_WALK_SLOW_DOWN, MOVEMENT_ACTION_WALK_SLOW_UP,
@@ -150,7 +150,7 @@ TEST("Cutscene movement doubles travel speed without changing endpoints")
     {
         u32 normal = MeasureCutsceneMovement(actions[i], OPTIONS_TEXT_SPEED_MID, TRUE, isPlayer, 1, &normalX, &normalY);
         u32 fast = MeasureCutsceneMovement(actions[i], speed, TRUE, isPlayer, 1, &fastX, &fastY);
-        EXPECT_EQ(fast, (normal + 1) / 2);
+        EXPECT_EQ(fast, (normal + 2) / 3);
         EXPECT_EQ(fastX, normalX);
         EXPECT_EQ(fastY, normalY);
     }
@@ -201,7 +201,7 @@ TEST("Cutscene movement preserves delays jumps and slides")
     gSaveBlock2Ptr->optionsTextSpeed = savedSpeed;
 }
 
-TEST("Cutscene movement recalls blocking followers at double speed")
+TEST("Cutscene movement recalls blocking followers at triple speed")
 {
     static const u8 movement[] = {MOVEMENT_ACTION_WALK_NORMAL_RIGHT, MOVEMENT_ACTION_STEP_END};
     u32 savedSpeed = gSaveBlock2Ptr->optionsTextSpeed;
@@ -224,7 +224,7 @@ TEST("Cutscene movement recalls blocking followers at double speed")
     EXPECT_EQ(ScriptMovement_StartObjectMovementScript(1, 0, 0, movement), FALSE);
     RunTasks();
     UpdateObjectEventCurrentMovement(&gObjectEvents[0], &gSprites[0], CutsceneMovementCallback);
-    EXPECT_EQ(gSprites[0].data[5], 2);
+    EXPECT_EQ(gSprites[0].data[5], 3);
     RunTasks();
     EXPECT_EQ(gSprites[1].data[1], 0);
     EXPECT(gObjectEvents[1].heldMovementActive);
@@ -260,8 +260,8 @@ TEST("Cutscene movement scripts finish all steps before releasing their wait")
         RunTasks();
         UpdateObjectEventCurrentMovement(&gObjectEvents[0], &gSprites[0], CutsceneMovementCallback);
     }
-    EXPECT_GE(frames, 32);
-    EXPECT_LT(frames, 40);
+    EXPECT_GE(frames, 28);
+    EXPECT_LT(frames, 36);
     EXPECT(ScriptMovement_IsObjectMovementFinished(1, 0, 0));
     EXPECT_EQ(gObjectEvents[0].currentCoords.x, 10);
     EXPECT_EQ(gSprites[0].x, 0);

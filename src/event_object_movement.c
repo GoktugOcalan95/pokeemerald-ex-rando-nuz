@@ -6939,7 +6939,7 @@ static void ObjectEventExecHeldMovementAction(struct ObjectEvent *objectEvent, s
     u32 updates;
 
     objectEvent->movementActionId = TryUpdateMovementActionOnStairs(objectEvent, objectEvent->movementActionId);
-    updates = ShouldSpeedUpCutsceneMovement(objectEvent) ? 2 : 1;
+    updates = ShouldSpeedUpCutsceneMovement(objectEvent) ? 3 : 1;
     while (updates-- != 0)
     {
         if (gMovementActionFuncs[objectEvent->movementActionId][sprite->sActionFuncId](objectEvent, sprite))

@@ -34,7 +34,10 @@ TEST("Item randomizer excludes unfinished items and retains indirect uses")
     const u16 retained[] = {ITEM_LEFTOVERS, ITEM_NUGGET, ITEM_RED_SHARD, ITEM_POKESHI_DOLL};
     FlagSet(FLAG_RUN_RULE_ITEMS);
     FlagClear(FLAG_RUN_RULE_BAN_SLATEPORT);
-    FlagClear(FLAG_RUN_RULE_BAN_GIMMICKS);
+    FlagClear(FLAG_RUN_RULE_BAN_MEGA_STONES);
+    FlagClear(FLAG_RUN_RULE_BAN_Z_CRYSTALS);
+    FlagClear(FLAG_RUN_RULE_BAN_TERA_SHARDS);
+    FlagClear(FLAG_RUN_RULE_BAN_TYPE_GEMS);
     FlagClear(FLAG_RUN_RULE_BAN_BATTLE_ITEMS);
     FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
     for (u32 i = 0; i < ARRAY_COUNT(excluded); i++)
@@ -223,39 +226,70 @@ TEST("Ban Slateport items uses pre-Champion stock and leaves shops and mints int
     ClearBag();
 }
 
-TEST("Ban gimmick items filters every gimmick category and combines with Slateport")
+TEST("Ban gimmick categories filter independently and refresh every reward domain")
 {
+    const u16 flags[] = {FLAG_RUN_RULE_BAN_MEGA_STONES, FLAG_RUN_RULE_BAN_Z_CRYSTALS,
+        FLAG_RUN_RULE_BAN_TERA_SHARDS, FLAG_RUN_RULE_BAN_TYPE_GEMS};
+    const u8 types[] = {ITEM_TYPE_MEGA_STONE, ITEM_TYPE_Z_CRYSTAL, ITEM_TYPE_TERA_SHARD, ITEM_TYPE_GEM};
+    const u16 counts[] = {92, 35, 19, 18};
+    static EWRAM_DATA bool8 baseline[ITEMS_COUNT];
+    static EWRAM_DATA u16 pool[ITEMS_COUNT];
+    u32 baselineCount = 0;
+
+    FlagSet(FLAG_RUN_RULE_ITEMS);
     FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
     FlagClear(FLAG_RUN_RULE_BAN_SLATEPORT);
-    FlagSet(FLAG_RUN_RULE_BAN_GIMMICKS);
-    FlagClear(FLAG_RUN_RULE_ITEMS);
-    EXPECT(IsRandomizedRewardItemAllowed(ITEM_VENUSAURITE));
-    FlagSet(FLAG_RUN_RULE_ITEMS);
-    u32 counts[3] = {0};
+    FlagClear(FLAG_RUN_RULE_BAN_BATTLE_ITEMS);
+    for (u32 bit = 0; bit < ARRAY_COUNT(flags); bit++)
+        FlagClear(flags[bit]);
     for (u32 item = 1; item < ITEMS_COUNT; item++)
     {
-        u32 type = gItemsInfo[item].sortType;
-        if (type >= ITEM_TYPE_MEGA_STONE && type <= ITEM_TYPE_TERA_SHARD)
-        {
-            counts[type - ITEM_TYPE_MEGA_STONE]++;
-            EXPECT(!IsRandomizedRewardItemAllowed(item));
-        }
+        baseline[item] = IsRandomizedRewardItemAllowed(item);
+        baselineCount += baseline[item];
     }
-    EXPECT_EQ(counts[0], 92);
-    EXPECT_EQ(counts[1], 35);
-    EXPECT_EQ(counts[2], 19);
-    EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_MINT));
-    EXPECT(IsRandomizedRewardItemAllowed(ITEM_THUNDER_STONE));
-    EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_CRYSTAL));
+    for (u32 mask = 0; mask < 16; mask++)
+    {
+        u32 removed = 0;
+        u32 count = 0;
+        for (u32 bit = 0; bit < ARRAY_COUNT(flags); bit++)
+        {
+            if (mask & (1 << bit))
+            {
+                FlagSet(flags[bit]);
+                removed += counts[bit];
+            }
+            else
+                FlagClear(flags[bit]);
+        }
+        for (u32 item = 1; item < ITEMS_COUNT; item++)
+        {
+            bool32 expected = baseline[item];
+            for (u32 bit = 0; bit < ARRAY_COUNT(flags); bit++)
+                if ((mask & (1 << bit)) && gItemsInfo[item].sortType == types[bit])
+                    expected = FALSE;
+            EXPECT_EQ(IsRandomizedRewardItemAllowed(item), expected);
+            if (expected)
+                pool[count++] = item;
+        }
+        EXPECT_EQ(count, baselineCount - removed);
+        EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_MINT));
+        EXPECT(IsRandomizedRewardItemAllowed(ITEM_THUNDER_STONE));
+        EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_CRYSTAL));
+        for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_FACILITY_HELD; domain++)
+            for (u32 source = 0; source < 64; source++)
+                EXPECT_EQ(RandomizeItemReward(ITEM_POTION, domain, source, 0),
+                    pool[RunRandomizerHash(domain, source, 0) % count]);
+        FlagClear(FLAG_RUN_RULE_ITEMS);
+        for (u32 item = 1; item < ITEMS_COUNT; item++)
+            EXPECT_EQ(IsRandomizedRewardItemAllowed(item), baseline[item]);
+        FlagSet(FLAG_RUN_RULE_ITEMS);
+    }
     FlagSet(FLAG_RUN_RULE_BAN_SLATEPORT);
     EXPECT(!IsRandomizedRewardItemAllowed(ITEM_THUNDER_STONE));
     EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_MINT));
-    for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_FACILITY_HELD; domain++)
-        for (u32 source = 0; source < 100; source++)
-            EXPECT(IsRandomizedRewardItemAllowed(RandomizeItemReward(ITEM_POTION, domain, source, 0)));
-    FlagClear(FLAG_RUN_RULE_BAN_GIMMICKS);
+    for (u32 bit = 0; bit < ARRAY_COUNT(flags); bit++)
+        FlagClear(flags[bit]);
     FlagClear(FLAG_RUN_RULE_BAN_SLATEPORT);
-    EXPECT(IsRandomizedRewardItemAllowed(ITEM_VENUSAURITE));
     FlagClear(FLAG_RUN_RULE_ITEMS);
 }
 
@@ -285,14 +319,20 @@ TEST("Ban in-battle items excludes exact unwanted rewards and retains useful sup
     for (u32 i = 0; i < ARRAY_COUNT(retained); i++)
         EXPECT(IsRandomizedRewardItemAllowed(retained[i]));
     FlagSet(FLAG_RUN_RULE_BAN_SLATEPORT);
-    FlagSet(FLAG_RUN_RULE_BAN_GIMMICKS);
+    FlagSet(FLAG_RUN_RULE_BAN_MEGA_STONES);
+    FlagSet(FLAG_RUN_RULE_BAN_Z_CRYSTALS);
+    FlagSet(FLAG_RUN_RULE_BAN_TERA_SHARDS);
+    FlagSet(FLAG_RUN_RULE_BAN_TYPE_GEMS);
     FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
     for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_FACILITY_HELD; domain++)
         for (u32 source = 0; source < 256; source++)
             EXPECT(IsRandomizedRewardItemAllowed(RandomizeItemReward(ITEM_POTION, domain, source, 0)));
     EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_MINT));
     FlagClear(FLAG_RUN_RULE_BAN_SLATEPORT);
-    FlagClear(FLAG_RUN_RULE_BAN_GIMMICKS);
+    FlagClear(FLAG_RUN_RULE_BAN_MEGA_STONES);
+    FlagClear(FLAG_RUN_RULE_BAN_Z_CRYSTALS);
+    FlagClear(FLAG_RUN_RULE_BAN_TERA_SHARDS);
+    FlagClear(FLAG_RUN_RULE_BAN_TYPE_GEMS);
     FlagClear(FLAG_RUN_RULE_BAN_BATTLE_ITEMS);
     FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
     FlagClear(FLAG_RUN_RULE_ITEMS);

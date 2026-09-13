@@ -168,7 +168,10 @@ TEST("Run setup disabled children retain choices but have no saved effect")
     RunSetup_SetValue(RUN_SETUP_LEARNSETS, 0);
     RunSetup_SetValue(RUN_SETUP_TMS_TUTORS, 0);
     EXPECT(!RunSetup_IsAvailable(RUN_SETUP_BAN_SLATEPORT));
-    EXPECT(!RunSetup_IsAvailable(RUN_SETUP_BAN_GIMMICKS));
+    EXPECT(!RunSetup_IsAvailable(RUN_SETUP_BAN_MEGA_STONES));
+    EXPECT(!RunSetup_IsAvailable(RUN_SETUP_BAN_Z_CRYSTALS));
+    EXPECT(!RunSetup_IsAvailable(RUN_SETUP_BAN_TERA_SHARDS));
+    EXPECT(!RunSetup_IsAvailable(RUN_SETUP_BAN_TYPE_GEMS));
     EXPECT(!RunSetup_IsAvailable(RUN_SETUP_BAN_BATTLE_ITEMS));
     EXPECT(!RunSetup_IsAvailable(RUN_SETUP_GOOD_MOVE_CHANCE));
     RunSetup_SetValue(RUN_SETUP_BAN_SLATEPORT, 0);
@@ -223,7 +226,10 @@ TEST("Run setup saves and reloads every setting and numeric choice")
     InitEventData();
     RunSetup_Begin();
     RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
-    RunSetup_SetValue(RUN_SETUP_BAN_GIMMICKS, 1);
+    RunSetup_SetValue(RUN_SETUP_BAN_MEGA_STONES, 1);
+    RunSetup_SetValue(RUN_SETUP_BAN_Z_CRYSTALS, 1);
+    RunSetup_SetValue(RUN_SETUP_BAN_TERA_SHARDS, 1);
+    RunSetup_SetValue(RUN_SETUP_BAN_TYPE_GEMS, 1);
     RunSetup_SetValue(RUN_SETUP_GOOD_MOVE_CHANCE, chance);
     RunSetup_SetValue(RUN_SETUP_DIFFICULTY, difficulty);
     RunSetup_Confirm();
@@ -313,5 +319,51 @@ TEST("Run setup Enemy STAB requires trainer randomization")
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
     EXPECT_EQ(FlagGet(FLAG_RUN_RULE_ENEMY_STAB), trainers);
+    InitEventData();
+}
+
+TEST("Run setup gimmick page presets and dependencies preserve individual choices")
+{
+    const enum RunSetupSetting settings[] = {RUN_SETUP_BAN_MEGA_STONES, RUN_SETUP_BAN_Z_CRYSTALS,
+        RUN_SETUP_BAN_TERA_SHARDS, RUN_SETUP_BAN_TYPE_GEMS};
+    const bool8 bishey[] = {FALSE, TRUE, FALSE, TRUE};
+
+    EXPECT_EQ(RUN_SETUP_CATEGORY_GIMMICK_BANS, RUN_SETUP_CATEGORY_ITEMS + 1);
+    EXPECT_EQ(RunSetup_GetCategoryCount(RUN_SETUP_CATEGORY_ITEMS), 3);
+    EXPECT_EQ(RunSetup_GetCategoryCount(RUN_SETUP_CATEGORY_GIMMICK_BANS), 4);
+    for (u32 preset = 0; preset < RUN_SETUP_PRESET_COUNT; preset++)
+    {
+        RunSetup_Begin();
+        RunSetup_SetPreset(preset);
+        for (u32 i = 0; i < ARRAY_COUNT(settings); i++)
+        {
+            EXPECT_EQ(RunSetup_GetCategorySetting(RUN_SETUP_CATEGORY_GIMMICK_BANS, i), settings[i]);
+            EXPECT_EQ(RunSetup_GetValue(settings[i]), preset == RUN_SETUP_PRESET_BISHEY && bishey[i]);
+        }
+        RunSetup_Discard();
+    }
+    RunSetup_Begin();
+    RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
+    for (u32 i = 0; i < ARRAY_COUNT(settings); i++)
+        RunSetup_SetValue(settings[i], !bishey[i]);
+    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
+    RunSetup_SetValue(RUN_SETUP_ITEMS, FALSE);
+    for (u32 i = 0; i < ARRAY_COUNT(settings); i++)
+    {
+        EXPECT(!RunSetup_IsAvailable(settings[i]));
+        RunSetup_SetValue(settings[i], bishey[i]);
+        EXPECT_EQ(RunSetup_GetValue(settings[i]), !bishey[i]);
+    }
+    RunSetup_SetValue(RUN_SETUP_ITEMS, TRUE);
+    for (u32 i = 0; i < ARRAY_COUNT(settings); i++)
+    {
+        EXPECT(RunSetup_IsAvailable(settings[i]));
+        EXPECT_EQ(RunSetup_GetValue(settings[i]), !bishey[i]);
+    }
+    RunSetup_SetValue(RUN_SETUP_ITEMS, FALSE);
+    RunSetup_Confirm();
+    RunSetup_ApplyToNewGame();
+    for (u32 i = 0; i < ARRAY_COUNT(settings); i++)
+        EXPECT(!FlagGet(gRunSetupSettings[settings[i]].storageId));
     InitEventData();
 }

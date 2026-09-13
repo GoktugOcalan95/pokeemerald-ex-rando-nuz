@@ -487,6 +487,7 @@ static const u8 sText_RunSetupCategoryTRAINERS[] = _("Trainers");
 static const u8 sText_RunSetupCategoryBATTLE[] = _("Battle");
 static const u8 sText_RunSetupCategoryTRAINING[] = _("Training");
 static const u8 sText_RunSetupCategoryITEMS[] = _("Items");
+static const u8 sText_RunSetupCategoryGIMMICK_BANS[] = _("Gimmick bans");
 static const u8 sText_RunSetupCategoryPROGRESSION[] = _("Progression");
 static const u8 sText_RunSetupCategoryMISC[] = _("Misc");
 static const u8 *const sRunSetupCategoryNames[] =
@@ -497,6 +498,7 @@ static const u8 *const sRunSetupCategoryNames[] =
     [RUN_SETUP_CATEGORY_BATTLE] = sText_RunSetupCategoryBATTLE,
     [RUN_SETUP_CATEGORY_TRAINING] = sText_RunSetupCategoryTRAINING,
     [RUN_SETUP_CATEGORY_ITEMS] = sText_RunSetupCategoryITEMS,
+    [RUN_SETUP_CATEGORY_GIMMICK_BANS] = sText_RunSetupCategoryGIMMICK_BANS,
     [RUN_SETUP_CATEGORY_PROGRESSION] = sText_RunSetupCategoryPROGRESSION,
     [RUN_SETUP_CATEGORY_MISC] = sText_RunSetupCategoryMISC,
 };

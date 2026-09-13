@@ -102,7 +102,10 @@ TEST("Trainer difficulty generates compatible Mega equipment despite item bans a
 {
     FlagSet(FLAG_RUN_RULE_TRAINERS);
     FlagSet(FLAG_RUN_RULE_ITEMS);
-    FlagSet(FLAG_RUN_RULE_BAN_GIMMICKS);
+    FlagSet(FLAG_RUN_RULE_BAN_MEGA_STONES);
+    FlagSet(FLAG_RUN_RULE_BAN_Z_CRYSTALS);
+    FlagSet(FLAG_RUN_RULE_BAN_TERA_SHARDS);
+    FlagSet(FLAG_RUN_RULE_BAN_TYPE_GEMS);
     FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
     VarSet(VAR_RUN_RULE_DIFFICULTY, RUN_TRAINER_UNFAIR);
     gBattleTypeFlags = BATTLE_TYPE_TRAINER;

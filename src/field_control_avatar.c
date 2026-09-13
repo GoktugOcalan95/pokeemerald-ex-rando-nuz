@@ -1,4 +1,5 @@
 #include "global.h"
+#include "mandatory_rivals.h"
 #include "route_fly.h"
 #include "boss_rewards.h"
 #include "battle_setup.h"
@@ -219,6 +220,8 @@ int ProcessPlayerFieldInput(struct FieldInput *input)
     }
 
     if (input->checkStandardWildEncounter && CheckStandardWildEncounter(metatileBehavior) == TRUE)
+        return TRUE;
+    if (input->heldDirection && input->dpadDirection == playerDirection && TryStartMandatoryRivalBoundaryScript(playerDirection))
         return TRUE;
     if (input->heldDirection && input->dpadDirection == playerDirection)
     {

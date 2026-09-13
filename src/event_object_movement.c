@@ -1,4 +1,5 @@
 #include "global.h"
+#include "mandatory_rivals.h"
 #include "berry_plots.h"
 #include "malloc.h"
 #include "battle_anim.h"
@@ -6411,6 +6412,11 @@ static bool8 ObjectEventOnRightSideStair(struct ObjectEvent *objectEvent, s16 x,
 
 enum Collision GetCollisionAtCoords(struct ObjectEvent *objectEvent, s16 x, s16 y, enum Direction dir)
 {
+    if (objectEvent->isPlayer && !ArePlayerFieldControlsLocked()
+        && GetMandatoryRivalBoundary((gSaveBlock1Ptr->location.mapGroup << 8) | gSaveBlock1Ptr->location.mapNum,
+            objectEvent->currentCoords.x - MAP_OFFSET, objectEvent->currentCoords.y - MAP_OFFSET, x - MAP_OFFSET, y - MAP_OFFSET))
+        return COLLISION_IMPASSABLE;
+
     u8 currentBehavior = MapGridGetMetatileBehaviorAt(objectEvent->currentCoords.x, objectEvent->currentCoords.y);
     u8 nextBehavior = MapGridGetMetatileBehaviorAt(x, y);
     enum Collision collision;

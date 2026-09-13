@@ -70,6 +70,13 @@ Route104_MrBrineysHouse_EventScript_DeclineSailing::
 	end
 
 Route104_MrBrineysHouse_EventScript_SailToDewford::
+	goto_if_set FLAG_DEFEATED_RIVAL_RUSTBORO, Route104_MrBrineysHouse_EventScript_RivalDefeated
+	goto_if_set FLAG_DEFEATED_RIVAL_ROUTE_104, Route104_MrBrineysHouse_EventScript_RivalDefeated
+	msgbox Route104_MrBrineysHouse_Text_RivalWaiting, MSGBOX_DEFAULT
+	releaseall
+	end
+
+Route104_MrBrineysHouse_EventScript_RivalDefeated::
 	msgbox Route104_MrBrineysHouse_Text_SetSailForDewford, MSGBOX_DEFAULT
 	call EventScript_BackupMrBrineyLocation
 	setvar VAR_BOARD_BRINEY_BOAT_STATE, 1
@@ -157,3 +164,9 @@ Route104_MrBrineysHouse_Text_TellMeWheneverYouWantToSail:
 Route104_MrBrineysHouse_Text_Peeko:
 	.string "PEEKO: Pii piihyoro!$"
 
+
+Route104_MrBrineysHouse_Text_RivalWaiting:
+	.string "Your friend is waiting outside\n"
+	.string "for a battle, isn't that right?\p"
+	.string "Go see them first.\n"
+	.string "PEEKO and I will wait here.$"

@@ -1167,6 +1167,7 @@ EventScript_SetBrineyLocation_Route109::
 	.include "data/scripts/pkmn_center_nurse.inc"
 	.include "data/scripts/obtain_item.inc"
 	.include "data/scripts/remove_story.inc"
+	.include "data/scripts/mandatory_rivals.inc"
 	.include "data/scripts/record_mix.inc"
 	.include "data/scripts/pc.inc"
 	.include "data/scripts/move_relearner.inc"

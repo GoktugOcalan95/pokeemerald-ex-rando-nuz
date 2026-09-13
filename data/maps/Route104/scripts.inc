@@ -13,6 +13,7 @@ Route104_EventScript_StartSailToDewford::
 	end
 
 Route104_OnTransition:
+	call Route104_EventScript_RearmRival
 	call Common_EventScript_SetupRivalGfxId
 	call Route104_EventScript_TrySetRivalPos
 	call Route104_EventScript_ShowOrHideWhiteHerbFlorist
@@ -29,6 +30,7 @@ Route104_EventScript_HideWhiteHerbFlorist::
 	return
 
 Route104_EventScript_TrySetRivalPos::
+	goto_if_eq VAR_ROUTE104_STATE, 1, Route104_EventScript_DontSetRivalPos
 	goto_if_ge VAR_BOARD_BRINEY_BOAT_STATE, 1, Route104_EventScript_DontSetRivalPos
 	goto_if_set FLAG_MET_RIVAL_RUSTBORO, Route104_EventScript_DontSetRivalPos
 	goto_if_unset FLAG_REGISTER_RIVAL_POKENAV, Route104_EventScript_DontSetRivalPos
@@ -111,12 +113,8 @@ Route104_EventScript_MayEncounter::
 	applymovement LOCALID_ROUTE104_RIVAL, Route104_Movement_RivalApproachPlayer
 	waitmovement 0
 	copyobjectxytoperm LOCALID_ROUTE104_RIVAL
-	msgbox Route104_Text_MayMinesDecentLetsBattle, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, YES, Route104_EventScript_BattleMay
-	msgbox Route104_Text_MayHaventRaisedPokemon, MSGBOX_DEFAULT
-	call Route104_EventScript_RestoreMusic
-	releaseall
-	end
+	msgbox Route104_Text_MayMinesDecentLetsBattle, MSGBOX_DEFAULT
+	goto Route104_EventScript_BattleMay
 
 Route104_Movement_RivalWalkSlowLeft:
 	walk_slow_left
@@ -133,11 +131,8 @@ Route104_Movement_PlayerFaceRival:
 	step_end
 
 Route104_EventScript_MayAskToBattle::
-	msgbox Route104_Text_MayLetsBattle, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, YES, Route104_EventScript_BattleMay
-	msgbox Route104_Text_MayHaventRaisedPokemon, MSGBOX_DEFAULT
-	releaseall
-	end
+	msgbox Route104_Text_MayLetsBattle, MSGBOX_DEFAULT
+	goto Route104_EventScript_BattleMay
 
 Route104_EventScript_BattleMay::
 	msgbox Route104_Text_MayIntro, MSGBOX_DEFAULT
@@ -161,18 +156,21 @@ Route104_EventScript_RestoreMusic::
 Route104_EventScript_BattleMayTreecko::
 	trainerbattle_no_intro TRAINER_MAY_RUSTBORO_TREECKO, Route104_Text_MayDefeat
 	setflag FLAG_DEFEATED_RIVAL_ROUTE_104
+	setflag FLAG_DEFEATED_RIVAL_RUSTBORO
 	goto Route104_EventScript_MayDefeated
 	end
 
 Route104_EventScript_BattleMayTorchic::
 	trainerbattle_no_intro TRAINER_MAY_RUSTBORO_TORCHIC, Route104_Text_MayDefeat
 	setflag FLAG_DEFEATED_RIVAL_ROUTE_104
+	setflag FLAG_DEFEATED_RIVAL_RUSTBORO
 	goto Route104_EventScript_MayDefeated
 	end
 
 Route104_EventScript_BattleMayMudkip::
 	trainerbattle_no_intro TRAINER_MAY_RUSTBORO_MUDKIP, Route104_Text_MayDefeat
 	setflag FLAG_DEFEATED_RIVAL_ROUTE_104
+	setflag FLAG_DEFEATED_RIVAL_RUSTBORO
 	goto Route104_EventScript_MayDefeated
 	end
 
@@ -197,19 +195,12 @@ Route104_EventScript_BrendanEncounter::
 	applymovement LOCALID_ROUTE104_RIVAL, Route104_Movement_RivalApproachPlayer
 	waitmovement 0
 	copyobjectxytoperm LOCALID_ROUTE104_RIVAL
-	msgbox Route104_Text_BrendanDoingGreatLetsBattle, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, YES, Route104_EventScript_BattleBrendan
-	msgbox Route104_Text_BrendanNoConfidence, MSGBOX_DEFAULT
-	call Route104_EventScript_RestoreMusic
-	releaseall
-	end
+	msgbox Route104_Text_BrendanDoingGreatLetsBattle, MSGBOX_DEFAULT
+	goto Route104_EventScript_BattleBrendan
 
 Route104_EventScript_BrendanAskToBattle::
-	msgbox Route104_Text_BrendanLetsBattle, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, YES, Route104_EventScript_BattleBrendan
-	msgbox Route104_Text_BrendanNoConfidence, MSGBOX_DEFAULT
-	releaseall
-	end
+	msgbox Route104_Text_BrendanLetsBattle, MSGBOX_DEFAULT
+	goto Route104_EventScript_BattleBrendan
 
 Route104_EventScript_BattleBrendan::
 	msgbox Route104_Text_BrendanIntro, MSGBOX_DEFAULT
@@ -228,18 +219,21 @@ Route104_EventScript_BrendanDefeated::
 Route104_EventScript_BattleBrendanTreecko::
 	trainerbattle_no_intro TRAINER_BRENDAN_RUSTBORO_TREECKO, Route104_Text_BrendanDefeat
 	setflag FLAG_DEFEATED_RIVAL_ROUTE_104
+	setflag FLAG_DEFEATED_RIVAL_RUSTBORO
 	goto Route104_EventScript_BrendanDefeated
 	end
 
 Route104_EventScript_BattleBrendanTorchic::
 	trainerbattle_no_intro TRAINER_BRENDAN_RUSTBORO_TORCHIC, Route104_Text_BrendanDefeat
 	setflag FLAG_DEFEATED_RIVAL_ROUTE_104
+	setflag FLAG_DEFEATED_RIVAL_RUSTBORO
 	goto Route104_EventScript_BrendanDefeated
 	end
 
 Route104_EventScript_BattleBrendanMudkip::
 	trainerbattle_no_intro TRAINER_BRENDAN_RUSTBORO_MUDKIP, Route104_Text_BrendanDefeat
 	setflag FLAG_DEFEATED_RIVAL_ROUTE_104
+	setflag FLAG_DEFEATED_RIVAL_RUSTBORO
 	goto Route104_EventScript_BrendanDefeated
 	end
 
@@ -1166,3 +1160,13 @@ Route104_Text_BrendanPostBattle:
 	.string "making POKéMON battle.\p"
 	.string "Like MR. BRINEY, it's important to\n"
 	.string "become friends with your POKéMON.$"
+
+Route104_EventScript_RearmRival::
+	goto_if_set FLAG_DEFEATED_RIVAL_RUSTBORO, Route104_EventScript_RivalRearmed
+	goto_if_set FLAG_DEFEATED_RIVAL_ROUTE_104, Route104_EventScript_RivalRearmed
+	goto_if_lt VAR_ROUTE104_STATE, 1, Route104_EventScript_RivalRearmed
+	setvar VAR_ROUTE104_STATE, 1
+	setflag FLAG_HIDE_ROUTE_104_RIVAL
+	setobjectxyperm LOCALID_ROUTE104_RIVAL, 17, 50
+Route104_EventScript_RivalRearmed:
+	return

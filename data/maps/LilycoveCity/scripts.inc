@@ -4,6 +4,7 @@ LilycoveCity_MapScripts::
 	.byte 0
 
 LilycoveCity_OnTransition:
+	call LilycoveCity_EventScript_PositionPendingRival
 	setflag FLAG_VISITED_LILYCOVE_CITY
 	setvar VAR_CONTEST_HALL_STATE, 0
 	setflag FLAG_HIDE_LILYCOVE_CONTEST_HALL_REPORTER
@@ -225,8 +226,9 @@ LilycoveCity_EventScript_AquaGrunt4::
 	end
 
 LilycoveCity_EventScript_Rival::
-	lock
+	lockall
 	faceplayer
+LilycoveCity_EventScript_RivalBattle:
 	checkplayergender
 	goto_if_eq VAR_RESULT, MALE, LilycoveCity_EventScript_May
 	goto_if_eq VAR_RESULT, FEMALE, LilycoveCity_EventScript_Brendan
@@ -236,7 +238,6 @@ LilycoveCity_EventScript_May::
 	playbgm MUS_ENCOUNTER_MAY, TRUE
 	call_if_set FLAG_DECLINED_RIVAL_BATTLE_LILYCOVE, LilycoveCity_EventScript_MayAskToBattleAgain
 	call_if_unset FLAG_DECLINED_RIVAL_BATTLE_LILYCOVE, LilycoveCity_EventScript_MayAskToBattle
-	goto_if_eq VAR_RESULT, NO, LilycoveCity_EventScript_DeclineMayBattle
 	msgbox LilycoveCity_Text_MayWontBeBeaten, MSGBOX_DEFAULT
 	switch VAR_STARTER_MON
 	case 0, LilycoveCity_EventScript_BattleMayTreecko
@@ -245,11 +246,11 @@ LilycoveCity_EventScript_May::
 	end
 
 LilycoveCity_EventScript_MayAskToBattleAgain::
-	msgbox LilycoveCity_Text_MayBattleMe, MSGBOX_YESNO
+	msgbox LilycoveCity_Text_MayBattleMe, MSGBOX_DEFAULT
 	return
 
 LilycoveCity_EventScript_MayAskToBattle::
-	msgbox LilycoveCity_Text_MayShoppingLetsBattle, MSGBOX_YESNO
+	msgbox LilycoveCity_Text_MayShoppingLetsBattle, MSGBOX_DEFAULT
 	return
 
 LilycoveCity_EventScript_DeclineMayBattle::
@@ -264,7 +265,6 @@ LilycoveCity_EventScript_Brendan::
 	playbgm MUS_ENCOUNTER_BRENDAN, TRUE
 	call_if_set FLAG_DECLINED_RIVAL_BATTLE_LILYCOVE, LilycoveCity_EventScript_BrendanAskToBattleAgain
 	call_if_unset FLAG_DECLINED_RIVAL_BATTLE_LILYCOVE, LilycoveCity_EventScript_BrendanAskToBattle
-	goto_if_eq VAR_RESULT, NO, LilycoveCity_EventScript_DeclineBrendanBattle
 	msgbox LilycoveCity_Text_BrendanWontBeBeaten, MSGBOX_DEFAULT
 	switch VAR_STARTER_MON
 	case 0, LilycoveCity_EventScript_BattleBrendanTreecko
@@ -273,11 +273,11 @@ LilycoveCity_EventScript_Brendan::
 	end
 
 LilycoveCity_EventScript_BrendanAskToBattleAgain::
-	msgbox LilycoveCity_Text_BrendanBattleMe, MSGBOX_YESNO
+	msgbox LilycoveCity_Text_BrendanBattleMe, MSGBOX_DEFAULT
 	return
 
 LilycoveCity_EventScript_BrendanAskToBattle::
-	msgbox LilycoveCity_Text_BrendanShoppingLetsBattle, MSGBOX_YESNO
+	msgbox LilycoveCity_Text_BrendanShoppingLetsBattle, MSGBOX_DEFAULT
 	return
 
 LilycoveCity_EventScript_DeclineBrendanBattle::
@@ -376,13 +376,14 @@ LilycoveCity_EventScript_BrendanBattleFrontier::
 
 LilycoveCity_EventScript_RivalFlyAway::
 	closemessage
-	applymovement VAR_LAST_TALKED, Common_Movement_WalkInPlaceFasterDown
+	applymovement LOCALID_LILYCOVE_RIVAL, Common_Movement_WalkInPlaceFasterDown
 	waitmovement 0
 	delay 50
-	setfieldeffectargument 0, 1
+	callnative MandatoryRivals_GetLilycoveSprite
+	setfieldeffectargument 0, VAR_RESULT
 	dofieldeffect FLDEFF_NPCFLY_OUT
 	delay 15
-	removeobject VAR_LAST_TALKED
+	removeobject LOCALID_LILYCOVE_RIVAL
 	waitfieldeffect FLDEFF_NPCFLY_OUT
 	savebgm MUS_DUMMY
 	fadedefaultbgm
@@ -754,3 +755,29 @@ LilycoveCity_Text_HoneymoonVowToSeeRarePokemon:
 	.string "POKéMON as soon as we arrived.\p"
 	.string "I mean, we are totally happy!$"
 
+
+LilycoveCity_EventScript_PositionPendingRival::
+	goto_if_set FLAG_MET_RIVAL_LILYCOVE, LilycoveCity_EventScript_RivalPositioned
+	clearflag FLAG_HIDE_LILYCOVE_CITY_RIVAL
+	setobjectxyperm LOCALID_LILYCOVE_RIVAL, 31, 16
+LilycoveCity_EventScript_RivalPositioned:
+	return
+
+LilycoveCity_EventScript_InterceptRival::
+	lockall
+	removeobject LOCALID_LILYCOVE_RIVAL
+	getplayerxy VAR_0x8004, VAR_0x8005
+	addvar VAR_0x8004, 2
+	setobjectxyperm LOCALID_LILYCOVE_RIVAL, VAR_0x8004, VAR_0x8005
+	clearflag FLAG_HIDE_LILYCOVE_CITY_RIVAL
+	addobject LOCALID_LILYCOVE_RIVAL
+	callnative MandatoryRivals_SelectLilycoveRival
+	goto_if_eq VAR_RESULT, FALSE, MandatoryRivals_EventScript_Blocked
+	playse SE_PIN
+	applymovement LOCALID_LILYCOVE_RIVAL, Common_Movement_ExclamationMark
+	waitmovement LOCALID_LILYCOVE_RIVAL
+	applymovement LOCALID_LILYCOVE_RIVAL, Common_Movement_WalkLeft
+	waitmovement LOCALID_LILYCOVE_RIVAL
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterRight
+	waitmovement LOCALID_PLAYER
+	goto LilycoveCity_EventScript_RivalBattle

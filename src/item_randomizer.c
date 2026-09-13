@@ -14,6 +14,23 @@ static EWRAM_DATA u16 sRewardPool[ITEMS_COUNT] = {0};
 static EWRAM_DATA u16 sRewardPoolCount = 0;
 static EWRAM_DATA u32 sRewardPoolRules = 0;
 
+static bool32 IsUnimplementedItem(u16 item)
+{
+    switch (item)
+    {
+    case ITEM_AUX_EVASION:
+    case ITEM_AUX_GUARD:
+    case ITEM_AUX_POWER:
+    case ITEM_AUX_POWERGUARD:
+    case ITEM_CHOICE_DUMPLING:
+    case ITEM_SWAP_SNACK:
+    case ITEM_TWICE_SPICED_RADISH:
+        return TRUE;
+    default:
+        return FALSE;
+    }
+}
+
 static bool32 IsGimmickItem(u16 item)
 {
     enum ItemSortType type = gItemsInfo[item].sortType;
@@ -35,7 +52,7 @@ bool32 IsRandomizedRewardItemAllowed(u16 item)
         && !(FlagGet(FLAG_RUN_RULE_ITEMS) && FlagGet(FLAG_RUN_RULE_BAN_SLATEPORT) && IsSlateportPreChampionItem(item))
         && !(FlagGet(FLAG_RUN_RULE_ITEMS) && FlagGet(FLAG_RUN_RULE_BAN_GIMMICKS) && IsGimmickItem(item))
         && !(FlagGet(FLAG_RUN_RULE_ITEMS) && FlagGet(FLAG_RUN_RULE_BAN_BATTLE_ITEMS) && IsBannedBattleItem(item))
-        && !ItemIsMail(item) && !IsAbilityCustomizationItem(item) && IsItemAllowedByNoEVs(item);
+        && !IsUnimplementedItem(item) && !ItemIsMail(item) && !IsAbilityCustomizationItem(item) && IsItemAllowedByNoEVs(item);
 }
 
 static void PrepareRewardPool(void)

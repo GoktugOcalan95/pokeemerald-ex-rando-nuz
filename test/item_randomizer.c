@@ -27,6 +27,26 @@ TEST("Item randomizer protects progression and empty held slots in every domain"
         EXPECT_EQ(RandomizeItemReward(item, ITEM_REWARD_PICKUP, 123, 0), item);
 }
 
+TEST("Item randomizer excludes unfinished items and retains indirect uses")
+{
+    const u16 excluded[] = {ITEM_AUX_EVASION, ITEM_AUX_GUARD, ITEM_AUX_POWER, ITEM_AUX_POWERGUARD,
+        ITEM_CHOICE_DUMPLING, ITEM_SWAP_SNACK, ITEM_TWICE_SPICED_RADISH};
+    const u16 retained[] = {ITEM_LEFTOVERS, ITEM_NUGGET, ITEM_RED_SHARD, ITEM_POKESHI_DOLL};
+    FlagSet(FLAG_RUN_RULE_ITEMS);
+    FlagClear(FLAG_RUN_RULE_BAN_SLATEPORT);
+    FlagClear(FLAG_RUN_RULE_BAN_GIMMICKS);
+    FlagClear(FLAG_RUN_RULE_BAN_BATTLE_ITEMS);
+    FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
+    for (u32 i = 0; i < ARRAY_COUNT(excluded); i++)
+        EXPECT(!IsRandomizedRewardItemAllowed(excluded[i]));
+    for (u32 i = 0; i < ARRAY_COUNT(retained); i++)
+        EXPECT(IsRandomizedRewardItemAllowed(retained[i]));
+    FlagClear(FLAG_RUN_RULE_ITEMS);
+    for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_FACILITY_HELD; domain++)
+        for (u32 i = 0; i < ARRAY_COUNT(excluded); i++)
+            EXPECT_EQ(RandomizeItemReward(excluded[i], domain, 123, 0), excluded[i]);
+}
+
 TEST("Item randomizer shares ability item exclusions and refreshes the No EVs pool")
 {
     FlagSet(FLAG_RUN_RULE_ITEMS);

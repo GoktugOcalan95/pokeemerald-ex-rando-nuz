@@ -103,7 +103,7 @@ MauvilleCity_BikeShop_Text_MachroSteering:
 	.string "steering around obstacles!$"
 
 MauvilleCity_BikeShop_Text_MachroControls:
-	.string "MACHRO has MACH and ACRO modes.\n"
+	.string "Blue is MACH, orange is ACRO.\n"
 	.string "Stop, then press L + B to switch!$"
 
 MauvilleCity_BikeShop_EventScript_Assistant::

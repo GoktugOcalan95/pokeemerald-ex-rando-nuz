@@ -1,3 +1,7 @@
+extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_MayMachroAcro;
+extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_MayMachroMach;
+extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_BrendanMachroAcro;
+extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_BrendanMachroMach;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_BrendanNormal;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_BrendanMachBike;
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_BrendanSurfing;
@@ -402,6 +406,10 @@ extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_UnusedMauvi
 extern const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_ApricornTree;
 
 const struct ObjectEventGraphicsInfo *const gObjectEventGraphicsInfoPointers[NUM_OBJ_EVENT_GFX] = {
+    [OBJ_EVENT_GFX_MAY_MACHRO_ACRO] =          &gObjectEventGraphicsInfo_MayMachroAcro,
+    [OBJ_EVENT_GFX_MAY_MACHRO_MACH] =          &gObjectEventGraphicsInfo_MayMachroMach,
+    [OBJ_EVENT_GFX_BRENDAN_MACHRO_ACRO] =      &gObjectEventGraphicsInfo_BrendanMachroAcro,
+    [OBJ_EVENT_GFX_BRENDAN_MACHRO_MACH] =      &gObjectEventGraphicsInfo_BrendanMachroMach,
     [OBJ_EVENT_GFX_BRENDAN_NORMAL] =           &gObjectEventGraphicsInfo_BrendanNormal,
     [OBJ_EVENT_GFX_BRENDAN_MACH_BIKE] =        &gObjectEventGraphicsInfo_BrendanMachBike,
     [OBJ_EVENT_GFX_BRENDAN_SURFING] =          &gObjectEventGraphicsInfo_BrendanSurfing,

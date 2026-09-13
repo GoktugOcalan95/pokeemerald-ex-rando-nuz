@@ -633,3 +633,11 @@ const u16 gObjectEventPic_PidgeyOld[] = INCGFX_U16("graphics/object_events/pics/
 const u16 gObjectEventPic_ClefairyOld[] = INCGFX_U16("graphics/object_events/pics/pokemon_old/clefairy.png", ".4bpp", "-mwidth 2 -mheight 2");
 
 #endif // IS_FRLG
+const u16 gObjectEventPal_BrendanMachroMach[] = INCGFX_U16("graphics/object_events/palettes/brendan_machro_mach.pal", ".gbapal");
+const u32 gObjectEventPic_BrendanMachroMach[] = INCGFX_U32("graphics/object_events/pics/people/brendan/machro_mach.png", ".4bpp", "-mwidth 4 -mheight 4");
+const u16 gObjectEventPal_BrendanMachroAcro[] = INCGFX_U16("graphics/object_events/palettes/brendan_machro_acro.pal", ".gbapal");
+const u32 gObjectEventPic_BrendanMachroAcro[] = INCGFX_U32("graphics/object_events/pics/people/brendan/machro_acro.png", ".4bpp", "-mwidth 4 -mheight 4");
+const u16 gObjectEventPal_MayMachroMach[] = INCGFX_U16("graphics/object_events/palettes/may_machro_mach.pal", ".gbapal");
+const u32 gObjectEventPic_MayMachroMach[] = INCGFX_U32("graphics/object_events/pics/people/may/machro_mach.png", ".4bpp", "-mwidth 4 -mheight 4");
+const u16 gObjectEventPal_MayMachroAcro[] = INCGFX_U16("graphics/object_events/palettes/may_machro_acro.pal", ".gbapal");
+const u32 gObjectEventPic_MayMachroAcro[] = INCGFX_U32("graphics/object_events/pics/people/may/machro_acro.png", ".4bpp", "-mwidth 4 -mheight 4");

@@ -6,6 +6,8 @@
 #include "field_player_avatar.h"
 #include "fieldmap.h"
 #include "item.h"
+#include "load_save.h"
+#include "palette.h"
 #include "overworld.h"
 #include "registered_items.h"
 #include "save.h"
@@ -14,6 +16,7 @@
 #include "task.h"
 #include "test/test.h"
 #include "constants/event_objects.h"
+#include "constants/rgb.h"
 #include "constants/metatile_labels.h"
 #include "constants/metatile_behaviors.h"
 
@@ -201,4 +204,78 @@ TEST("Machro first receipt can be retried after a full Bag and exchanges work wi
     EXPECT_EQ(CountTotalItemQuantityInBag(ITEM_ACRO_BIKE), 1);
     ClearBag();
     FlagClear(FLAG_RECEIVED_BIKE);
+}
+
+TEST("Machro frame colors follow both riders through switching remounting and save restoration")
+{
+    static const u16 graphics[GENDER_COUNT][2] = {
+        [MALE] = {OBJ_EVENT_GFX_BRENDAN_MACHRO_MACH, OBJ_EVENT_GFX_BRENDAN_MACHRO_ACRO},
+        [FEMALE] = {OBJ_EVENT_GFX_MAY_MACHRO_MACH, OBJ_EVENT_GFX_MAY_MACHRO_ACRO},
+    };
+    static const u16 palettes[GENDER_COUNT][2] = {
+        [MALE] = {OBJ_EVENT_PAL_TAG_BRENDAN_MACHRO_MACH, OBJ_EVENT_PAL_TAG_BRENDAN_MACHRO_ACRO},
+        [FEMALE] = {OBJ_EVENT_PAL_TAG_MAY_MACHRO_MACH, OBJ_EVENT_PAL_TAG_MAY_MACHRO_ACRO},
+    };
+    struct MapHeader savedMap = gMapHeader;
+    enum Gender gender;
+    u32 mode;
+    PARAMETRIZE { gender = MALE; mode = 0; }
+    PARAMETRIZE { gender = MALE; mode = 1; }
+    PARAMETRIZE { gender = FEMALE; mode = 0; }
+    PARAMETRIZE { gender = FEMALE; mode = 1; }
+
+    InitMachroField();
+    FreeAllSpritePalettes();
+    gSprites[0].inUse = TRUE;
+    gPlayerAvatar.gender = gender;
+    SetPlayerAvatarTransitionFlags(PLAYER_AVATAR_FLAG_ON_FOOT);
+    if (mode)
+        FlagSet(FLAG_MACHRO_ACRO_MODE);
+    UseBikeItem(ITEM_BICYCLE);
+    for (u32 i = 0; i < 20; i++)
+    {
+        EXPECT_EQ(gObjectEvents[0].graphicsId, graphics[gender][mode]);
+        EXPECT_EQ(GetPlayerAvatarGraphicsIdByCurrentState(), graphics[gender][mode]);
+        EXPECT_EQ(GetPlayerAvatarGenderByGraphicsId(gObjectEvents[0].graphicsId), gender);
+        EXPECT_EQ(GetSpritePaletteTagByPaletteNum(gSprites[0].oam.paletteNum), palettes[gender][mode]);
+        EXPECT_EQ(gSprites[0].images, GetObjectEventGraphicsInfo(graphics[gender][mode])->images);
+        EXPECT_EQ(gPlttBufferUnfaded[OBJ_PLTT_ID(gSprites[0].oam.paletteNum) + (gender == MALE ? 7 : 12)], mode ? RGB(31, 19, 5) : RGB(5, 20, 31));
+        EXPECT(TrySwitchMachroBike(B_BUTTON, L_BUTTON | B_BUTTON));
+        mode ^= 1;
+    }
+
+    SaveObjectEvents();
+    Save_ResetSaveCounters();
+    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
+    memset(gObjectEvents, 0, sizeof(gObjectEvents));
+    VarSet(VAR_MOUNTED_BIKE, ITEM_NONE);
+    FlagClear(FLAG_MACHRO_ACRO_MODE);
+    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
+    LoadObjectEvents();
+    ClearPlayerAvatarInfo();
+    gPlayerAvatar.gender = GetPlayerAvatarGenderByGraphicsId(gObjectEvents[0].graphicsId);
+    SetPlayerAvatarExtraStateTransition(gObjectEvents[0].graphicsId, PLAYER_AVATAR_FLAG_CONTROLLABLE);
+    EXPECT_EQ(gPlayerAvatar.gender, gender);
+    EXPECT_EQ(gObjectEvents[0].graphicsId, graphics[gender][mode]);
+    EXPECT_EQ(GetSpritePaletteTagByPaletteNum(gSprites[0].oam.paletteNum), palettes[gender][mode]);
+    EXPECT(TestPlayerAvatarFlags(mode ? PLAYER_AVATAR_FLAG_ACRO_BIKE : PLAYER_AVATAR_FLAG_MACH_BIKE));
+
+    UseBikeItem(ITEM_BICYCLE);
+    EXPECT_EQ(gObjectEvents[0].graphicsId, GetPlayerAvatarGraphicsIdByStateId(PLAYER_AVATAR_STATE_NORMAL));
+    UseBikeItem(ITEM_BICYCLE);
+    EXPECT_EQ(gObjectEvents[0].graphicsId, graphics[gender][mode]);
+    EXPECT_EQ(GetSpritePaletteTagByPaletteNum(gSprites[0].oam.paletteNum), palettes[gender][mode]);
+
+    UseBikeItem(ITEM_BICYCLE);
+    UseBikeItem(ITEM_MACH_BIKE);
+    EXPECT_EQ(gObjectEvents[0].graphicsId, gender == MALE ? OBJ_EVENT_GFX_BRENDAN_MACH_BIKE : OBJ_EVENT_GFX_MAY_MACH_BIKE);
+    EXPECT_EQ(GetSpritePaletteTagByPaletteNum(gSprites[0].oam.paletteNum), gender == MALE ? OBJ_EVENT_PAL_TAG_BRENDAN : OBJ_EVENT_PAL_TAG_MAY);
+    UseBikeItem(ITEM_MACH_BIKE);
+    UseBikeItem(ITEM_ACRO_BIKE);
+    EXPECT_EQ(gObjectEvents[0].graphicsId, gender == MALE ? OBJ_EVENT_GFX_BRENDAN_ACRO_BIKE : OBJ_EVENT_GFX_MAY_ACRO_BIKE);
+    EXPECT_EQ(GetSpritePaletteTagByPaletteNum(gSprites[0].oam.paletteNum), gender == MALE ? OBJ_EVENT_PAL_TAG_BRENDAN : OBJ_EVENT_PAL_TAG_MAY);
+    UseBikeItem(ITEM_ACRO_BIKE);
+    FreeAllSpritePalettes();
+    ClearBag();
+    gMapHeader = savedMap;
 }

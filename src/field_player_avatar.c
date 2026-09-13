@@ -301,7 +301,7 @@ static const struct PACKED
 {
     u16 graphicsId;
     u8 playerFlag;
-} sPlayerAvatarGfxToStateFlag[GENDER_COUNT][5] =
+} sPlayerAvatarGfxToStateFlag[GENDER_COUNT][7] =
 {
     [MALE] =
     {
@@ -310,6 +310,8 @@ static const struct PACKED
         {PLAYER_AVATAR_GFX_MALE_ACRO_BIKE,  PLAYER_AVATAR_FLAG_ACRO_BIKE},
         {PLAYER_AVATAR_GFX_MALE_SURFING,    PLAYER_AVATAR_FLAG_SURFING},
         {PLAYER_AVATAR_GFX_MALE_UNDERWATER, PLAYER_AVATAR_FLAG_UNDERWATER},
+        {OBJ_EVENT_GFX_BRENDAN_MACHRO_MACH, PLAYER_AVATAR_FLAG_MACH_BIKE},
+        {OBJ_EVENT_GFX_BRENDAN_MACHRO_ACRO, PLAYER_AVATAR_FLAG_ACRO_BIKE},
     },
     [FEMALE] =
     {
@@ -318,6 +320,8 @@ static const struct PACKED
         {PLAYER_AVATAR_GFX_FEMALE_ACRO_BIKE,      PLAYER_AVATAR_FLAG_ACRO_BIKE},
         {PLAYER_AVATAR_GFX_FEMALE_SURFING,        PLAYER_AVATAR_FLAG_SURFING},
         {PLAYER_AVATAR_GFX_FEMALE_UNDERWATER,     PLAYER_AVATAR_FLAG_UNDERWATER},
+        {OBJ_EVENT_GFX_MAY_MACHRO_MACH,           PLAYER_AVATAR_FLAG_MACH_BIKE},
+        {OBJ_EVENT_GFX_MAY_MACHRO_ACRO,           PLAYER_AVATAR_FLAG_ACRO_BIKE},
     }
 };
 
@@ -1585,9 +1589,29 @@ u16 GetRivalAvatarGraphicsIdByStateIdAndGender(u8 state, enum Gender gender)
         return sRivalAvatarGfxIds[state][gender];
 }
 
+static u16 GetMountedBikeGraphicsId(u16 graphicsId)
+{
+    if (VarGet(VAR_MOUNTED_BIKE) != ITEM_BICYCLE)
+        return graphicsId;
+
+    switch (graphicsId)
+    {
+    case OBJ_EVENT_GFX_BRENDAN_MACH_BIKE:
+        return OBJ_EVENT_GFX_BRENDAN_MACHRO_MACH;
+    case OBJ_EVENT_GFX_BRENDAN_ACRO_BIKE:
+        return OBJ_EVENT_GFX_BRENDAN_MACHRO_ACRO;
+    case OBJ_EVENT_GFX_MAY_MACH_BIKE:
+        return OBJ_EVENT_GFX_MAY_MACHRO_MACH;
+    case OBJ_EVENT_GFX_MAY_ACRO_BIKE:
+        return OBJ_EVENT_GFX_MAY_MACHRO_ACRO;
+    default:
+        return graphicsId;
+    }
+}
+
 u16 GetPlayerAvatarGraphicsIdByStateIdAndGender(u8 state, enum Gender gender)
 {
-    return sPlayerAvatarGfxIds[state][gender];
+    return GetMountedBikeGraphicsId(sPlayerAvatarGfxIds[state][gender]);
 }
 
 u16 GetFRLGAvatarGraphicsIdByGender(enum Gender gender)
@@ -1612,6 +1636,8 @@ enum Gender GetPlayerAvatarGenderByGraphicsId(u16 gfxId)
     case OBJ_EVENT_GFX_MAY_NORMAL:
     case OBJ_EVENT_GFX_MAY_MACH_BIKE:
     case OBJ_EVENT_GFX_MAY_ACRO_BIKE:
+    case OBJ_EVENT_GFX_MAY_MACHRO_MACH:
+    case OBJ_EVENT_GFX_MAY_MACHRO_ACRO:
     case OBJ_EVENT_GFX_MAY_SURFING:
     case OBJ_EVENT_GFX_MAY_FIELD_MOVE:
     case OBJ_EVENT_GFX_MAY_UNDERWATER:
@@ -1684,7 +1710,7 @@ u16 GetPlayerAvatarGraphicsIdByCurrentState(void)
     for (i = 0; i < ARRAY_COUNT(sPlayerAvatarGfxToStateFlag[0]); i++)
     {
         if (sPlayerAvatarGfxToStateFlag[gPlayerAvatar.gender][i].playerFlag & flags)
-            return sPlayerAvatarGfxToStateFlag[gPlayerAvatar.gender][i].graphicsId;
+            return GetMountedBikeGraphicsId(sPlayerAvatarGfxToStateFlag[gPlayerAvatar.gender][i].graphicsId);
     }
     return 0;
 }

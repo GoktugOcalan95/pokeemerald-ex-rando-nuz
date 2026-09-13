@@ -45,6 +45,7 @@ enum BagSortOptions
     SORT_BY_TYPE,
     SORT_BY_AMOUNT, //greatest->least
     SORT_BY_INDEX,
+    SORT_BY_ACQUIRED,
 };
 
 #define ITEMMENU_SWAP_LINE_LENGTH 8  // Swap line is 8 sprites long
@@ -75,13 +76,14 @@ struct BagMenu
     u8 tilemapBuffer[BG_SCREEN_SIZE];
     u8 spriteIds[ITEMMENUSPRITE_COUNT];
     u8 windowIds[ITEMWIN_COUNT];
-    u16 toSwapPos;
     u8 pocketSwitchDisabled:4;
     u8 itemIconSlot:2;
     u8 inhibitItemDescriptionPrint:1;
     u8 hideCloseBagText:1;
     u8 quickMenuWindow;
     u8 pocketChoice;
+    u8 quickChoice;
+    bool8 quickSpriteVisibility[ITEMMENUSPRITE_SWAP_LINE];
     u8 pocketScrollArrowsTask;
     u8 pocketSwitchArrowsTask;
     const u8 *contextMenuItemsPtr;
@@ -106,7 +108,8 @@ void CB2_BagMenuFromBattle(void);
 void UpdatePocketListPosition(u8 pocketId);
 void CB2_ReturnToBagMenuPocket(void);
 void CB2_BagMenuFromStartMenu(void);
-u16 GetItemListPosition(u8 pocketId);
+s32 GetItemListPosition(u8 pocketId);
+enum Item GetBagBerryDisplayItem(u32 position);
 bool8 UseRegisteredKeyItemOnField(void);
 void CB2_GoToSellMenu(void);
 void GoToBagMenu(u8 location, u8 pocket, MainCallback exitCallback);

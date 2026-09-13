@@ -349,6 +349,7 @@ static bool32 NONNULL BagPocket_AddItem(struct BagPocket *pocket, enum Item item
     if (tempPocketSlotQuantities == NULL)
         return FALSE;
 
+    BagPocket_CompactItems(pocket);
     switch (pocket->id)
     {
     case BAG_TM_HM:
@@ -366,6 +367,14 @@ static bool32 NONNULL BagPocket_AddItem(struct BagPocket *pocket, enum Item item
         break;
     default:
         for (itemLookupIndex = 0; itemLookupIndex < pocket->capacity && count > 0; itemLookupIndex++)
+        {
+            enum Item slotItem = BagPocket_GetSlotData(pocket, itemLookupIndex).itemId;
+            if (slotItem == ITEM_NONE)
+                break;
+            if (slotItem == itemId)
+                CheckSlotAndUpdateCount(pocket, itemId, itemLookupIndex, &itemAddIndex, &count, tempPocketSlotQuantities);
+        }
+        for (; itemLookupIndex < pocket->capacity && count > 0; itemLookupIndex++)
             CheckSlotAndUpdateCount(pocket, itemId, itemLookupIndex, &itemAddIndex, &count, tempPocketSlotQuantities);
     }
 

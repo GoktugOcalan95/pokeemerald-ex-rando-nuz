@@ -372,7 +372,13 @@ static const struct ScrollArrowsTemplate sBagScrollArrowsTemplate = {
     .palNum = 0,
 };
 
-static EWRAM_DATA u8 sRegisterWindowId = 0;
+static const u8 sRegisteredSelectUp[] = INCGFX_U8("graphics/bag/select_button_up.png", ".4bpp");
+static const u8 sRegisteredSelectRight[] = INCGFX_U8("graphics/bag/select_button_right.png", ".4bpp");
+static const u8 sRegisteredSelectDown[] = INCGFX_U8("graphics/bag/select_button_down.png", ".4bpp");
+static const u8 sRegisteredSelectLeft[] = INCGFX_U8("graphics/bag/select_button_left.png", ".4bpp");
+static const u8 *const sRegisteredSelectGfx[] = {
+    sRegisteredSelectUp, sRegisteredSelectRight, sRegisteredSelectDown, sRegisteredSelectLeft,
+};
 
 enum {
     COLORID_NORMAL,
@@ -1036,7 +1042,7 @@ static void BagMenu_ItemPrintCallback(u8 windowId, u32 itemIndex, u8 y)
         {
             s32 slot = GetRegisteredItemSlot(itemSlot.itemId);
             if (slot >= 0)
-                BagMenu_Print(windowId, FONT_SMALL, gRegisteredItemDirections[slot], 96, y, 0, 0, TEXT_SKIP_DRAW, COLORID_NORMAL);
+                BlitBitmapToWindow(windowId, sRegisteredSelectGfx[slot], 96, y - 1, 24, 16);
         }
     }
 }
@@ -1910,13 +1916,13 @@ static void Task_RegisterItemDirection(u8 taskId)
     if (JOY_NEW(B_BUTTON))
     {
         PlaySE(SE_SELECT);
-        CloseRegisteredItemWheel(sRegisterWindowId, TRUE);
+        CloseRegisteredItemWheel();
         ItemMenu_Cancel(taskId);
     }
     else if (slot >= 0 && RegisterItem(slot, gSpecialVar_ItemId))
     {
         PlaySE(SE_SELECT);
-        CloseRegisteredItemWheel(sRegisterWindowId, TRUE);
+        CloseRegisteredItemWheel();
         RefreshRegisteredItemList(taskId);
     }
 }
@@ -1925,11 +1931,14 @@ static void ItemMenu_Register(u8 taskId)
 {
     RemoveContextWindow();
     ValidateRegisteredItems();
-    sRegisterWindowId = ShowRegisteredItemWheel(TRUE);
-    if (sRegisterWindowId == WINDOW_NONE)
+    if (!ShowRegisteredItemWheel(TRUE))
         ItemMenu_Cancel(taskId);
     else
+    {
+        FillWindowPixelBuffer(WIN_DESCRIPTION, PIXEL_FILL(0));
+        BagMenu_Print(WIN_DESCRIPTION, FONT_NORMAL, COMPOUND_STRING("Press a direction\nto assign this item.\nB: Cancel"), 3, 1, 0, 0, 0, COLORID_NORMAL);
         gTasks[taskId].func = Task_RegisterItemDirection;
+    }
 }
 
 static void ItemMenu_Deselect(u8 taskId)
@@ -2078,7 +2087,7 @@ static void Task_RegisteredItemWheel(u8 taskId)
     if (item == ITEMS_COUNT)
     {
         PlaySE(SE_SELECT);
-        CloseRegisteredItemWheel(gTasks[taskId].data[0], FALSE);
+        CloseRegisteredItemWheel();
         ScriptUnfreezeObjectEvents();
         UnlockPlayerFieldControls();
         DestroyTask(taskId);
@@ -2086,7 +2095,7 @@ static void Task_RegisteredItemWheel(u8 taskId)
     else if (item != ITEM_NONE)
     {
         PlaySE(SE_SELECT);
-        CloseRegisteredItemWheel(gTasks[taskId].data[0], FALSE);
+        CloseRegisteredItemWheel();
         DestroyTask(taskId);
         DispatchRegisteredItem(item);
     }
@@ -2095,7 +2104,6 @@ static void Task_RegisteredItemWheel(u8 taskId)
 bool8 UseRegisteredKeyItemOnField(void)
 {
     u32 count;
-    u8 windowId, taskId;
 
     if (InUnionRoom() == TRUE || CurrentBattlePyramidLocation() != PYRAMID_LOCATION_NONE || InBattlePike() || InMultiPartnerRoom() == TRUE)
         return FALSE;
@@ -2119,15 +2127,13 @@ bool8 UseRegisteredKeyItemOnField(void)
     }
     else
     {
-        windowId = ShowRegisteredItemWheel(FALSE);
-        if (windowId == WINDOW_NONE)
+        if (!ShowRegisteredItemWheel(FALSE))
         {
             ScriptUnfreezeObjectEvents();
             UnlockPlayerFieldControls();
             return TRUE;
         }
-        taskId = CreateTask(Task_RegisteredItemWheel, 8);
-        gTasks[taskId].data[0] = windowId;
+        CreateTask(Task_RegisteredItemWheel, 8);
     }
     return TRUE;
 }

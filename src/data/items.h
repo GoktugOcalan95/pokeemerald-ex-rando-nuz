@@ -13994,7 +13994,7 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Machro Bike"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Mach/Acro: stop, L+B.\n"
+            "Stop, L+B to swap.\n"
             "Hold B in Mach mode\n"
             "for steering help."),
         .importance = 1,

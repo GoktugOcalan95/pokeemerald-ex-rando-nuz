@@ -2,8 +2,8 @@
 #include "registered_items.h"
 #include "item.h"
 #include "save.h"
-#include "string_util.h"
-#include "text.h"
+#include "gpu_regs.h"
+#include "sprite.h"
 #include "test/test.h"
 
 static void ResetRegistration(void)
@@ -87,25 +87,13 @@ TEST("Registered items retain the bike direction through exchanges without chang
     ResetRegistration();
 }
 
-TEST("Registered item wheel directions and every registrable name fit their display cells")
+TEST("Registered item wheel maps each direction to its saved slot")
 {
     static const u16 keys[] = {DPAD_UP, DPAD_RIGHT, DPAD_DOWN, DPAD_LEFT};
-    u8 name[ITEM_NAME_LENGTH + 7];
     for (u32 i = 0; i < ARRAY_COUNT(keys); i++)
-    {
         EXPECT_EQ(RegisteredItemSlotFromKeys(keys[i]), i);
-        EXPECT(GetStringWidth(FONT_SMALL, gRegisteredItemDirections[i], 0) <= 24);
-    }
     EXPECT_EQ(RegisteredItemSlotFromKeys(0), -1);
     EXPECT_EQ(RegisteredItemSlotFromKeys(A_BUTTON | B_BUTTON | SELECT_BUTTON), -1);
-    for (u32 item = 1; item < ITEMS_COUNT; item++)
-    {
-        if (GetItemPocket(item) != POCKET_KEY_ITEMS || GetItemFieldFunc(item) == NULL)
-            continue;
-        CopyItemName(item, name);
-        WrapFontIdToFit(name, name + StringLength(name), FONT_NARROW, 96);
-        EXPECT(GetStringWidth(FONT_NARROW, name, 0) <= 96);
-    }
 }
 
 TEST("Registered item wheel stays open on release and empty directions and closes on fresh cancel input")
@@ -122,4 +110,50 @@ TEST("Registered item wheel stays open on release and empty directions and close
     EXPECT_EQ(RegisteredItemWheelInput(B_BUTTON | DPAD_DOWN), ITEMS_COUNT);
     EXPECT_EQ(GetRegisteredItemSlot(ITEM_TOGGLE_REPEL), 2);
     ResetRegistration();
+}
+
+TEST("Registered item wheel releases graphics and restores field windows after repeated use")
+{
+    ResetRegistration();
+    ResetSpriteData();
+    FreeAllSpritePalettes();
+    EXPECT(AddBagItem(ITEM_MACH_BIKE, 1));
+    EXPECT(AddBagItem(ITEM_TOGGLE_REPEL, 1));
+    EXPECT(RegisterItem(0, ITEM_MACH_BIKE));
+    EXPECT(RegisterItem(1, ITEM_TOGGLE_REPEL));
+    SetGpuReg(REG_OFFSET_WINOUT, WINOUT_WIN01_BG0);
+    SetGpuReg(REG_OFFSET_WININ, WININ_WIN0_BG_ALL | WININ_WIN0_OBJ);
+    SetGpuReg(REG_OFFSET_BLDCNT, BLDCNT_TGT2_BG1 | BLDCNT_EFFECT_BLEND);
+    SetGpuReg(REG_OFFSET_BLDALPHA, BLDALPHA_BLEND(13, 7));
+    ClearGpuRegBits(REG_OFFSET_DISPCNT, DISPCNT_OBJWIN_ON);
+    for (u32 iteration = 0; iteration < 20; iteration++)
+    {
+        EXPECT(ShowRegisteredItemWheel(iteration % 2));
+        AnimateSprites();
+        BuildOamBuffer();
+        CloseRegisteredItemWheel();
+        EXPECT_EQ(GetGpuReg(REG_OFFSET_WINOUT), WINOUT_WIN01_BG0);
+        EXPECT_EQ(GetGpuReg(REG_OFFSET_WININ), WININ_WIN0_BG_ALL | WININ_WIN0_OBJ);
+        EXPECT_EQ(GetGpuReg(REG_OFFSET_BLDCNT), BLDCNT_TGT2_BG1 | BLDCNT_EFFECT_BLEND);
+        EXPECT_EQ(GetGpuReg(REG_OFFSET_BLDALPHA), BLDALPHA_BLEND(13, 7));
+        EXPECT_EQ(GetGpuReg(REG_OFFSET_DISPCNT) & DISPCNT_OBJWIN_ON, 0);
+        for (u32 i = 0; i < MAX_SPRITES; i++)
+            EXPECT(!gSprites[i].inUse);
+    }
+}
+
+TEST("Registered item wheel unwinds a partial open when sprites are exhausted")
+{
+    ResetRegistration();
+    ResetSpriteData();
+    FreeAllSpritePalettes();
+    for (u32 i = 0; i < MAX_SPRITES - 1; i++)
+        EXPECT(CreateSprite(&gDummySpriteTemplate, 0, 0, 0) != MAX_SPRITES);
+    EXPECT(!ShowRegisteredItemWheel(FALSE));
+    for (u32 i = 0; i < MAX_SPRITES - 1; i++)
+        EXPECT(gSprites[i].inUse);
+    EXPECT(!gSprites[MAX_SPRITES - 1].inUse);
+    ResetSpriteData();
+    EXPECT(ShowRegisteredItemWheel(FALSE));
+    CloseRegisteredItemWheel();
 }

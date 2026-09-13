@@ -8,6 +8,16 @@ RemoveStory_Release::
 	releaseall
 	end
 
+RemoveStory_SkipPetalburgScott::
+	setvar VAR_SCOTT_STATE, 1
+	setvar VAR_SCOTT_PETALBURG_ENCOUNTER, 1
+	end
+
+RemoveStory_SkipScott::
+	addvar VAR_SCOTT_STATE, 1
+	releaseall
+	end
+
 RemoveStory_AfterRoxanne::
 	callnative RemoveStoryAfterRoxanne
 	call RemoveStory_GiveDevonTools

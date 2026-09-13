@@ -21,13 +21,14 @@ static EWRAM_DATA u16 sTeachingMoves[NUM_TECHNICAL_MACHINES + TUTOR_MOVE_COUNT] 
 static EWRAM_DATA u16 sOriginalMoves[MOVES_COUNT] = {0};
 static EWRAM_DATA u16 sAssignedMoves[MOVES_COUNT] = {0};
 static EWRAM_DATA u32 sTeachingSeed = 0;
+static EWRAM_DATA u8 sTeachingChance = 0;
 static EWRAM_DATA bool8 sTeachingReady = FALSE;
 static EWRAM_DATA u8 sMoveDescription[256] = {0};
 
 static void InitTeachingMoves(void)
 {
     u32 seed = RunRandomizerHash(TEACHING_DOMAIN, 0, 0);
-    if (sTeachingReady && seed == sTeachingSeed)
+    if (sTeachingReady && seed == sTeachingSeed && sTeachingChance == GetRandomizerGoodMoveChance())
         return;
     bool8 used[MOVES_COUNT] = {0};
     for (u32 move = 0; move < MOVES_COUNT; move++)
@@ -47,6 +48,7 @@ static void InitTeachingMoves(void)
         used[move] = TRUE;
     }
     sTeachingSeed = seed;
+    sTeachingChance = GetRandomizerGoodMoveChance();
     sTeachingReady = TRUE;
 }
 

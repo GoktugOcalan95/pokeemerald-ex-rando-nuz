@@ -4,6 +4,7 @@
 struct Pokemon;
 struct Trainer;
 const struct Trainer *GetRunTrainer(u16 trainerId);
+bool32 CanRunTrainerSlotMegaEvolve(u32 trainer, u32 slot);
 bool32 IsRunTrainerBattle(u16 trainerId);
 bool32 CreateRunTrainerParty(struct Pokemon *party, u16 trainerId);
 u16 GetRunTrainerSpecies(u16 trainerId, u32 slot, u16 original);

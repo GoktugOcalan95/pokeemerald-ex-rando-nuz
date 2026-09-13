@@ -1,4 +1,5 @@
 #include "global.h"
+#include "trainer_randomizer.h"
 #include "battle.h"
 #include "battle_anim.h"
 #include "battle_anim_scripts.h"
@@ -8561,6 +8562,8 @@ bool32 DoesSpeciesUseHoldItemToChangeForm(enum Species species, enum Item heldIt
 
 bool32 CanMegaEvolve(enum BattlerId battler)
 {
+    if (!CanRunTrainerSlotMegaEvolve(GetBattlerTrainer(battler), gBattlerPartyIndexes[battler]))
+        return FALSE;
     enum HoldEffect holdEffect = GetBattlerHoldEffectIgnoreNegation(battler);
     enum BattlerPosition position = GetBattlerPosition(battler);
 

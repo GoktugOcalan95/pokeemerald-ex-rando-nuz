@@ -1,4 +1,5 @@
 #include "global.h"
+#include "trainer_randomizer.h"
 #include "auto_heal.h"
 #include "boss_rewards.h"
 #include "data.h"
@@ -2272,6 +2273,8 @@ void CreateNPCTrainerPartyFromTrainer(struct Pokemon *party, const struct Traine
 
 static void CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum)
 {
+    if (CreateRunTrainerParty(party, trainerNum))
+        return;
     if (!GetTrainerStructFromId(trainerNum)->overrideTrainer)
     {
         CreateNPCTrainerPartyFromTrainer(party, GetTrainerStructFromId(trainerNum));

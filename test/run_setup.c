@@ -329,7 +329,7 @@ TEST("Run setup gimmick page presets and dependencies preserve individual choice
     const bool8 bishey[] = {FALSE, TRUE, FALSE, TRUE};
 
     EXPECT_EQ(RUN_SETUP_CATEGORY_GIMMICK_BANS, RUN_SETUP_CATEGORY_ITEMS + 1);
-    EXPECT_EQ(RunSetup_GetCategoryCount(RUN_SETUP_CATEGORY_ITEMS), 3);
+    EXPECT_EQ(RunSetup_GetCategoryCount(RUN_SETUP_CATEGORY_ITEMS), 4);
     EXPECT_EQ(RunSetup_GetCategoryCount(RUN_SETUP_CATEGORY_GIMMICK_BANS), 4);
     for (u32 preset = 0; preset < RUN_SETUP_PRESET_COUNT; preset++)
     {
@@ -365,5 +365,38 @@ TEST("Run setup gimmick page presets and dependencies preserve individual choice
     RunSetup_ApplyToNewGame();
     for (u32 i = 0; i < ARRAY_COUNT(settings); i++)
         EXPECT(!FlagGet(gRunSetupSettings[settings[i]].storageId));
+    InitEventData();
+}
+
+TEST("Run setup Slateport limit is independent and saves both choices")
+{
+    bool32 enabled;
+    PARAMETRIZE { enabled = FALSE; }
+    PARAMETRIZE { enabled = TRUE; }
+
+    for (u32 preset = 0; preset < RUN_SETUP_PRESET_COUNT; preset++)
+    {
+        RunSetup_Begin();
+        RunSetup_SetPreset(preset);
+        EXPECT_EQ(RunSetup_GetValue(RUN_SETUP_LIMIT_SLATEPORT_SHOP), preset == RUN_SETUP_PRESET_BISHEY);
+        RunSetup_Discard();
+    }
+    InitEventData();
+    RunSetup_Begin();
+    EXPECT_EQ(RunSetup_GetCategorySetting(RUN_SETUP_CATEGORY_ITEMS, 3), RUN_SETUP_LIMIT_SLATEPORT_SHOP);
+    EXPECT_EQ(RunSetup_GetValue(RUN_SETUP_ITEMS), FALSE);
+    EXPECT(RunSetup_IsAvailable(RUN_SETUP_LIMIT_SLATEPORT_SHOP));
+    RunSetup_SetValue(RUN_SETUP_LIMIT_SLATEPORT_SHOP, enabled);
+    RunSetup_Confirm();
+    RunSetup_ApplyToNewGame();
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_LIMIT_SLATEPORT_SHOP), enabled);
+    Save_ResetSaveCounters();
+    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
+    if (enabled)
+        FlagClear(FLAG_RUN_RULE_LIMIT_SLATEPORT_SHOP);
+    else
+        FlagSet(FLAG_RUN_RULE_LIMIT_SLATEPORT_SHOP);
+    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
+    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_LIMIT_SLATEPORT_SHOP), enabled);
     InitEventData();
 }

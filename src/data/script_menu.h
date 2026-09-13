@@ -1139,8 +1139,14 @@ static const struct MenuAction sMultichoiceList_SlateportStock[] = {
     {COMPOUND_STRING("Mega Stones")},
     {COMPOUND_STRING("Z-Crystals")},
     {COMPOUND_STRING("Tera Shards")},
-    {COMPOUND_STRING("Mints")},
+    {COMPOUND_STRING("Type Gems")},
     {gText_Exit},
+};
+
+static const struct MenuAction sMultichoiceList_SlateportSupplies[] = {
+    {COMPOUND_STRING("Supplies")},
+    {COMPOUND_STRING("Nature Mints")},
+    {gText_Cancel},
 };
 
 static const struct MultichoiceListStruct sMultichoiceLists[] =
@@ -1261,6 +1267,7 @@ static const struct MultichoiceListStruct sMultichoiceLists[] =
     [MULTI_TAG_MATCH_TYPE]             = MULTICHOICE(MultichoiceList_TagMatchType),
     [MULTI_BERRY_PLOT]                 = MULTICHOICE(MultichoiceList_BerryPlot),
     [MULTI_SLATEPORT_STOCK] = MULTICHOICE(sMultichoiceList_SlateportStock),
+    [MULTI_SLATEPORT_SUPPLIES] = MULTICHOICE(sMultichoiceList_SlateportSupplies),
     [MULTI_BIKE_SHOP]                  = MULTICHOICE(sMultichoiceList_BikeShop),
     [MULTI_EEVEELUTIONS]               = MULTICHOICE(sMultichoiceList_Eeveelutions),
     [MULTI_ISLAND_23]                  = MULTICHOICE(sMultichoiceList_Island23),

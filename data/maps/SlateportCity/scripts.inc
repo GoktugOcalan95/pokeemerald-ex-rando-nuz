@@ -118,8 +118,31 @@ SlateportCity_EventScript_EnergyGuru::
 	faceplayer
 	message SlateportCity_Text_EnergyGuruSellWhatYouNeed
 	waitmessage
+	callnative CheckSlateportSpecialStock
+	goto_if_eq VAR_RESULT, TRUE, SlateportCity_EventScript_EnergyGuruCategories
 	setvar VAR_0x8004, SLATEPORT_SHOP_ENERGY
 	call SlateportCity_EventScript_OpenExpandedShop
+	goto SlateportCity_EventScript_EnergyGuruExit
+
+SlateportCity_EventScript_EnergyGuruCategories::
+	message SlateportCity_Text_ChooseStock
+	waitmessage
+	multichoice 0, 0, MULTI_SLATEPORT_SUPPLIES, FALSE
+	switch VAR_RESULT
+	case 0, SlateportCity_EventScript_ShopSupplies
+	case 1, SlateportCity_EventScript_ShopMints
+	goto SlateportCity_EventScript_EnergyGuruExit
+
+SlateportCity_EventScript_ShopSupplies::
+	setvar VAR_0x8004, SLATEPORT_SHOP_ENERGY
+	goto SlateportCity_EventScript_EnergyGuruCategory
+SlateportCity_EventScript_ShopMints::
+	setvar VAR_0x8004, SLATEPORT_SHOP_MINTS
+SlateportCity_EventScript_EnergyGuruCategory::
+	call SlateportCity_EventScript_OpenExpandedShop
+	goto SlateportCity_EventScript_EnergyGuruCategories
+
+SlateportCity_EventScript_EnergyGuruExit::
 	msgbox gText_PleaseComeAgain, MSGBOX_DEFAULT
 	release
 	end
@@ -1351,7 +1374,8 @@ SlateportCity_EventScript_ExtraEvoItems::
 SlateportCity_EventScript_FormShop::
 	lock
 	faceplayer
-	goto_if_set FLAG_IS_CHAMPION, SlateportCity_EventScript_FormShopCategories
+	callnative CheckSlateportSpecialStock
+	goto_if_eq VAR_RESULT, TRUE, SlateportCity_EventScript_FormShopCategories
 	msgbox SlateportCity_Text_FormShop, MSGBOX_DEFAULT
 	setvar VAR_0x8004, SLATEPORT_SHOP_FORMS
 	call SlateportCity_EventScript_OpenExpandedShop
@@ -1366,7 +1390,7 @@ SlateportCity_EventScript_FormShopCategories::
 	case 1, SlateportCity_EventScript_ShopMega
 	case 2, SlateportCity_EventScript_ShopZ
 	case 3, SlateportCity_EventScript_ShopTera
-	case 4, SlateportCity_EventScript_ShopMints
+	case 4, SlateportCity_EventScript_ShopGems
 	goto SlateportCity_EventScript_FormShopExit
 
 SlateportCity_EventScript_ShopForms::
@@ -1381,8 +1405,8 @@ SlateportCity_EventScript_ShopZ::
 SlateportCity_EventScript_ShopTera::
 	setvar VAR_0x8004, SLATEPORT_SHOP_TERA
 	goto SlateportCity_EventScript_ShopCategory
-SlateportCity_EventScript_ShopMints::
-	setvar VAR_0x8004, SLATEPORT_SHOP_MINTS
+SlateportCity_EventScript_ShopGems::
+	setvar VAR_0x8004, SLATEPORT_SHOP_GEMS
 SlateportCity_EventScript_ShopCategory::
 	call SlateportCity_EventScript_OpenExpandedShop
 	goto SlateportCity_EventScript_FormShopCategories

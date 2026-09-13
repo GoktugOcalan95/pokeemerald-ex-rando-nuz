@@ -8,6 +8,9 @@
 #include "save.h"
 #include "string_util.h"
 #include "test/test.h"
+#include "script.h"
+#include "constants/script_commands.h"
+#include "constants/script_menu.h"
 
 static bool32 StockContains(u32 category, u16 item)
 {
@@ -54,7 +57,8 @@ TEST("Slateport shops sell working evolution and form items")
 TEST("Slateport shops gate complete postgame categories and alphabetize every purchase list")
 {
     u16 stock[ITEMS_COUNT];
-    const u16 postgameCounts[] = {92, 35, 19, 21};
+    const u16 postgameCounts[] = {92, 35, 19, 21, 18};
+    FlagSet(FLAG_RUN_RULE_LIMIT_SLATEPORT_SHOP);
     FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
     FlagClear(FLAG_IS_CHAMPION);
     for (u32 category = SLATEPORT_SHOP_MEGA; category < SLATEPORT_SHOP_COUNT; category++)
@@ -185,6 +189,7 @@ TEST("Slateport shops reject full bags unavailable categories and No EV stock wi
     FlagClear(FLAG_IS_CHAMPION);
     FlagClear(FLAG_TERA_ORB_CHARGED);
     FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
+    FlagSet(FLAG_RUN_RULE_LIMIT_SLATEPORT_SHOP);
     EXPECT_EQ(BuildSlateportShopStock(SLATEPORT_SHOP_ENERGY, stock), 3);
     EXPECT(!TryGiveSlateportPurchase(SLATEPORT_SHOP_ENERGY, ITEM_HP_UP, 1));
     EXPECT(!TryGiveSlateportPurchase(SLATEPORT_SHOP_MEGA, ITEM_VENUSAURITE, 1));
@@ -197,4 +202,134 @@ TEST("Slateport shops reject full bags unavailable categories and No EV stock wi
     EXPECT(!FlagGet(FLAG_TERA_ORB_CHARGED));
     ClearBag();
     FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
+}
+
+TEST("Slateport shops limit all five special categories independently of item randomization")
+{
+    const u16 examples[] = {ITEM_VENUSAURITE, ITEM_PIKANIUM_Z, ITEM_FIRE_TERA_SHARD, ITEM_ADAMANT_MINT, ITEM_FIRE_GEM};
+    const u16 counts[] = {92, 35, 19, 21, 18};
+    u16 stock[ITEMS_COUNT];
+
+    for (u32 mask = 0; mask < 8; mask++)
+    {
+        InitEventData();
+        if (mask & 1)
+            FlagSet(FLAG_RUN_RULE_LIMIT_SLATEPORT_SHOP);
+        if (mask & 2)
+            FlagSet(FLAG_IS_CHAMPION);
+        if (mask & 4)
+            FlagSet(FLAG_RUN_RULE_ITEMS);
+        bool32 available = !(mask & 1) || (mask & 2);
+        CheckSlateportSpecialStock();
+        EXPECT_EQ(gSpecialVar_Result, available != FALSE);
+        for (u32 i = 0; i < ARRAY_COUNT(examples); i++)
+        {
+            ClearBag();
+            EXPECT_EQ(BuildSlateportShopStock(SLATEPORT_SHOP_MEGA + i, stock), available ? counts[i] : 0);
+            EXPECT_EQ(TryGiveSlateportPurchase(SLATEPORT_SHOP_MEGA + i, examples[i], 1), available != FALSE);
+            EXPECT(!IsSlateportPreChampionItem(examples[i]));
+        }
+        EXPECT(StockContains(SLATEPORT_SHOP_ENERGY, ITEM_HP_UP));
+        EXPECT(StockContains(SLATEPORT_SHOP_ENERGY, ITEM_TERA_ORB));
+        EXPECT(StockContains(SLATEPORT_SHOP_FORMS, ITEM_ADAMANT_CRYSTAL));
+        FlagSet(FLAG_IS_CHAMPION);
+        FlagSet(FLAG_RUN_RULE_BAN_SLATEPORT);
+        FlagSet(FLAG_RUN_RULE_BAN_MEGA_STONES);
+        FlagSet(FLAG_RUN_RULE_BAN_Z_CRYSTALS);
+        FlagSet(FLAG_RUN_RULE_BAN_TERA_SHARDS);
+        FlagSet(FLAG_RUN_RULE_BAN_TYPE_GEMS);
+        FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
+        for (u32 i = 0; i < ARRAY_COUNT(examples); i++)
+            EXPECT(StockContains(SLATEPORT_SHOP_MEGA + i, examples[i]));
+    }
+    ClearBag();
+    InitEventData();
+}
+
+
+extern const u8 SlateportCity_EventScript_EnergyGuru[];
+extern const u8 SlateportCity_EventScript_FormShop[];
+extern ScrCmdFunc gScriptCmdTable[];
+extern ScrCmdFunc gScriptCmdTableEnd[];
+static EWRAM_DATA u32 sShopMenuCount;
+static EWRAM_DATA u32 sShopMenuId;
+static EWRAM_DATA u32 sShopChoice;
+static EWRAM_DATA u32 sShopOpened;
+static EWRAM_DATA u32 sShopCategory;
+
+static bool8 SkipShopPresentation(struct ScriptContext *ctx)
+{
+    if (ctx->scriptPtr[-1] == SCR_OP_MESSAGE)
+        ctx->scriptPtr += 4;
+    else if (ctx->scriptPtr[-1] == SCR_OP_CALL_STD)
+        ctx->scriptPtr++;
+    return TRUE;
+}
+
+static bool8 ChooseShopCategory(struct ScriptContext *ctx)
+{
+    ctx->scriptPtr += 2;
+    sShopMenuId = ScriptReadByte(ctx);
+    ctx->scriptPtr++;
+    gSpecialVar_Result = sShopMenuCount++ == 0 ? sShopChoice : 127;
+    return TRUE;
+}
+
+static bool8 CaptureShopNative(struct ScriptContext *ctx)
+{
+    u32 pointer = ScriptReadWord(ctx) & ~0x02000000;
+    if (pointer == (u32)OpenSlateportShop)
+    {
+        sShopOpened++;
+        sShopCategory = gSpecialVar_0x8004;
+        gSpecialVar_Result = TRUE;
+        return TRUE;
+    }
+    ctx->scriptPtr -= 4;
+    return gScriptCmdTable[SCR_OP_CALLNATIVE](ctx);
+}
+
+TEST("Slateport shops route sellers directly when locked and offer the correct unlocked categories")
+{
+    ScrCmdFunc commands[256];
+    u32 commandCount = gScriptCmdTableEnd - gScriptCmdTable;
+    const u8 presentation[] = {SCR_OP_MESSAGE, SCR_OP_WAITMESSAGE, SCR_OP_CALL_STD,
+        SCR_OP_LOCK, SCR_OP_RELEASE, SCR_OP_FACEPLAYER, SCR_OP_WAITSTATE};
+    const u8 *const scripts[] = {SlateportCity_EventScript_EnergyGuru, SlateportCity_EventScript_FormShop};
+    const u8 formCategories[] = {SLATEPORT_SHOP_FORMS, SLATEPORT_SHOP_MEGA, SLATEPORT_SHOP_Z,
+        SLATEPORT_SHOP_TERA, SLATEPORT_SHOP_GEMS};
+
+    memcpy(commands, gScriptCmdTable, commandCount * sizeof(*commands));
+    for (u32 i = 0; i < ARRAY_COUNT(presentation); i++)
+        commands[presentation[i]] = SkipShopPresentation;
+    commands[SCR_OP_MULTICHOICE] = ChooseShopCategory;
+    commands[SCR_OP_CALLNATIVE] = CaptureShopNative;
+    for (u32 mask = 0; mask < 4; mask++)
+        for (u32 seller = 0; seller < ARRAY_COUNT(scripts); seller++)
+            for (u32 choice = 0; choice < (seller ? 6 : 3); choice++)
+            {
+                struct ScriptContext ctx;
+                InitEventData();
+                if (mask & 1)
+                    FlagSet(FLAG_RUN_RULE_LIMIT_SLATEPORT_SHOP);
+                if (mask & 2)
+                    FlagSet(FLAG_IS_CHAMPION);
+                bool32 available = !(mask & 1) || (mask & 2);
+                bool32 cancel = choice == (seller ? 5 : 2);
+                sShopChoice = choice;
+                sShopMenuCount = sShopOpened = 0;
+                InitScriptContext(&ctx, commands, commands + commandCount);
+                SetupBytecodeScript(&ctx, scripts[seller]);
+                u32 steps = 0;
+                while (RunScriptCommand(&ctx))
+                    EXPECT(++steps < 200);
+                EXPECT_EQ(sShopMenuCount, available ? (cancel ? 1 : 2) : 0);
+                EXPECT_EQ(sShopOpened, available && cancel ? 0 : 1);
+                if (available)
+                    EXPECT_EQ(sShopMenuId, seller ? MULTI_SLATEPORT_STOCK : MULTI_SLATEPORT_SUPPLIES);
+                if (sShopOpened)
+                    EXPECT_EQ(sShopCategory, !available ? (seller ? SLATEPORT_SHOP_FORMS : SLATEPORT_SHOP_ENERGY)
+                        : seller ? formCategories[choice] : choice ? SLATEPORT_SHOP_MINTS : SLATEPORT_SHOP_ENERGY);
+            }
+    InitEventData();
 }

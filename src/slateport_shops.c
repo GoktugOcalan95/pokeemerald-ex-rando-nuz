@@ -7,7 +7,7 @@
 #include "pokemon.h"
 #include "string_util.h"
 
-static EWRAM_DATA u8 sStockCategories[ITEMS_COUNT] = {0};
+static EWRAM_DATA u16 sStockCategories[ITEMS_COUNT] = {0};
 static EWRAM_DATA bool8 sStockReady = FALSE;
 
 static bool32 IsAvailableSpecies(u32 species)
@@ -110,6 +110,9 @@ static void InitStockCategories(void)
         case ITEM_TYPE_TERA_SHARD:
             AddStockItem(item, SLATEPORT_SHOP_TERA);
             break;
+        case ITEM_TYPE_GEM:
+            AddStockItem(item, SLATEPORT_SHOP_GEMS);
+            break;
         case ITEM_TYPE_NATURE_MINT:
             AddStockItem(item, SLATEPORT_SHOP_MINTS);
             break;
@@ -133,11 +136,21 @@ static s32 CompareNames(u16 left, u16 right)
     return StringCompare(leftName, rightName);
 }
 
+static bool32 IsSpecialStockAvailable(void)
+{
+    return !FlagGet(FLAG_RUN_RULE_LIMIT_SLATEPORT_SHOP) || FlagGet(FLAG_IS_CHAMPION);
+}
+
+void CheckSlateportSpecialStock(void)
+{
+    gSpecialVar_Result = IsSpecialStockAvailable();
+}
+
 u32 BuildSlateportShopStock(u32 category, u16 *items)
 {
     u32 count = 0;
     InitStockCategories();
-    if (category < SLATEPORT_SHOP_COUNT && (category < SLATEPORT_SHOP_MEGA || FlagGet(FLAG_IS_CHAMPION)))
+    if (category < SLATEPORT_SHOP_COUNT && (category < SLATEPORT_SHOP_MEGA || IsSpecialStockAvailable()))
     {
         for (u32 item = 1; item < ITEMS_COUNT; item++)
         {
@@ -195,7 +208,7 @@ bool32 TryGiveSlateportPurchase(u32 category, u16 item, u16 count)
     InitStockCategories();
     if (category >= SLATEPORT_SHOP_COUNT || item <= ITEM_NONE || item >= ITEMS_COUNT || count == 0
      || !(sStockCategories[item] & (1 << category)) || !IsItemShopCriteriaFulfilled(item)
-     || (category >= SLATEPORT_SHOP_MEGA && !FlagGet(FLAG_IS_CHAMPION))
+     || (category >= SLATEPORT_SHOP_MEGA && !IsSpecialStockAvailable())
      || (GetItemImportance(item) && (count != 1 || CheckBagHasItem(item, 1) || CheckPCHasItem(item, 1)))
      || !CheckBagHasSpace(item, count) || !AddBagItem(item, count))
         return FALSE;

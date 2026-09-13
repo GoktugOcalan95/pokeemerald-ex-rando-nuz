@@ -10,5 +10,6 @@ u32 GetSlateportItemPrice(u16 item, bool32 discount);
 u32 LimitSlateportResalePrice(u16 item, u32 price);
 bool32 TryGiveSlateportPurchase(u32 category, u16 item, u16 count);
 void OpenSlateportShop(void);
+void CheckSlateportSpecialStock(void);
 
 #endif

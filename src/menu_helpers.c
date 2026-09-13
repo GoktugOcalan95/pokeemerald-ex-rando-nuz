@@ -24,6 +24,7 @@ static void Task_CallYesOrNoCallback(u8 taskId);
 
 EWRAM_DATA static struct YesNoFuncTable sYesNo = {0};
 EWRAM_DATA static u8 sMessageWindowId = 0;
+EWRAM_DATA static u8 sMessageDisplayFrames = 0;
 
 static TaskFunc sMessageNextTask;
 
@@ -120,6 +121,12 @@ void SetVBlankHBlankCallbacksToNull(void)
 
 void DisplayMessageAndContinueTask(u8 taskId, u8 windowId, u16 tileNum, u8 paletteNum, u8 fontId, u8 textSpeed, const u8 *string, void *taskFunc)
 {
+    DisplayMessageAndContinueTaskWithMinimumDuration(taskId, windowId, tileNum, paletteNum, fontId, textSpeed, string, taskFunc, 0);
+}
+
+void DisplayMessageAndContinueTaskWithMinimumDuration(u8 taskId, u8 windowId, u16 tileNum, u8 paletteNum, u8 fontId, u8 textSpeed, const u8 *string, void *taskFunc, u8 minFrames)
+{
+    sMessageDisplayFrames = minFrames;
     sMessageWindowId = windowId;
     DrawDialogFrameWithCustomTileAndPalette(windowId, TRUE, tileNum, paletteNum);
 
@@ -141,7 +148,14 @@ bool16 RunTextPrintersRetIsActive(u8 textPrinterId)
 static void Task_ContinueTaskAfterMessagePrints(u8 taskId)
 {
     if (!RunTextPrintersRetIsActive(sMessageWindowId))
+    {
+        if (sMessageDisplayFrames != 0)
+        {
+            sMessageDisplayFrames--;
+            return;
+        }
         sMessageNextTask(taskId);
+    }
 }
 
 void DoYesNoFuncWithChoice(u8 taskId, const struct YesNoFuncTable *data)

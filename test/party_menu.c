@@ -86,7 +86,7 @@ TEST("Party menu messages remain readable in Auto and wait for input in Instant"
     gMain.heldKeys = 0;
     taskId = DisplayPartyMenuMessage(gText_WontHaveEffect, TRUE);
 
-    for (u32 frame = 0; frame < 48; frame++)
+    for (u32 frame = 0; frame < 64; frame++)
     {
         EXPECT(IsPartyMenuTextPrinterActive());
         gTasks[taskId].func(taskId);

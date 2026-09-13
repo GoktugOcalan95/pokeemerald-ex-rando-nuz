@@ -1244,7 +1244,7 @@ void DisplayItemMessage(u8 taskId, u8 fontId, const u8 *str, TaskFunc callback)
 
     tMsgWindowId = AddItemMessageWindow(ITEMWIN_MESSAGE);
     FillWindowPixelBuffer(tMsgWindowId, PIXEL_FILL(1));
-    DisplayMessageAndContinueTask(taskId, tMsgWindowId, 10, 13, fontId, GetPlayerTextSpeedDelay(), str, callback);
+    DisplayMessageAndContinueTaskWithMinimumDuration(taskId, tMsgWindowId, 10, 13, fontId, GetPlayerTextSpeedDelay(), str, callback, GetPlayerTextSpeed() == OPTIONS_TEXT_SPEED_AUTO ? 64 : 0);
     ScheduleBgCopyTilemapToVram(1);
 }
 

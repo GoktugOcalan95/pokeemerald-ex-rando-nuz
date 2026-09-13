@@ -1526,7 +1526,7 @@ static void CreatePyramidBagYesNo(u8 taskId, const struct YesNoFuncTable *yesNoT
 void DisplayItemMessageInBattlePyramid(u8 taskId, const u8 *str, TaskFunc callback)
 {
     FillWindowPixelBuffer(WIN_MSG, PIXEL_FILL(1));
-    DisplayMessageAndContinueTask(taskId, WIN_MSG, 0xA, 0xD, FONT_NORMAL, GetPlayerTextSpeedDelay(), str, callback);
+    DisplayMessageAndContinueTaskWithMinimumDuration(taskId, WIN_MSG, 0xA, 0xD, FONT_NORMAL, GetPlayerTextSpeedDelay(), str, callback, GetPlayerTextSpeed() == OPTIONS_TEXT_SPEED_AUTO ? 64 : 0);
     ScheduleBgCopyTilemapToVram(1);
 }
 

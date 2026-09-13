@@ -2014,7 +2014,7 @@ u8 *GetMonNickname(struct Pokemon *mon, u8 *dest)
 
 #define tKeepOpen  data[0]
 #define tAutoDisplayFrames data[1]
-#define PARTY_MENU_AUTO_DISPLAY_FRAMES 48
+#define PARTY_MENU_AUTO_DISPLAY_FRAMES 64
 
 u8 DisplayPartyMenuMessage(const u8 *str, bool8 keepOpen)
 {

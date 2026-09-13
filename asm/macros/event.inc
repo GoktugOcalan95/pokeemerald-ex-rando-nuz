@@ -3099,7 +3099,7 @@
 	call EventScript_BrailleCursorWaitButton
 	.endm
 
-	.macro msgbox_timed text:req, delay=48
+	.macro msgbox_timed text:req, delay=64
 	message \text
 	waitmessage
 	.byte SCR_OP_WAITBUTTONPRESSDELAYED

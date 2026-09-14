@@ -471,7 +471,7 @@ static const u8 *const sRunSetupPresetNames[] =
     [RUN_SETUP_PRESET_BISHEY] = sText_RunSetupBishey,
     [RUN_SETUP_PRESET_CUSTOM] = sText_RunSetupCustom,
 };
-static const u8 sText_RunSetupTitle[] = _("RUN RULES");
+static const u8 sText_RunSetupTitle[] = _("NEW RUN RULES");
 static const u8 sText_RunSetupControls[] = _("{COLOR RED}{LEFT_ARROW}/{RIGHT_ARROW}{COLOR BLUE}: Change   {COLOR RED}L/R{COLOR BLUE}: Category");
 static const u8 sText_RunSetupBegin[] = _("{COLOR RED}START{COLOR BLUE}: Begin");
 static const u8 sText_RunSetupLeft[] = _("{LEFT_ARROW}");
@@ -487,7 +487,7 @@ static const u8 sText_RunSetupCategoryTRAINERS[] = _("Trainers");
 static const u8 sText_RunSetupCategoryBATTLE[] = _("Battle");
 static const u8 sText_RunSetupCategoryTRAINING[] = _("Training");
 static const u8 sText_RunSetupCategoryITEMS[] = _("Items");
-static const u8 sText_RunSetupCategoryGIMMICK_BANS[] = _("Gimmick bans");
+static const u8 sText_RunSetupCategoryGIMMICK_BANS[] = _("Gimmick Bans");
 static const u8 sText_RunSetupCategoryPROGRESSION[] = _("Progression");
 static const u8 sText_RunSetupCategoryMISC[] = _("Misc");
 static const u8 *const sRunSetupCategoryNames[] =

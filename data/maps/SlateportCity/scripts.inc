@@ -1429,7 +1429,8 @@ SlateportCity_EventScript_FormShopExit::
 SlateportCity_Text_FormShop:
 	.string "I sell items to change Pokémon forms.\p"
 	.string "Become Champion to buy Mega Stones,\n"
-	.string "Z-Crystals, Tera Shards, and mints!$"
+	.string "Z-Crystals, Tera Shards, Type Gems,\l"
+	.string "and nature mints!$"
 
 SlateportCity_Text_ChooseStock:
 	.string "Which items would you like to see?$"

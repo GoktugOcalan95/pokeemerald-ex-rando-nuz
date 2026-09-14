@@ -104,7 +104,7 @@ MauvilleCity_BikeShop_Text_MachroSteering:
 
 MauvilleCity_BikeShop_Text_MachroControls:
 	.string "Blue is MACH, orange is ACRO.\n"
-	.string "Stop, then press L + B to switch!$"
+	.string "While still, press L + B to switch!$"
 
 MauvilleCity_BikeShop_EventScript_Assistant::
 	msgbox MauvilleCity_BikeShop_Text_HandbooksAreInBack, MSGBOX_NPC

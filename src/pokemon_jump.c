@@ -1,4 +1,5 @@
 #include "global.h"
+#include "item_randomizer.h"
 #include "malloc.h"
 #include "battle_anim.h"
 #include "bg.h"
@@ -1332,6 +1333,7 @@ static bool32 TryGivePrize(void)
     {
     case 0:
         UnpackPrizeData(sPokemonJump->comm.data, &sPokemonJump->prizeItemId, &sPokemonJump->prizeItemQuantity);
+        sPokemonJump->prizeItemId = RandomizeItemReward(sPokemonJump->prizeItemId, ITEM_REWARD_PRIZE, ITEM_PRIZE_POKEMON_JUMP, 0);
         PrintPrizeMessage(sPokemonJump->prizeItemId, sPokemonJump->prizeItemQuantity);
         sPokemonJump->helperState++;
         break;

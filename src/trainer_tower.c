@@ -1,4 +1,5 @@
 #include "global.h"
+#include "item_randomizer.h"
 #include "battle.h"
 #include "battle_main.h"
 #include "battle_setup.h"
@@ -732,7 +733,7 @@ static void GetOwnerState(void)
 static void GiveChallengePrize(void)
 {
 #if FREE_TRAINER_TOWER == FALSE && IS_FRLG
-    enum Item itemId = sPrizeList[sTrainerTowerState->data.floors->prize];
+    enum Item itemId = RandomizeItemReward(sPrizeList[sTrainerTowerState->data.floors->prize], ITEM_REWARD_PRIZE, ITEM_PRIZE_TRAINER_TOWER, 0);
 
     if (TRAINER_TOWER.receivedPrize)
     {

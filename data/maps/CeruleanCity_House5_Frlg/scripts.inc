@@ -142,7 +142,7 @@ CeruleanCity_House5_EventScript_ExchangePowderForItem::
 	copyvar VAR_0x8004, VAR_0x8009
 	specialvar VAR_RESULT, HasEnoughBerryPowder
 	goto_if_eq VAR_RESULT, FALSE, CeruleanCity_House5_EventScript_NotEnoughBerryPowder
-	giveitem VAR_0x8008
+	giveitem_fixed VAR_0x8008
 	goto_if_eq VAR_RESULT, FALSE, CeruleanCity_House5_EventScript_BagIsFull
 	copyvar VAR_0x8004, VAR_0x8009
 	special TakeBerryPowder

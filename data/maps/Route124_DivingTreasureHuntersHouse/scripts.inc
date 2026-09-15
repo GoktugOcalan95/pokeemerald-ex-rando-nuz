@@ -251,7 +251,7 @@ Route124_DivingTreasureHuntersHouse_EventScript_TryTradeShard::
 
 Route124_DivingTreasureHuntersHouse_EventScript_TradeShard::
 	removeitem VAR_0x8008
-	giveitem VAR_0x8009
+	giveitem_fixed VAR_0x8009
 	msgbox Route124_DivingTreasureHuntersHouse_Text_ItsADeal, MSGBOX_DEFAULT
 	call Route124_DivingTreasureHuntersHouse_EventScript_GetPlayersShards
 	goto_if_eq VAR_TEMP_1, 0, Route124_DivingTreasureHuntersHouse_EventScript_EndTrade

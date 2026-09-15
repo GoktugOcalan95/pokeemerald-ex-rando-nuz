@@ -15,6 +15,21 @@ enum ItemRewardDomain
     ITEM_REWARD_GIFT_HELD,
     ITEM_REWARD_TRADE_HELD,
     ITEM_REWARD_FACILITY_HELD,
+    ITEM_REWARD_PRIZE,
+};
+
+enum ItemPrizeSource
+{
+    ITEM_PRIZE_ARENA,
+    ITEM_PRIZE_PALACE,
+    ITEM_PRIZE_PYRAMID,
+    ITEM_PRIZE_VERDANTURF_TENT,
+    ITEM_PRIZE_FALLARBOR_TENT,
+    ITEM_PRIZE_SLATEPORT_TENT,
+    ITEM_PRIZE_TRAINER_HILL,
+    ITEM_PRIZE_TRAINER_TOWER,
+    ITEM_PRIZE_POKEMON_JUMP,
+    ITEM_PRIZE_DODRIO,
 };
 
 bool32 IsRandomizedRewardItemAllowed(u16 item);
@@ -22,5 +37,6 @@ u16 RandomizeItemReward(u16 original, u32 domain, u32 source, u32 slot);
 void RandomizePickupFromScript(void);
 void RandomizeHiddenItemFromScript(void);
 void RandomizeGiftFromScript(struct ScriptContext *ctx);
+void RandomizeFreeGiftFromScript(struct ScriptContext *ctx);
 
 #endif

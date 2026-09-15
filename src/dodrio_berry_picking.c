@@ -1,4 +1,5 @@
 #include "global.h"
+#include "item_randomizer.h"
 #include "malloc.h"
 #include "bg.h"
 #include "decompress.h"
@@ -2695,7 +2696,7 @@ static void ResetPickState(void)
 
 static u16 GetPrizeItemId(void)
 {
-    return BerryTypeToItemId(sGame->berryResults[sGame->multiplayerId][BERRY_PRIZE]);
+    return RandomizeItemReward(BerryTypeToItemId(sGame->berryResults[sGame->multiplayerId][BERRY_PRIZE]), ITEM_REWARD_PRIZE, ITEM_PRIZE_DODRIO, 0);
 }
 
 static u8 GetNumPlayers(void)

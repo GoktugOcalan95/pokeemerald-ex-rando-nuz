@@ -1,4 +1,5 @@
 #include "global.h"
+#include "item_randomizer.h"
 #include "battle_pyramid.h"
 #include "battle_pyramid_bag.h"
 #include "event_data.h"
@@ -956,9 +957,11 @@ static void SetBattlePyramidPrize(void)
 
 static void GiveBattlePyramidPrize(void)
 {
-    if (AddBagItem(gSaveBlock2Ptr->frontier.pyramidPrize, 1) == TRUE)
+    u16 item = RandomizeItemReward(gSaveBlock2Ptr->frontier.pyramidPrize, ITEM_REWARD_PRIZE, ITEM_PRIZE_PYRAMID, 0);
+
+    if (AddBagItem(item, 1) == TRUE)
     {
-        CopyItemName(gSaveBlock2Ptr->frontier.pyramidPrize, gStringVar1);
+        CopyItemName(item, gStringVar1);
         gSaveBlock2Ptr->frontier.pyramidPrize = 0;
         gSpecialVar_Result = TRUE;
     }

@@ -2152,9 +2152,20 @@
 	@ message indicates there is no room, and VAR_RESULT is set to FALSE.
 	@ Otherwise VAR_RESULT is set to TRUE, and the message indicates they have received the item(s).
 	.macro giveitem item:req, amount=1
+	resolveitem_reward \item, \amount
+	callstd STD_OBTAIN_ITEM
+	.endm
+
+	.macro giveitem_fixed item:req, amount=1
 	setorcopyvar VAR_0x8000, \item
 	setorcopyvar VAR_0x8001, \amount
 	callstd STD_OBTAIN_ITEM
+	.endm
+
+	.macro resolveitem_reward item:req, amount=1
+	setorcopyvar VAR_0x8000, \item
+	setorcopyvar VAR_0x8001, \amount
+	callnative RandomizeFreeGiftFromScript
 	.endm
 
 	.macro resolveitem_random item:req, source:req, amount=1, slot=0
@@ -3076,8 +3087,19 @@
 
 	@ Adds the specified item to the bag, then prints a message with fanfare. See description of msgreceiveditem.
 	.macro giveitem_msg msg:req, item:req, amount=1, fanfare=MUS_LEVEL_UP
-	additem \item, \amount
-	msgreceiveditem \msg, \item, \amount, \fanfare
+	setorcopyvar VAR_0x8000, \item
+	setorcopyvar VAR_0x8001, \amount
+	goto_if_unset FLAG_RUN_RULE_ITEMS, .Lfixed_item_message_\@
+	checkitemtype VAR_0x8000
+	goto_if_eq VAR_RESULT, POCKET_KEY_ITEMS, .Lfixed_item_message_\@
+	goto_if_eq VAR_RESULT, POCKET_TM_HM, .Lfixed_item_message_\@
+	callnative RandomizeFreeGiftFromScript
+	callstd STD_OBTAIN_ITEM
+	goto .Litem_message_end_\@
+.Lfixed_item_message_\@:
+	additem VAR_0x8000, VAR_0x8001
+	msgreceiveditem \msg, VAR_0x8000, VAR_0x8001, \fanfare
+.Litem_message_end_\@:
 	.endm
 
 	@ Depends on the provided function. With the default argument, unlocks the specified entry in the Fame Checker.

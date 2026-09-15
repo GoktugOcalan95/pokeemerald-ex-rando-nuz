@@ -17,7 +17,7 @@ TEST("Item randomizer protects progression and empty held slots in every domain"
 {
     const u16 protected[] = {ITEM_NONE, ITEM_HM_SURF, ITEM_TM_FOCUS_PUNCH, ITEM_TOGGLE_REPEL, ITEM_DEVON_GOODS};
     FlagSet(FLAG_RUN_RULE_ITEMS);
-    for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_FACILITY_HELD; domain++)
+    for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_PRIZE; domain++)
         for (u32 i = 0; i < ARRAY_COUNT(protected); i++)
             EXPECT_EQ(RandomizeItemReward(protected[i], domain, 123, 2), protected[i]);
     EXPECT_EQ(RandomizeItemReward(ITEM_RED_ORB, ITEM_REWARD_GIFT, 2, 0), ITEM_RED_ORB);
@@ -45,7 +45,7 @@ TEST("Item randomizer excludes unfinished items and retains indirect uses")
     for (u32 i = 0; i < ARRAY_COUNT(retained); i++)
         EXPECT(IsRandomizedRewardItemAllowed(retained[i]));
     FlagClear(FLAG_RUN_RULE_ITEMS);
-    for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_FACILITY_HELD; domain++)
+    for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_PRIZE; domain++)
         for (u32 i = 0; i < ARRAY_COUNT(excluded); i++)
             EXPECT_EQ(RandomizeItemReward(excluded[i], domain, 123, 0), excluded[i]);
 }
@@ -63,7 +63,7 @@ TEST("Item randomizer shares ability item exclusions and refreshes the No EVs po
     {
         if (evs)
             FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
-        for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_FACILITY_HELD; domain++)
+        for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_PRIZE; domain++)
             for (u32 source = 0; source < 256; source++)
                 EXPECT(IsRandomizedRewardItemAllowed(RandomizeItemReward(ITEM_POTION, domain, source, 0)));
     }
@@ -108,6 +108,26 @@ TEST("Item randomizer gift macro preserves quantity and resolves the same daily 
     EXPECT_EQ(gSpecialVar_0x8000, item);
     EXPECT_EQ(gSpecialVar_0x8001, 3);
     FlagClear(FLAG_RUN_RULE_ITEMS);
+}
+
+TEST("Item randomizer free gifts keep a single replacement and the full stack quantity")
+{
+    const u8 *script = OVERWORLD_SCRIPT(resolveitem_reward ITEM_POKE_BALL, 5; additem VAR_0x8000, VAR_0x8001;);
+    ClearBag();
+    FlagClear(FLAG_RUN_RULE_ITEMS);
+    RunScriptImmediately(script);
+    EXPECT_EQ(CountTotalItemQuantityInBag(ITEM_POKE_BALL), 5);
+    ClearBag();
+    FlagSet(FLAG_RUN_RULE_ITEMS);
+    RunScriptImmediately(script);
+    u16 item = gSpecialVar_0x8000;
+    EXPECT(IsRandomizedRewardItemAllowed(item));
+    EXPECT_EQ(CountTotalItemQuantityInBag(item), 5);
+    ClearBag();
+    RunScriptImmediately(script);
+    EXPECT_EQ(gSpecialVar_0x8000, item);
+    EXPECT_EQ(CountTotalItemQuantityInBag(item), 5);
+    ClearBag();
 }
 
 TEST("Item randomizer starting PC uses saved rules and preserves the starting quantity")
@@ -216,7 +236,7 @@ TEST("Ban Slateport items uses pre-Champion stock and leaves shops and mints int
     EXPECT(!IsRandomizedRewardItemAllowed(ITEM_THUNDER_STONE));
     ClearBag();
     EXPECT(TryGiveSlateportPurchase(SLATEPORT_SHOP_TM, ITEM_THUNDER_STONE, 1));
-    for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_FACILITY_HELD; domain++)
+    for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_PRIZE; domain++)
         for (u32 source = 0; source < 100; source++)
             EXPECT(!IsSlateportPreChampionItem(RandomizeItemReward(ITEM_POTION, domain, source, 0)));
     FlagClear(FLAG_RUN_RULE_BAN_SLATEPORT);
@@ -275,7 +295,7 @@ TEST("Ban gimmick categories filter independently and refresh every reward domai
         EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_MINT));
         EXPECT(IsRandomizedRewardItemAllowed(ITEM_THUNDER_STONE));
         EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_CRYSTAL));
-        for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_FACILITY_HELD; domain++)
+        for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_PRIZE; domain++)
             for (u32 source = 0; source < 64; source++)
                 EXPECT_EQ(RandomizeItemReward(ITEM_POTION, domain, source, 0),
                     pool[RunRandomizerHash(domain, source, 0) % count]);
@@ -324,7 +344,7 @@ TEST("Ban in-battle items excludes exact unwanted rewards and retains useful sup
     FlagSet(FLAG_RUN_RULE_BAN_TERA_SHARDS);
     FlagSet(FLAG_RUN_RULE_BAN_TYPE_GEMS);
     FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
-    for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_FACILITY_HELD; domain++)
+    for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_PRIZE; domain++)
         for (u32 source = 0; source < 256; source++)
             EXPECT(IsRandomizedRewardItemAllowed(RandomizeItemReward(ITEM_POTION, domain, source, 0)));
     EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_MINT));

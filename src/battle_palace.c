@@ -1,4 +1,5 @@
 #include "global.h"
+#include "item_randomizer.h"
 #include "event_data.h"
 #include "battle_setup.h"
 #include "overworld.h"
@@ -200,9 +201,11 @@ static void SetRandomPalacePrize(void)
 
 static void GivePalacePrize(void)
 {
-    if (AddBagItem(gSaveBlock2Ptr->frontier.palacePrize, 1) == TRUE)
+    u16 item = RandomizeItemReward(gSaveBlock2Ptr->frontier.palacePrize, ITEM_REWARD_PRIZE, ITEM_PRIZE_PALACE, 0);
+
+    if (AddBagItem(item, 1) == TRUE)
     {
-        CopyItemName(gSaveBlock2Ptr->frontier.palacePrize, gStringVar1);
+        CopyItemName(item, gStringVar1);
         gSaveBlock2Ptr->frontier.palacePrize = 0;
         gSpecialVar_Result = TRUE;
     }

@@ -105,7 +105,7 @@ MtChimney_EventScript_LavaCookieLady::
 	checkitemspace ITEM_LAVA_COOKIE
 	call_if_eq VAR_RESULT, TRUE, MtChimney_EventScript_RemoveMoney
 .if OW_SHOW_ITEM_DESCRIPTIONS == OW_ITEM_DESCRIPTIONS_OFF
-	giveitem ITEM_LAVA_COOKIE
+	giveitem_fixed ITEM_LAVA_COOKIE
 	goto_if_eq VAR_RESULT, FALSE, MtChimney_EventScript_BagIsFull
 	hidemoneybox
 	release
@@ -118,7 +118,7 @@ MtChimney_EventScript_BagIsFull::
 	end
 .else
 	hidemoneybox
-	giveitem ITEM_LAVA_COOKIE
+	giveitem_fixed ITEM_LAVA_COOKIE
 	goto_if_eq VAR_RESULT, FALSE, MtChimney_EventScript_BagIsFull
 	release
 	end

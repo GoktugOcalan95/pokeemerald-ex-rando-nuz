@@ -5,6 +5,7 @@
 #include "save.h"
 #include "test/test.h"
 #include "constants/opponents.h"
+#include "constants/flags.h"
 #include "constants/vars.h"
 
 static void ResetRewards(void)
@@ -28,6 +29,7 @@ TEST("Boss rewards retain fixed assignments in either progression order")
     PARAMETRIZE { reverse = TRUE; }
 
     ResetRewards();
+    FlagSet(FLAG_RUN_RULE_ITEMS);
     for (u32 i = 0; i < ARRAY_COUNT(trainers); i++)
     {
         u32 index = reverse ? ARRAY_COUNT(trainers) - 1 - i : i;

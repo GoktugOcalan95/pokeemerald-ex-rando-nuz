@@ -104,3 +104,8 @@ void RandomizeGiftFromScript(struct ScriptContext *ctx)
     u32 slot = ScriptReadByte(ctx);
     gSpecialVar_0x8000 = RandomizeItemReward(gSpecialVar_0x8000, ITEM_REWARD_GIFT, source, slot);
 }
+
+void RandomizeFreeGiftFromScript(struct ScriptContext *ctx)
+{
+    gSpecialVar_0x8000 = RandomizeItemReward(gSpecialVar_0x8000, ITEM_REWARD_GIFT, (u32)ctx->scriptPtr, 0);
+}

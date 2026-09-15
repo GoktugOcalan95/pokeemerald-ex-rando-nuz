@@ -315,7 +315,7 @@ CeladonCity_GameCorner_PrizeRoom_EventScript_TryGivePrize::
 	goto_if_eq VAR_RESULT, FALSE, CeladonCity_GameCorner_PrizeRoom_EventScript_BagFull
 	removecoins VAR_TEMP_2
 	updatecoinsbox
-	giveitem VAR_TEMP_1
+	giveitem_fixed VAR_TEMP_1
 	goto CeladonCity_GameCorner_PrizeRoom_EventScript_EndPrizeExchange
 	end
 

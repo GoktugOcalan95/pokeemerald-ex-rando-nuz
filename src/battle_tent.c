@@ -1,4 +1,5 @@
 #include "global.h"
+#include "item_randomizer.h"
 #include "battle_tent.h"
 #include "overworld.h"
 #include "event_data.h"
@@ -153,9 +154,11 @@ static void SetRandomVerdanturfTentPrize(void)
 
 static void GiveVerdanturfTentPrize(void)
 {
-    if (AddBagItem(gSaveBlock2Ptr->frontier.verdanturfTentPrize, 1) == TRUE)
+    u16 item = RandomizeItemReward(gSaveBlock2Ptr->frontier.verdanturfTentPrize, ITEM_REWARD_PRIZE, ITEM_PRIZE_VERDANTURF_TENT, 0);
+
+    if (AddBagItem(item, 1) == TRUE)
     {
-        CopyItemName(gSaveBlock2Ptr->frontier.verdanturfTentPrize, gStringVar1);
+        CopyItemName(item, gStringVar1);
         gSaveBlock2Ptr->frontier.verdanturfTentPrize = ITEM_NONE;
         gSpecialVar_Result = TRUE;
     }
@@ -204,9 +207,11 @@ static void SetRandomFallarborTentPrize(void)
 
 static void GiveFallarborTentPrize(void)
 {
-    if (AddBagItem(gSaveBlock2Ptr->frontier.fallarborTentPrize, 1) == TRUE)
+    u16 item = RandomizeItemReward(gSaveBlock2Ptr->frontier.fallarborTentPrize, ITEM_REWARD_PRIZE, ITEM_PRIZE_FALLARBOR_TENT, 0);
+
+    if (AddBagItem(item, 1) == TRUE)
     {
-        CopyItemName(gSaveBlock2Ptr->frontier.fallarborTentPrize, gStringVar1);
+        CopyItemName(item, gStringVar1);
         gSaveBlock2Ptr->frontier.fallarborTentPrize = ITEM_NONE;
         gSpecialVar_Result = TRUE;
     }
@@ -260,9 +265,11 @@ static void SetRandomSlateportTentPrize(void)
 
 static void GiveSlateportTentPrize(void)
 {
-    if (AddBagItem(gSaveBlock2Ptr->frontier.slateportTentPrize, 1) == TRUE)
+    u16 item = RandomizeItemReward(gSaveBlock2Ptr->frontier.slateportTentPrize, ITEM_REWARD_PRIZE, ITEM_PRIZE_SLATEPORT_TENT, 0);
+
+    if (AddBagItem(item, 1) == TRUE)
     {
-        CopyItemName(gSaveBlock2Ptr->frontier.slateportTentPrize, gStringVar1);
+        CopyItemName(item, gStringVar1);
         gSaveBlock2Ptr->frontier.slateportTentPrize = ITEM_NONE;
         gSpecialVar_Result = TRUE;
     }

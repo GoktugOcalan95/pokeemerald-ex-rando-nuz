@@ -1,4 +1,5 @@
 #include "global.h"
+#include "item_randomizer.h"
 #include "battle.h"
 #include "battle_arena.h"
 #include "battle_message.h"
@@ -545,9 +546,11 @@ static void SetArenaPrize(void)
 
 static void GiveArenaPrize(void)
 {
-    if (AddBagItem(gSaveBlock2Ptr->frontier.arenaPrize, 1) == TRUE)
+    u16 item = RandomizeItemReward(gSaveBlock2Ptr->frontier.arenaPrize, ITEM_REWARD_PRIZE, ITEM_PRIZE_ARENA, 0);
+
+    if (AddBagItem(item, 1) == TRUE)
     {
-        CopyItemName(gSaveBlock2Ptr->frontier.arenaPrize, gStringVar1);
+        CopyItemName(item, gStringVar1);
         gSaveBlock2Ptr->frontier.arenaPrize = ITEM_NONE;
         gSpecialVar_Result = TRUE;
     }

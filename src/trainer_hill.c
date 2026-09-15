@@ -1,4 +1,5 @@
 #include "global.h"
+#include "item_randomizer.h"
 #include "malloc.h"
 #include "battle.h"
 #include "battle_tower.h"
@@ -446,7 +447,7 @@ static void GetOwnerState(void)
 static void GiveChallengePrize(void)
 {
 #if FREE_TRAINER_HILL == FALSE
-    enum Item itemId = GetPrizeItemId();
+    enum Item itemId = RandomizeItemReward(GetPrizeItemId(), ITEM_REWARD_PRIZE, ITEM_PRIZE_TRAINER_HILL, 0);
 
     if (sHillData->challenge.numFloors != NUM_TRAINER_HILL_FLOORS || gSaveBlock1Ptr->trainerHill.receivedPrize)
     {

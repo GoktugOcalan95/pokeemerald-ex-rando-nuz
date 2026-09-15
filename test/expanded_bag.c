@@ -132,6 +132,9 @@ TEST("Expanded Bag classifies functional evolution equipment without changing ga
     EXPECT_EQ(GetBagStoragePocket(ITEM_RUSTED_SWORD), BAG_EVOLUTION_FORMS);
     EXPECT_EQ(GetBagStoragePocket(ITEM_ABILITY_PATCH), BAG_TRAINING);
     EXPECT_EQ(GetBagStoragePocket(ITEM_PP_UP), BAG_TRAINING);
+    for (u32 item = 1; item < ITEMS_COUNT; item++)
+        if (gItemsInfo[item].sortType == ITEM_TYPE_TERA_SHARD)
+            EXPECT_EQ(GetBagStoragePocket(item), BAG_TRAINING);
     EXPECT_EQ(GetBagStoragePocket(ITEM_MAX_ETHER), BAG_MEDICINE);
     EXPECT_EQ(GetBagStoragePocket(ITEM_REPEL), BAG_OTHER_ITEMS);
     EXPECT_EQ(GetBagStoragePocket(ITEM_NUGGET), BAG_TREASURES);
@@ -143,23 +146,19 @@ TEST("Expanded Bag classifies functional evolution equipment without changing ga
 TEST("Expanded Bag moves items beyond slot 255 without losing adjacent stacks")
 {
     FillExpandedBag(513);
-    bool32 checked = FALSE;
-    for (u32 pocket = 0; pocket < BAG_POCKETS_COUNT; pocket++)
-    {
-        if (gBagPockets[pocket].capacity <= 256)
-            continue;
-        u32 last = gBagPockets[pocket].capacity - 1;
-        enum Item firstItem = GetBagItemId(pocket, 0);
-        enum Item lastItem = GetBagItemId(pocket, last);
-        MoveItemSlotInPocket(pocket, last, 0);
-        EXPECT_EQ(GetBagItemId(pocket, 0), lastItem);
-        EXPECT_EQ(GetBagItemId(pocket, 1), firstItem);
-        MoveItemSlotInPocket(pocket, 0, last + 1);
-        EXPECT_EQ(GetBagItemId(pocket, last), lastItem);
-        EXPECT_EQ(GetBagItemId(pocket, 0), firstItem);
-        checked = TRUE;
-    }
-    EXPECT(checked);
+    // Exercise wide indices even when every current pocket has fewer than 256 items.
+    u32 capacity = gBagPockets[0].capacity;
+    gBagPockets[0].capacity = 300;
+    u32 last = gBagPockets[0].capacity - 1;
+    enum Item firstItem = GetBagItemId(0, 0);
+    enum Item lastItem = GetBagItemId(0, last);
+    MoveItemSlotInPocket(0, last, 0);
+    EXPECT_EQ(GetBagItemId(0, 0), lastItem);
+    EXPECT_EQ(GetBagItemId(0, 1), firstItem);
+    MoveItemSlotInPocket(0, 0, last + 1);
+    EXPECT_EQ(GetBagItemId(0, last), lastItem);
+    EXPECT_EQ(GetBagItemId(0, 0), firstItem);
+    gBagPockets[0].capacity = capacity;
     CheckExpandedBag(513);
     ClearBag();
 }

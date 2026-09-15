@@ -30,6 +30,7 @@ enum BagPocketId GetBagStoragePocket(enum Item item)
     {
     case ITEM_TYPE_LEVEL_UP_ITEM:
     case ITEM_TYPE_NATURE_MINT:
+    case ITEM_TYPE_TERA_SHARD:
     case ITEM_TYPE_STAT_BOOST_DRINK:
     case ITEM_TYPE_STAT_BOOST_FEATHER:
     case ITEM_TYPE_STAT_BOOST_MOCHI:
@@ -46,7 +47,6 @@ enum BagPocketId GetBagStoragePocket(enum Item item)
     case ITEM_TYPE_EVOLUTION_ITEM:
     case ITEM_TYPE_MEGA_STONE:
     case ITEM_TYPE_Z_CRYSTAL:
-    case ITEM_TYPE_TERA_SHARD:
     case ITEM_TYPE_PLATE:
     case ITEM_TYPE_MEMORY:
     case ITEM_TYPE_DRIVE:

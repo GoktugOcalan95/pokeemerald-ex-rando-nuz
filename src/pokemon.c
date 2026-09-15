@@ -5081,7 +5081,6 @@ bool8 TryIncrementMonLevel(struct Pokemon *mon)
 bool32 CanLearnTeachableMove(enum Species species, enum Move move)
 {
     const u16 *teachableLearnset = GetSpeciesTeachableLearnset(species);
-    move = GetOriginalTeachingMove(move);
     if (species == SPECIES_EGG)
         return FALSE;
     for (u32 i = 0; teachableLearnset[i] != MOVE_UNAVAILABLE; i++)

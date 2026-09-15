@@ -61,39 +61,68 @@ TEST("Teaching randomizer uses one unique TM and tutor pool and leaves HMs fixed
         EXPECT_EQ(GetTutorMove(index), gTutorMoves[index]);
 }
 
-TEST("Teaching randomizer preserves source compatibility independently of other randomizers and full compatibility")
+static bool32 HasNaturalMove(enum Species species, enum Move move)
+{
+    const u16 *teachable = GetSpeciesTeachableLearnset(species);
+    const u16 *eggs = GetSpeciesEggMoves(species);
+    const struct LevelUpMove *levels = gSpeciesInfo[species].levelUpLearnset;
+    for (u32 i = 0; teachable[i] != MOVE_UNAVAILABLE; i++)
+        if (teachable[i] == move)
+            return TRUE;
+    for (u32 i = 0; eggs[i] != MOVE_UNAVAILABLE; i++)
+        if (eggs[i] == move)
+            return TRUE;
+    if (levels != NULL)
+        for (u32 i = 0; levels[i].move != LEVEL_UP_MOVE_END; i++)
+            if (levels[i].move == move)
+                return TRUE;
+    return FALSE;
+}
+
+TEST("Teaching randomizer compatibility follows assigned moves and both level-up lists")
 {
     const u16 species[] = {SPECIES_BULBASAUR, SPECIES_MAGIKARP, SPECIES_MEW, SPECIES_SMEARGLE, SPECIES_GENGAR};
-    bool8 original[ARRAY_COUNT(species)][80];
-    for (u32 s = 0; s < ARRAY_COUNT(species); s++)
-    {
-        for (u32 i = 0; i < 50; i++)
-            original[s][i] = CanLearnTeachableMove(species[s], GetTMHMMoveId(i + 1));
-        for (u32 i = 0; i < 30; i++)
-            original[s][50 + i] = CanLearnTeachableMove(species[s], gTutorMoves[i]);
-    }
+    u32 naturalOnly = 0, randomizedOnly = 0, rejected = 0, sourceMismatch = 0;
+    gTestRunnerState.timeoutSeconds = 180;
     FlagSet(FLAG_RUN_RULE_TMS_TUTORS);
-    for (u32 options = 0; options < 4; options++)
+    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    for (u32 seed = 0; seed < 16; seed++)
     {
-        if (options & 1)
-            FlagSet(FLAG_RUN_RULE_ITEMS);
-        if (options & 2)
-            FlagSet(FLAG_RUN_RULE_LEARNSETS);
-        for (u32 s = 0; s < ARRAY_COUNT(species); s++)
+        gSaveBlock2Ptr->playerTrainerId[0] = seed;
+        for (u32 randomized = 0; randomized < 2; randomized++)
         {
-            for (u32 i = 0; i < 80; i++)
+            if (randomized)
+                FlagSet(FLAG_RUN_RULE_LEARNSETS);
+            else
+                FlagClear(FLAG_RUN_RULE_LEARNSETS);
+            for (u32 s = 0; s < ARRAY_COUNT(species); s++)
             {
-                u32 move = i < 50 ? GetTMHMMoveId(i + 1) : GetTutorMove(i - 50);
-                EXPECT_EQ(CanPlayerLearnTeachableMove(species[s], move), original[s][i]);
-                FlagSet(FLAG_RUN_RULE_FULL_COMPATIBILITY);
-                EXPECT(CanPlayerLearnTeachableMove(species[s], move));
-                FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+                const struct LevelUpMove *levels = GetSpeciesLevelUpLearnset(species[s]);
+                for (u32 i = 0; i < 80; i++)
+                {
+                    u32 move = i < 50 ? GetTMHMMoveId(i + 1) : GetTutorMove(i - 50);
+                    bool32 natural = HasNaturalMove(species[s], move), current = FALSE;
+                    for (u32 j = 0; levels[j].move != LEVEL_UP_MOVE_END; j++)
+                        current |= levels[j].move == move;
+                    EXPECT_EQ(CanPlayerLearnTeachableMove(species[s], move), natural || current);
+                    naturalOnly += natural && !current;
+                    randomizedOnly += !natural && current;
+                    rejected += !natural && !current;
+                    sourceMismatch += HasNaturalMove(species[s], GetOriginalTeachingMove(move)) != (natural || current);
+                    FlagSet(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+                    EXPECT(CanPlayerLearnTeachableMove(species[s], move));
+                    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+                }
             }
         }
-        FlagClear(FLAG_RUN_RULE_ITEMS);
-        FlagClear(FLAG_RUN_RULE_LEARNSETS);
     }
+    EXPECT_GT(naturalOnly, 0);
+    EXPECT_GT(randomizedOnly, 0);
+    EXPECT_GT(rejected, 0);
+    EXPECT_GT(sourceMismatch, 0);
     EXPECT(!CanPlayerLearnTeachableMove(SPECIES_EGG, GetTutorMove(0)));
+    FlagClear(FLAG_RUN_RULE_LEARNSETS);
+    FlagClear(FLAG_RUN_RULE_TMS_TUTORS);
 }
 
 TEST("Teaching randomizer Pokedex enumeration matches effective compatibility without duplicates")
@@ -124,12 +153,16 @@ TEST("Teaching randomizer Pokedex enumeration matches effective compatibility wi
 TEST("Teaching randomizer saves stable assignments without advancing gameplay RNG")
 {
     u16 moves[80];
+    bool8 compatible[80];
     FlagSet(FLAG_RUN_RULE_TMS_TUTORS);
     SeedRng(123);
     u32 next = Random();
     SeedRng(123);
     for (u32 i = 0; i < 80; i++)
+    {
         moves[i] = i < 50 ? GetTMHMMoveId(i + 1) : GetTutorMove(i - 50);
+        compatible[i] = CanPlayerLearnTeachableMove(SPECIES_BULBASAUR, moves[i]);
+    }
     EXPECT_EQ(Random(), next);
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
@@ -140,7 +173,10 @@ TEST("Teaching randomizer saves stable assignments without advancing gameplay RN
     EXPECT(changed);
     EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
     for (u32 i = 0; i < 80; i++)
+    {
         EXPECT_EQ(i < 50 ? GetTMHMMoveId(i + 1) : GetTutorMove(i - 50), moves[i]);
+        EXPECT_EQ(CanPlayerLearnTeachableMove(SPECIES_BULBASAUR, moves[i]), compatible[i]);
+    }
 }
 
 TEST("Teaching randomizer script and Frontier tutors resolve matching assigned moves")

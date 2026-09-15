@@ -24,6 +24,7 @@
 #include "constants/trainer_hill.h"
 #include "constants/trainer_tower.h"
 #include "constants/items.h"
+#include "run_history.h"
 #include "constants/moves.h"
 #include "config/save.h"
 
@@ -1208,6 +1209,7 @@ struct SaveBlock1
     u8 rivalName[PLAYER_NAME_LENGTH + 1];
     struct DaycareMon route5DayCareMon;
 #endif
+    struct RunDiscovery runDiscovery;
     // sizeof: 0x3???
 };
 

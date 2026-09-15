@@ -1,4 +1,5 @@
 #include "global.h"
+#include "run_history.h"
 #include "remove_story.h"
 #include "clock.h"
 #include "new_game.h"
@@ -202,6 +203,7 @@ void NewGameInitData(void)
     gPartiesCount[B_TRAINER_PLAYER] = 0;
     ZeroPlayerPartyMons();
     ResetPokemonStorageSystem();
+    RunHistory_Init();
     DeactivateAllRoamers();
     memset(gSaveBlock1Ptr->registeredItems, 0, sizeof(gSaveBlock1Ptr->registeredItems));
     ClearBag();

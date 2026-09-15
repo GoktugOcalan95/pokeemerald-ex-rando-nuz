@@ -2768,6 +2768,8 @@
 	.endm
 
 	.macro move_tutor moveId:req, wantTeachingMsg:req, monSelectMsg:req, declinedJmp:req, taughtJmp:req, flagId=0
+	setvar VAR_0x8005, \moveId
+	callnative ScriptRecordTutorOffer
 	goto_if_set FLAG_RUN_RULE_TMS_TUTORS, .LrandomTutor\@
 	.if \flagId
 		goto_if_set \flagId, \taughtJmp

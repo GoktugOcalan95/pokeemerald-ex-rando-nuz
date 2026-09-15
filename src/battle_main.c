@@ -1,4 +1,5 @@
 #include "global.h"
+#include "run_history.h"
 #include "battle.h"
 #include "battle_anim.h"
 #include "battle_ai_main.h"
@@ -5300,6 +5301,7 @@ static void HandleEndTurn_FinishBattle(void)
             TryPutBreakingNewsOnAir();
         }
 
+        RunHistory_RecordWildBattle();
         BeginFastPaletteFade(3);
         FadeOutMapMusic(5);
         TryRestoreHeldItems();

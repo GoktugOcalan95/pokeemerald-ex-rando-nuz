@@ -96,7 +96,7 @@ u16 GetRandomizedTutorMove(u16 original)
     return original;
 }
 
-u16 GetFrontierTutorMove(u32 tutor, u32 index)
+u16 GetOriginalFrontierTutorMove(u32 tutor, u32 index)
 {
     static const u16 moves[2][10] =
     {
@@ -107,7 +107,12 @@ u16 GetFrontierTutorMove(u32 tutor, u32 index)
     };
     if (tutor >= ARRAY_COUNT(moves) || index >= ARRAY_COUNT(moves[0]))
         return MOVE_NONE;
-    return GetRandomizedTutorMove(moves[tutor][index]);
+    return moves[tutor][index];
+}
+
+u16 GetFrontierTutorMove(u32 tutor, u32 index)
+{
+    return GetRandomizedTutorMove(GetOriginalFrontierTutorMove(tutor, index));
 }
 
 bool8 ScriptRandomizeTutorMove(struct ScriptContext *ctx)

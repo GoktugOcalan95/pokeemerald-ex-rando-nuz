@@ -22,7 +22,9 @@ TEST("Good move chance classifies ordinary attacks and excludes prerequisites")
     EXPECT(!IsRandomizerMoveAllowed(MOVE_STRUGGLE));
     EXPECT(!IsRandomizerMoveAllowed(FIRST_Z_MOVE));
     EXPECT(!IsRandomizerMoveAllowed(FIRST_MAX_MOVE));
-    EXPECT_EQ(GetRandomizerMovePower(MOVE_HYPER_BEAM), 67);
+    EXPECT_EQ(GetRandomizerMovePower(MOVE_HYPER_BEAM), 101);
+    EXPECT_EQ(GetRandomizerMovePower(MOVE_HYDRO_CANNON), 101);
+    EXPECT_EQ(GetRandomizerMovePower(MOVE_SOLAR_BEAM), 90);
     EXPECT_EQ(GetRandomizerMovePower(MOVE_BULLET_SEED), 77);
     EXPECT_EQ(GetRandomizerMovePower(MOVE_SWORDS_DANCE), 0);
     EXPECT_EQ(GetRandomizerMovePower(MOVE_BIDE), 16);

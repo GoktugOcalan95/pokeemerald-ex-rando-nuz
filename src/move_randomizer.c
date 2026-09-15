@@ -126,7 +126,10 @@ u32 GetRandomizerMovePower(u16 move)
     if (!IsRandomizerMoveAllowed(move) || gMovesInfo[move].category == DAMAGE_CATEGORY_STATUS)
         return 0;
     u32 power = ExpectedPower(move) * (gMovesInfo[move].accuracy ? gMovesInfo[move].accuracy : 100);
-    return power / (gMovesInfo[move].effect == EFFECT_BIDE ? 300 : RequiresExtraTurn(move) ? 200 : 100);
+    if (gMovesInfo[move].effect == EFFECT_BIDE)
+        return power / 300;
+    // Preserve burst value while discounting the extra turn.
+    return RequiresExtraTurn(move) ? power * 3 / 400 : power / 100;
 }
 
 bool32 IsRandomizerGoodAttack(u16 move)

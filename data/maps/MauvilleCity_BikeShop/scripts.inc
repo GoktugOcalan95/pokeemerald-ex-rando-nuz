@@ -2,6 +2,10 @@ MauvilleCity_BikeShop_MapScripts::
 	.byte 0
 
 MauvilleCity_BikeShop_EventScript_Rydel::
+#if OW_START_WITH_SHOES_AND_MACHRO
+	msgbox MauvilleCity_BikeShop_Text_EnjoyYourBike, MSGBOX_NPC
+	end
+#endif
 	lock
 	faceplayer
 	goto_if_set FLAG_RECEIVED_BIKE, MauvilleCity_BikeShop_EventScript_AskSwitchBikes
@@ -321,3 +325,7 @@ MauvilleCity_BikeShop_Text_MachControls:
 MauvilleCity_BikeShop_Text_AcroControls:
 	.string "Hold B to bunny-hop.\n"
 	.string "Tap B + a direction for tricks!$"
+
+MauvilleCity_BikeShop_Text_EnjoyYourBike:
+	.string "RYDEL: You've got a fine BIKE!\n"
+	.string "Enjoy the ride!$"

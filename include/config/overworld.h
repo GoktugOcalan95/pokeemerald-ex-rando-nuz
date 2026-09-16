@@ -2,6 +2,7 @@
 #define GUARD_CONFIG_OVERWORLD_H
 
 // Movement config
+#define OW_START_WITH_SHOES_AND_MACHRO TRUE
 #define OW_RUNNING_INDOORS          GEN_LATEST  // In Gen4+, players are allowed to run indoors.
 #define SLOW_MOVEMENT_ON_STAIRS     FALSE       // If enabled, the player will move slower up/down stairs like in FR
 

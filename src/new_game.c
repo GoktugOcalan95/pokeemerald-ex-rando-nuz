@@ -3,6 +3,8 @@
 #include "remove_story.h"
 #include "clock.h"
 #include "new_game.h"
+#include "config/overworld.h"
+#include "registered_items.h"
 #include "random.h"
 #include "clock.h"
 #include "pokemon.h"
@@ -242,6 +244,7 @@ void NewGameInitData(void)
     InitRemoveStory();
     NewGameInitPCItems();
     InitToggleRepel();
+    InitStartingEquipment();
 }
 
 static void ResetMiniGamesRecords(void)
@@ -265,4 +268,18 @@ static void ResetDexNav(void)
     memset(gSaveBlock3Ptr->dexNavSearchLevels, 0, sizeof(gSaveBlock3Ptr->dexNavSearchLevels));
 #endif
     gSaveBlock3Ptr->dexNavChain = 0;
+}
+
+void InitStartingEquipment(void)
+{
+    if (!OW_START_WITH_SHOES_AND_MACHRO)
+        return;
+
+    FlagSet(FLAG_SYS_B_DASH);
+    FlagSet(FLAG_RECEIVED_RUNNING_SHOES);
+    AddBagItem(ITEM_BICYCLE, 1);
+    FlagSet(FLAG_RECEIVED_BIKE);
+    FlagClear(FLAG_MACHRO_ACRO_MODE);
+    RegisterItem(RegisteredItemSlotFromKeys(DPAD_RIGHT), ITEM_BICYCLE);
+    RegisterItem(RegisteredItemSlotFromKeys(DPAD_DOWN), ITEM_TOGGLE_REPEL);
 }

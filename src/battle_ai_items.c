@@ -1,4 +1,6 @@
 #include "global.h"
+#include "event_data.h"
+#include "constants/flags.h"
 #include "battle.h"
 #include "constants/battle_ai.h"
 #include "battle_ai_items.h"
@@ -29,6 +31,9 @@ bool32 ShouldUseItem(enum BattlerId battler)
 {
     bool32 shouldUse = FALSE;
     u32 healAmount = 0;
+
+    if (FlagGet(FLAG_RUN_RULE_NO_BATTLE_ITEMS))
+        return FALSE;
 
     if (IsAiVsAiBattle())
         return FALSE;

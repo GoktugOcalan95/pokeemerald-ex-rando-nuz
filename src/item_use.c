@@ -1160,14 +1160,40 @@ static void ItemUseInBattle_ShowPartyMenu(u8 taskId)
     }
 }
 
+static const u8 sText_NoBattleItems[] = _("The No Battle Items rule\nprevents using this item.");
+
+bool32 IsBattleItemBlockedByRunRule(enum Item itemId)
+{
+    enum EffectItem usage = GetItemBattleUsage(itemId);
+    return FlagGet(FLAG_RUN_RULE_NO_BATTLE_ITEMS)
+        && usage != EFFECT_ITEM_THROW_BALL && usage != EFFECT_ITEM_ESCAPE;
+}
+
+static bool32 RejectRunRuleBattleItem(u8 taskId)
+{
+    if (!IsBattleItemBlockedByRunRule(gSpecialVar_ItemId))
+        return FALSE;
+    if (CurrentBattlePyramidLocation() == PYRAMID_LOCATION_NONE)
+        DisplayItemMessage(taskId, FONT_NORMAL, sText_NoBattleItems, CloseItemMessage);
+    else
+        DisplayItemMessageInBattlePyramid(taskId, sText_NoBattleItems, Task_CloseBattlePyramidBagMessage);
+    return TRUE;
+}
+
 void ItemUseInBattle_PartyMenu(u8 taskId)
 {
+    if (RejectRunRuleBattleItem(taskId))
+        return;
+
     gItemUseCB = ItemUseCB_BattleScript;
     ItemUseInBattle_ShowPartyMenu(taskId);
 }
 
 void ItemUseInBattle_PartyMenuChooseMove(u8 taskId)
 {
+    if (RejectRunRuleBattleItem(taskId))
+        return;
+
     gItemUseCB = ItemUseCB_BattleChooseMove;
     ItemUseInBattle_ShowPartyMenu(taskId);
 }
@@ -1209,6 +1235,12 @@ bool32 CannotUseItemsInBattle(enum Item itemId, struct Pokemon *mon)
         battlerTarget = B_POSITION_PLAYER_RIGHT;
     else
         battlerTarget = MAX_POSITION_COUNT;
+
+    if (IsBattleItemBlockedByRunRule(itemId))
+    {
+        StringCopy(gStringVar4, sText_NoBattleItems);
+        return TRUE;
+    }
 
     // Embargo Check
     if (battlerTarget < MAX_POSITION_COUNT && GetItemType(itemId) != ITEM_USE_BAG_MENU)
@@ -1330,6 +1362,9 @@ bool32 CannotUseItemsInBattle(enum Item itemId, struct Pokemon *mon)
 
 void ItemUseInBattle_BagMenu(u8 taskId)
 {
+    if (RejectRunRuleBattleItem(taskId))
+        return;
+
     gPartyMenu.slotId = gBattleStruct->itemPartyIndex[gBattlerInMenuId] = gBattlerPartyIndexes[gBattlerInMenuId];
     if (CannotUseItemsInBattle(gSpecialVar_ItemId, NULL))
     {

@@ -10,6 +10,7 @@
 #include "config/quickstart.h"
 #include "quickstart.h"
 #include "random.h"
+#include "run_setup.h"
 #include "sound.h"
 #include "sprite.h"
 #include "string_util.h"
@@ -92,6 +93,10 @@ static void CB2_SkipToNewGame(void)
 #if IS_FRLG
         StringCopy_PlayerName(gSaveBlock1Ptr->rivalName, sText_Rival);
 #endif  // IS_FRLG
+
+        RunSetup_Begin();
+        RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
+        RunSetup_Confirm();
 
         ResetSpriteData();
         FreeAllSpritePalettes();

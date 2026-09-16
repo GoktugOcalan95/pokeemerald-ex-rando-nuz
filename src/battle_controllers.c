@@ -2222,10 +2222,54 @@ static void Controller_WaitForTrainerPic(enum BattlerId battler)
         BtlController_Complete(battler);
 }
 
+static bool32 IsBattleRewardMessage(u16 stringId)
+{
+    switch (stringId)
+    {
+    case STRINGID_PKMNGAINEDEXP:
+    case STRINGID_TEAMGAINEDEXP:
+    case STRINGID_PKMNGREWTOLV:
+    case STRINGID_PKMNLEARNEDMOVE:
+    case STRINGID_TRYTOLEARNMOVE1:
+    case STRINGID_TRYTOLEARNMOVE2:
+    case STRINGID_TRYTOLEARNMOVE3:
+    case STRINGID_PKMNFORGOTMOVE:
+    case STRINGID_STOPLEARNINGMOVE:
+    case STRINGID_DIDNOTLEARNMOVE:
+    case STRINGID_123POOF:
+    case STRINGID_ANDELLIPSIS:
+    case STRINGID_PLAYERDEFEATEDTRAINER1:
+    case STRINGID_TWOENEMIESDEFEATED:
+    case STRINGID_TRAINER1LOSETEXT:
+    case STRINGID_TRAINER2LOSETEXT:
+    case STRINGID_TRAINER1WINTEXT:
+    case STRINGID_TRAINER2WINTEXT:
+    case STRINGID_PLAYERGOTMONEY:
+    case STRINGID_PLAYERPICKEDUPMONEY:
+    case STRINGID_PLAYERWHITEOUT:
+    case STRINGID_PLAYERWHITEOUT2_WILD:
+    case STRINGID_PLAYERWHITEOUT2_TRAINER:
+    case STRINGID_PLAYERWHITEOUT3:
+        return TRUE;
+    default:
+        return FALSE;
+    }
+}
+
 void Controller_WaitForString(enum BattlerId battler)
 {
-    if (!IsTextPrinterActiveOnWindow(B_WIN_MSG))
+    u16 stringId = gBattleResources->bufferA[battler][2] | (gBattleResources->bufferA[battler][3] << 8);
+    bool32 standardWait = !(gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED | BATTLE_TYPE_POKEDUDE))
+        && IsBattleRewardMessage(stringId);
+    if (standardWait ? IsTextWindowDisplayComplete(B_WIN_MSG) : !IsTextPrinterActiveOnWindow(B_WIN_MSG))
+    {
+        if (standardWait)
+        {
+            gBattleCommunication[MSG_DISPLAY] = MSG_DISPLAY_CONTINUE;
+            gPauseCounterBattle = 0;
+        }
         BtlController_Complete(battler);
+    }
 }
 
 static void Controller_WaitForPartyStatusSummary(enum BattlerId battler)

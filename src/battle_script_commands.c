@@ -4433,6 +4433,22 @@ static void Cmd_atknameinbuff1(void)
     gBattlescriptCurrInstr = cmd->nextInstr;
 }
 
+static bool32 ShouldAdvanceLevelUpPanel(void)
+{
+    if (GetPlayerTextSpeed() != OPTIONS_TEXT_SPEED_AUTO)
+        return gMain.newKeys != 0;
+    if (gPaletteFade.active || gDisableTextPrinters)
+        return FALSE;
+    return ++gPauseCounterBattle >= B_MIN_TEXT_DISPLAY_FRAMES;
+}
+
+#if TESTING
+bool32 Test_ShouldAdvanceLevelUpPanel(void)
+{
+    return ShouldAdvanceLevelUpPanel();
+}
+#endif
+
 static void Cmd_drawlvlupbox(void)
 {
     CMD_ARGS();
@@ -4486,12 +4502,14 @@ static void Cmd_drawlvlupbox(void)
         if (!IsDma3ManagerBusyWithBgCopy())
         {
             gBattle_BG1_Y = 0;
+            gPauseCounterBattle = 0;
             gBattleScripting.drawlvlupboxState++;
         }
         break;
     case 6:
-        if (gMain.newKeys != 0 || RECORDED_WILD_BATTLE || TESTING)
+        if (RECORDED_WILD_BATTLE || TESTING || ShouldAdvanceLevelUpPanel())
         {
+            gPauseCounterBattle = 0;
             // Draw page 2 of level up box
             PlaySE(SE_SELECT);
             DrawLevelUpWindow2();
@@ -4500,8 +4518,9 @@ static void Cmd_drawlvlupbox(void)
         }
         break;
     case 8:
-        if (gMain.newKeys != 0 || RECORDED_WILD_BATTLE || TESTING)
+        if (RECORDED_WILD_BATTLE || TESTING || ShouldAdvanceLevelUpPanel())
         {
+            gPauseCounterBattle = 0;
             // Close level up box
             PlaySE(SE_SELECT);
             HandleBattleWindow(18, 7, 29, 19, WINDOW_BG1 | WINDOW_CLEAR);

@@ -1,6 +1,8 @@
 #include "global.h"
 #include "battle.h"
 #include "battle_message.h"
+#include "battle_controllers.h"
+#include "malloc.h"
 #include "bg.h"
 #include "dma3.h"
 #include "main.h"
@@ -281,4 +283,44 @@ TEST("Battle text display preserves zero speed printing and automatic scroll fla
     EXPECT(!IsTextPrinterActiveOnWindow(B_WIN_MSG));
     EndDisplay();
     gSaveBlock2Ptr->optionsTextSpeed = savedSpeed;
+}
+
+static bool32 sRewardControllerComplete;
+
+static void CompleteRewardController(enum BattlerId battler)
+{
+    sRewardControllerComplete = TRUE;
+}
+
+TEST("Battle reward text finishes the shared display minimum without an extra script wait")
+{
+    u32 stringId = STRINGID_PKMNGAINEDEXP;
+    PARAMETRIZE { stringId = STRINGID_PKMNGAINEDEXP; }
+    PARAMETRIZE { stringId = STRINGID_PKMNLEARNEDMOVE; }
+    struct BattleResources *previousResources = gBattleResources;
+    void (*previousCallback)(enum BattlerId) = gBattlerControllerEndFuncs[0];
+    gBattleResources = AllocZeroed(sizeof(*gBattleResources));
+    gBattleResources->bufferA[0][2] = stringId;
+    gBattleResources->bufferA[0][3] = stringId >> 8;
+    gBattlerControllerEndFuncs[0] = CompleteRewardController;
+    InitDisplay(OPTIONS_TEXT_SPEED_AUTO);
+    sRewardControllerComplete = FALSE;
+    gBattleCommunication[MSG_DISPLAY] = MSG_DISPLAY_WAIT;
+    gPauseCounterBattle = 0;
+    BattlePutTextOnWindow(COMPOUND_STRING("Reward received!"), B_WIN_MSG);
+    FinishPrinting();
+    for (u32 frame = 0; frame < B_MIN_TEXT_DISPLAY_FRAMES; frame++)
+    {
+        Controller_WaitForString(0);
+        EXPECT(!sRewardControllerComplete);
+        Frame();
+    }
+    Controller_WaitForString(0);
+    EXPECT(sRewardControllerComplete);
+    EXPECT_EQ(gBattleCommunication[MSG_DISPLAY], MSG_DISPLAY_CONTINUE);
+    EXPECT_EQ(gPauseCounterBattle, 0);
+    EndDisplay();
+    Free(gBattleResources);
+    gBattleResources = previousResources;
+    gBattlerControllerEndFuncs[0] = previousCallback;
 }

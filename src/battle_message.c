@@ -3676,10 +3676,15 @@ u32 BattleStringExpandPlaceholders(const u8 *src, u8 *dst, u32 dstSize)
             if (*src == B_TXT_TRAINER1_LOSE_TEXT || *src == B_TXT_TRAINER2_LOSE_TEXT
                 || *src == B_TXT_TRAINER1_WIN_TEXT || *src == B_TXT_TRAINER2_WIN_TEXT)
             {
-                dst[dstID] = EXT_CTRL_CODE_BEGIN;
-                dstID++;
-                dst[dstID] = EXT_CTRL_CODE_PAUSE_UNTIL_PRESS;
-                dstID++;
+                if (gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED | BATTLE_TYPE_POKEDUDE))
+                {
+                    dst[dstID++] = EXT_CTRL_CODE_BEGIN;
+                    dst[dstID++] = EXT_CTRL_CODE_PAUSE_UNTIL_PRESS;
+                }
+                else
+                {
+                    dst[dstID++] = CHAR_PROMPT_CLEAR;
+                }
             }
         }
         else

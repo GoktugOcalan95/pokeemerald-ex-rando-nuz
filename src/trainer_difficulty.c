@@ -65,7 +65,18 @@ u32 GetRunTrainerLevel(u16 trainerId, u32 level)
 {
     u32 difficulty = GetRunTrainerDifficulty();
     if (difficulty == RUN_TRAINER_UNFAIR)
-        level += 2;
+    {
+        if (FlagGet(FLAG_IS_CHAMPION))
+            level += 5;
+        else if (FlagGet(FLAG_BADGE08_GET))
+            level += 4;
+        else if (FlagGet(FLAG_BADGE06_GET))
+            level += 3;
+        else if (FlagGet(FLAG_BADGE02_GET))
+            level += 2;
+        else
+            level++;
+    }
     else if (difficulty == RUN_TRAINER_HARD && !IsRunTrainerBoss(trainerId))
         level++;
     return min(level, MAX_LEVEL);

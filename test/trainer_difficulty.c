@@ -47,7 +47,7 @@ TEST("Trainer difficulty applies the level IV and party size matrix to campaign 
         {
             struct Pokemon *mon = &gParties[B_TRAINER_OPPONENT_A][i];
             const struct TrainerMon *entry = &trainer->party[i < trainer->partySize ? i : lowest];
-            EXPECT_EQ(GetMonData(mon, MON_DATA_LEVEL), entry->lvl + (difficulty == 2 ? 2 : difficulty == 1 && !boss));
+            EXPECT_EQ(GetMonData(mon, MON_DATA_LEVEL), entry->lvl + (difficulty == 2 ? 1 : difficulty == 1 && !boss));
             EXPECT_EQ(GetMonData(mon, MON_DATA_IVS), difficulty ? TRAINER_PARTY_IVS(31, 31, 31, 31, 31, 31) : entry->iv);
             if (!randomized)
                 EXPECT_EQ(GetMonData(mon, MON_DATA_SPECIES), entry->species);
@@ -183,4 +183,31 @@ TEST("Trainer difficulty blocks incidental item and move Mega evolution outside 
     EXPECT(CanRunTrainerSlotMegaEvolve(B_TRAINER_PARTNER, 0));
     FlagClear(FLAG_RUN_RULE_TRAINERS);
     EXPECT(CanRunTrainerSlotMegaEvolve(B_TRAINER_OPPONENT_A, 0));
+}
+
+TEST("Trainer difficulty Unfair follows the highest completed progression milestone")
+{
+    const u16 milestones[] = {FLAG_BADGE02_GET, FLAG_BADGE06_GET, FLAG_BADGE08_GET, FLAG_IS_CHAMPION};
+    const u16 trainers[] = {TRAINER_CALVIN_1, TRAINER_BRAWLY_1, TRAINER_WINONA_1, TRAINER_JUAN_1, TRAINER_WALLACE};
+    VarSet(VAR_RUN_RULE_DIFFICULTY, RUN_TRAINER_UNFAIR);
+    u32 tier = 0;
+    for (u32 i = 0; i <= ARRAY_COUNT(milestones); i++)
+        PARAMETRIZE { tier = i; }
+    {
+        for (u32 i = 0; i < ARRAY_COUNT(milestones); i++)
+            FlagClear(milestones[i]);
+        if (tier)
+            FlagSet(milestones[tier - 1]);
+        for (u32 i = 0; i < ARRAY_COUNT(trainers); i++)
+        {
+            EXPECT_EQ(GetRunTrainerLevel(trainers[i], 10), 11 + tier);
+            EXPECT_EQ(GetRunTrainerLevel(trainers[i], 99), 100);
+        }
+        Save_ResetSaveCounters();
+        EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
+        if (tier)
+            FlagClear(milestones[tier - 1]);
+        EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
+        EXPECT_EQ(GetRunTrainerLevel(TRAINER_CALVIN_1, 10), 11 + tier);
+    }
 }

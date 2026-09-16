@@ -2781,6 +2781,7 @@
 	.macro move_tutor moveId:req, wantTeachingMsg:req, monSelectMsg:req, declinedJmp:req, taughtJmp:req, flagId=0
 	setvar VAR_0x8005, \moveId
 	callnative ScriptRecordTutorOffer
+	goto_if_set FLAG_RUN_RULE_REUSABLE_TMS, .LreusableTutor\@
 	goto_if_set FLAG_RUN_RULE_TMS_TUTORS, .LrandomTutor\@
 	.if \flagId
 		goto_if_set \flagId, \taughtJmp
@@ -2811,6 +2812,18 @@
 		call MoveTutor_EventScript_CanOnlyBeLearnedOnce
 		goto_if_eq VAR_RESULT, NO, MoveTutor_EventScript_RandomDeclined
 	.endif
+	msgbox MoveTutor_Text_RandomWhichMon, MSGBOX_DEFAULT
+	call MoveTutor_EventScript_OpenBox
+	goto_if_eq VAR_RESULT, FALSE, MoveTutor_EventScript_RandomDeclined
+	.if \flagId
+		setflag \flagId
+	.endif
+	goto MoveTutor_EventScript_RandomTaught
+
+.LreusableTutor\@:
+	callnative ScriptRandomizeTutorMove
+	msgbox MoveTutor_Text_RandomOffer, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, MoveTutor_EventScript_RandomDeclined
 	msgbox MoveTutor_Text_RandomWhichMon, MSGBOX_DEFAULT
 	call MoveTutor_EventScript_OpenBox
 	goto_if_eq VAR_RESULT, FALSE, MoveTutor_EventScript_RandomDeclined

@@ -4,6 +4,8 @@
 Std_ObtainItem::
 	copyvar VAR_0x8006, ITEMID
 	additem ITEMID, AMOUNT
+EventScript_ObtainGrantedItem::
+	copyvar VAR_0x8006, ITEMID
 	copyvar VAR_0x8007, VAR_RESULT
 	call EventScript_ObtainItemMessage
 	return
@@ -104,26 +106,25 @@ EventScript_NoRoomForDecor::
 	return
 
 Std_FindItem::
-	callnative RandomizePickupFromScript
+	callnative GiveAuthoredPickupFromScript
+	copyvar VAR_0x8007, VAR_RESULT
 	lock
 	faceplayer
 	waitse
 	copyvar VAR_0x8006, ITEMID
 	copyvar VAR_0x8004, ITEMID
 	copyvar VAR_0x8005, AMOUNT
-	checkitemspace ITEMID, AMOUNT
-	copyvar VAR_0x8007, VAR_RESULT
 	bufferitemnameplural STR_VAR_2, ITEMID, AMOUNT
 	checkitemtype ITEMID
 	call EventScript_BufferPocketNameAndTryFanfare
 	call_if_eq VAR_0x8007, TRUE, EventScript_PickUpItem
 	call_if_eq VAR_0x8007, FALSE, EventScript_NoRoomToPickUpItem
+	call EventScript_ObtainTMPartnerMessage
 	release
 	return
 
 EventScript_PickUpItem::
 	removeobject VAR_LAST_TALKED
-	additem VAR_0x8004, VAR_0x8005
 	copyvar VAR_0x8006 VAR_0x8004
 	specialvar VAR_RESULT, BufferTMHMMoveName
 	copyvar VAR_0x8008, VAR_RESULT
@@ -332,3 +333,17 @@ Common_Text_RandomizedGift:
 Common_Text_OfferRandomizedGift:
 	.string "I have a gift for you.\n"
 	.string "Would you like it?$"
+
+EventScript_ObtainTMPartnerMessage::
+	compare VAR_0x800B, ITEM_NONE
+	goto_if_eq EventScript_NoTMPartnerMessage
+	copyvar VAR_0x800A, ITEMID
+	copyvar ITEMID, VAR_0x800B
+	copyvar VAR_0x8006, ITEMID
+	setvar VAR_0x8007, TRUE
+	call EventScript_ObtainItemMessage
+	copyvar ITEMID, VAR_0x800A
+	copyvar VAR_0x8006, ITEMID
+	setvar VAR_0x800B, ITEM_NONE
+EventScript_NoTMPartnerMessage:
+	return

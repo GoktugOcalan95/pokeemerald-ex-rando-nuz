@@ -22,6 +22,11 @@ u32 Test_BuildScrollableMultichoiceItems(u32 menu, u32 count, struct ListMenuIte
 
 TEST("Teaching randomizer uses one unique TM and tutor pool and leaves HMs fixed")
 {
+    bool32 expanded = FALSE;
+    PARAMETRIZE { expanded = FALSE; }
+    PARAMETRIZE { expanded = TRUE; }
+    if (expanded)
+        FlagSet(FLAG_RUN_RULE_EXPANDED_TMS);
     FlagSet(FLAG_RUN_RULE_TMS_TUTORS);
     for (u32 seed = 0; seed < 16; seed++)
     {
@@ -32,7 +37,7 @@ TEST("Teaching randomizer uses one unique TM and tutor pool and leaves HMs fixed
             EXPECT_EQ(GetTMHMMoveId(index), gTMHMItemMoveIds[index].moveId);
             used[GetTMHMMoveId(index)] = TRUE;
         }
-        for (u32 index = 1; index <= NUM_TECHNICAL_MACHINES; index++)
+        for (u32 index = 1; index <= GetActiveTMCount(); index++)
         {
             u32 move = GetTMHMMoveId(index);
             EXPECT(IsRandomizerMoveAllowed(move));
@@ -234,7 +239,7 @@ TEST("Teaching randomizer move descriptions and Frontier labels fit their window
             EXPECT(GetStringWidth(FONT_NORMAL, items[i].name, 0) <= 112);
         }
     }
-    for (u32 i = 1; i <= NUM_TECHNICAL_MACHINES; i++)
+    for (u32 i = 1; i <= GetActiveTMCount(); i++)
     {
         u8 description[256];
         StringCopy(description, GetItemDescription(GetTMHMItemId(i)));

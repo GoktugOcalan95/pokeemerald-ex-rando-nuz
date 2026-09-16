@@ -576,7 +576,7 @@ static void CB2_InitBuyMenu(void)
 static void BuyMenuFreeMemory(void)
 {
     if (sMartInfo.martType == MART_TYPE_NORMAL)
-        TryFreeDynamicShopItemList(&sMartInfo.itemList);
+        sMartInfo.itemCount = TryFreeDynamicShopItemList(&sMartInfo.itemList);
 
     Free(sShopData);
     Free(sListMenuItems);

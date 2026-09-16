@@ -1,4 +1,5 @@
 #include "global.h"
+#include "teaching_randomizer.h"
 #include "slateport_shops.h"
 #include "battle_z_move.h"
 #include "event_data.h"
@@ -206,8 +207,9 @@ u32 LimitSlateportResalePrice(u16 item, u32 price)
 bool32 TryGiveSlateportPurchase(u32 category, u16 item, u16 count)
 {
     InitStockCategories();
+    u16 stockItem = IsExpandedTMListEnabled() && item >= ITEM_TM51 && item <= ITEM_TM100 ? item - 50 : item;
     if (category >= SLATEPORT_SHOP_COUNT || item <= ITEM_NONE || item >= ITEMS_COUNT || count == 0
-     || !(sStockCategories[item] & (1 << category)) || !IsItemShopCriteriaFulfilled(item)
+     || !(sStockCategories[stockItem] & (1 << category)) || !IsItemShopCriteriaFulfilled(item)
      || (category >= SLATEPORT_SHOP_MEGA && !IsSpecialStockAvailable())
      || (GetItemImportance(item) && (count != 1 || CheckBagHasItem(item, 1) || CheckPCHasItem(item, 1)))
      || !CheckBagHasSpace(item, count) || !AddBagItem(item, count))

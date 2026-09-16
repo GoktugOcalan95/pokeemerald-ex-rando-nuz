@@ -13,4 +13,7 @@ u16 GetFrontierTutorMove(u32 tutor, u32 index);
 const u8 *GetRandomizedMoveDescription(u16 move, u32 width);
 bool8 ScriptRandomizeTutorMove(struct ScriptContext *ctx);
 
+bool32 IsExpandedTMListEnabled(void);
+u32 GetActiveTMCount(void);
+
 #endif

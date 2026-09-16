@@ -65,7 +65,8 @@ TEST("Item randomizer shares ability item exclusions and refreshes the No EVs po
             FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
         for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_PRIZE; domain++)
             for (u32 source = 0; source < 256; source++)
-                EXPECT(IsRandomizedRewardItemAllowed(RandomizeItemReward(ITEM_POTION, domain, source, 0)));
+                EXPECT((domain >= ITEM_REWARD_WILD_HELD && domain <= ITEM_REWARD_FACILITY_HELD
+                    ? IsRandomizedRewardItemAllowed : IsRandomizedLootItemAllowed)(RandomizeItemReward(ITEM_POTION, domain, source, 0)));
     }
     EXPECT(!IsRandomizedRewardItemAllowed(ITEM_HP_UP));
     EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_MINT));
@@ -102,7 +103,7 @@ TEST("Item randomizer gift macro preserves quantity and resolves the same daily 
     FlagSet(FLAG_RUN_RULE_ITEMS);
     RUN_OVERWORLD_SCRIPT(resolveitem_random ITEM_ORAN_BERRY, 777, 3, 1;);
     u16 item = gSpecialVar_0x8000;
-    EXPECT(IsRandomizedRewardItemAllowed(item));
+    EXPECT(IsRandomizedLootItemAllowed(item));
     EXPECT_EQ(gSpecialVar_0x8001, 3);
     RUN_OVERWORLD_SCRIPT(resolveitem_random ITEM_FIGY_BERRY, 777, 3, 1;);
     EXPECT_EQ(gSpecialVar_0x8000, item);
@@ -121,7 +122,7 @@ TEST("Item randomizer free gifts keep a single replacement and the full stack qu
     FlagSet(FLAG_RUN_RULE_ITEMS);
     RunScriptImmediately(script);
     u16 item = gSpecialVar_0x8000;
-    EXPECT(IsRandomizedRewardItemAllowed(item));
+    EXPECT(IsRandomizedLootItemAllowed(item));
     EXPECT_EQ(CountTotalItemQuantityInBag(item), 5);
     ClearBag();
     RunScriptImmediately(script);
@@ -346,7 +347,8 @@ TEST("Ban in-battle items excludes exact unwanted rewards and retains useful sup
     FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
     for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_PRIZE; domain++)
         for (u32 source = 0; source < 256; source++)
-            EXPECT(IsRandomizedRewardItemAllowed(RandomizeItemReward(ITEM_POTION, domain, source, 0)));
+            EXPECT((domain >= ITEM_REWARD_WILD_HELD && domain <= ITEM_REWARD_FACILITY_HELD
+                    ? IsRandomizedRewardItemAllowed : IsRandomizedLootItemAllowed)(RandomizeItemReward(ITEM_POTION, domain, source, 0)));
     EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_MINT));
     FlagClear(FLAG_RUN_RULE_BAN_SLATEPORT);
     FlagClear(FLAG_RUN_RULE_BAN_MEGA_STONES);

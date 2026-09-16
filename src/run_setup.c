@@ -75,6 +75,8 @@ static const u8 sLabel_FULL_COMPATIBILITY[] = _("Move compatibility");
 static const u8 sHelp_FULL_COMPATIBILITY[] = _("All Pokémon can learn every\nTM, HM, and tutor move.");
 static const u8 sLabel_NO_BATTLE_ITEMS[] = _("No Battle Items");
 static const u8 sHelp_NO_BATTLE_ITEMS[] = _("Both sides: no battle Bag items.\nBalls, escape, held items allowed.");
+static const u8 sLabel_EXPANDED_TMS[] = _("Expanded TM list");
+static const u8 sHelp_EXPANDED_TMS[] = _("Add TM51-100 to rewards and shops.\nRequires randomized TMs/tutors.");
 static const u8 sLabel_REUSABLE_TMS[] = _("Reusable TMs/tutors");
 static const u8 sHelp_REUSABLE_TMS[] = _("Reuse TMs and one-time tutors.\nBP tutors still charge each time.");
 static const u8 sLabel_REMOVE_STORY[] = _("Remove Story");
@@ -106,6 +108,7 @@ const struct RunSetupSettingInfo gRunSetupSettings[RUN_SETUP_SETTING_COUNT] =
     [RUN_SETUP_NO_EV_GAIN] = {sLabel_NO_EV_GAIN, sHelp_NO_EV_GAIN, sBooleanChoices, FLAG_RUN_RULE_NO_EV_GAIN, RUN_SETUP_CATEGORY_TRAINING, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 1, 1}},
     [RUN_SETUP_FULL_COMPATIBILITY] = {sLabel_FULL_COMPATIBILITY, sHelp_FULL_COMPATIBILITY, sBooleanChoices, FLAG_RUN_RULE_FULL_COMPATIBILITY, RUN_SETUP_CATEGORY_TRAINING, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 0, 1}},
     [RUN_SETUP_REUSABLE_TMS] = {sLabel_REUSABLE_TMS, sHelp_REUSABLE_TMS, sBooleanChoices, FLAG_RUN_RULE_REUSABLE_TMS, RUN_SETUP_CATEGORY_TRAINING, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 0, 1}},
+    [RUN_SETUP_EXPANDED_TMS] = {sLabel_EXPANDED_TMS, sHelp_EXPANDED_TMS, sBooleanChoices, FLAG_RUN_RULE_EXPANDED_TMS, RUN_SETUP_CATEGORY_TRAINING, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_TMS_TUTORS, {0, 0, 1}},
     [RUN_SETUP_ITEMS] = {sLabel_ITEMS, sHelp_ITEMS, sBooleanChoices, FLAG_RUN_RULE_ITEMS, RUN_SETUP_CATEGORY_ITEMS, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 0, 1}},
     [RUN_SETUP_BAN_SLATEPORT] = {sLabel_BAN_SLATEPORT, sHelp_BAN_SLATEPORT, sBooleanChoices, FLAG_RUN_RULE_BAN_SLATEPORT, RUN_SETUP_CATEGORY_ITEMS, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_ITEMS, {0, 0, 1}},
     [RUN_SETUP_BAN_BATTLE_ITEMS] = {sLabel_BAN_BATTLE_ITEMS, sHelp_BAN_BATTLE_ITEMS, sBooleanChoices, FLAG_RUN_RULE_BAN_BATTLE_ITEMS, RUN_SETUP_CATEGORY_ITEMS, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_ITEMS, {0, 0, 1}},
@@ -200,6 +203,8 @@ bool32 RunSetup_IsAvailable(enum RunSetupSetting setting)
         return RunSetup_GetValue(RUN_SETUP_ITEMS) != 0;
     case RUN_SETUP_DEPENDENCY_TRAINERS:
         return RunSetup_GetValue(RUN_SETUP_TRAINERS) != 0;
+    case RUN_SETUP_DEPENDENCY_TMS_TUTORS:
+        return RunSetup_GetValue(RUN_SETUP_TMS_TUTORS) != 0;
     case RUN_SETUP_DEPENDENCY_MOVES:
         return RunSetup_GetValue(RUN_SETUP_LEARNSETS) || RunSetup_GetValue(RUN_SETUP_TMS_TUTORS);
     default:

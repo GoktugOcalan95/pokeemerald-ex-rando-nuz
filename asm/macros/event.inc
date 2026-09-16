@@ -2152,8 +2152,11 @@
 	@ message indicates there is no room, and VAR_RESULT is set to FALSE.
 	@ Otherwise VAR_RESULT is set to TRUE, and the message indicates they have received the item(s).
 	.macro giveitem item:req, amount=1
-	resolveitem_reward \item, \amount
-	callstd STD_OBTAIN_ITEM
+	setorcopyvar VAR_0x8000, \item
+	setorcopyvar VAR_0x8001, \amount
+	callnative GiveAuthoredItemFromScript
+	call EventScript_ObtainGrantedItem
+	call EventScript_ObtainTMPartnerMessage
 	.endm
 
 	.macro giveitem_fixed item:req, amount=1

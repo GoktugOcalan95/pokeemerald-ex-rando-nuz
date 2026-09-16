@@ -33,10 +33,13 @@ enum ItemPrizeSource
 };
 
 bool32 IsRandomizedRewardItemAllowed(u16 item);
+bool32 IsRandomizedLootItemAllowed(u16 item);
 u16 RandomizeItemReward(u16 original, u32 domain, u32 source, u32 slot);
 void RandomizePickupFromScript(void);
 void RandomizeHiddenItemFromScript(void);
 void RandomizeGiftFromScript(struct ScriptContext *ctx);
 void RandomizeFreeGiftFromScript(struct ScriptContext *ctx);
+
+bool32 AddAuthoredItemReward(u16 original, u16 item, u16 count);
 
 #endif

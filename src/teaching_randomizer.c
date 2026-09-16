@@ -18,35 +18,38 @@
 #define TUTOR_MOVE_COUNT (ARRAY_COUNT(gTutorMoves) - 1)
 
 static EWRAM_DATA u16 sTeachingMoves[NUM_TECHNICAL_MACHINES + TUTOR_MOVE_COUNT] = {0};
-static EWRAM_DATA u16 sOriginalMoves[MOVES_COUNT] = {0};
-static EWRAM_DATA u16 sAssignedMoves[MOVES_COUNT] = {0};
 static EWRAM_DATA u32 sTeachingSeed = 0;
 static EWRAM_DATA u8 sTeachingChance = 0;
+static EWRAM_DATA u8 sTeachingTMCount = 0;
 static EWRAM_DATA bool8 sTeachingReady = FALSE;
 static EWRAM_DATA u8 sMoveDescription[256] = {0};
+
+bool32 IsExpandedTMListEnabled(void)
+{
+    return FlagGet(FLAG_RUN_RULE_EXPANDED_TMS) && FlagGet(FLAG_RUN_RULE_TMS_TUTORS);
+}
+
+u32 GetActiveTMCount(void)
+{
+    return IsExpandedTMListEnabled() ? NUM_TECHNICAL_MACHINES : NUM_ORIGINAL_TECHNICAL_MACHINES;
+}
 
 static void InitTeachingMoves(void)
 {
     u32 seed = RunRandomizerHash(TEACHING_DOMAIN, 0, 0);
-    if (sTeachingReady && seed == sTeachingSeed && sTeachingChance == GetRandomizerGoodMoveChance())
+    u32 tmCount = GetActiveTMCount();
+    if (sTeachingReady && seed == sTeachingSeed && sTeachingChance == GetRandomizerGoodMoveChance() && sTeachingTMCount == tmCount)
         return;
     bool8 used[MOVES_COUNT] = {0};
-    for (u32 move = 0; move < MOVES_COUNT; move++)
-    {
-        sOriginalMoves[move] = move;
-        sAssignedMoves[move] = move;
-    }
     for (u32 index = NUM_TECHNICAL_MACHINES + 1; index <= NUM_ALL_MACHINES; index++)
         used[gTMHMItemMoveIds[index].moveId] = TRUE;
-    for (u32 index = 0; index < ARRAY_COUNT(sTeachingMoves); index++)
+    for (u32 index = 0; index < tmCount + TUTOR_MOVE_COUNT; index++)
     {
         u32 move = ChooseRandomizerMove(TEACHING_DOMAIN, index, 0, used);
-        u32 original = index < NUM_TECHNICAL_MACHINES ? gTMHMItemMoveIds[index + 1].moveId : gTutorMoves[index - NUM_TECHNICAL_MACHINES];
-        sOriginalMoves[move] = original;
-        sAssignedMoves[original] = move;
         sTeachingMoves[index] = move;
         used[move] = TRUE;
     }
+    sTeachingTMCount = tmCount;
     sTeachingSeed = seed;
     sTeachingChance = GetRandomizerGoodMoveChance();
     sTeachingReady = TRUE;
@@ -54,7 +57,7 @@ static void InitTeachingMoves(void)
 
 u16 GetRandomizedMachineMove(u32 index)
 {
-    if (index > NUM_ALL_MACHINES)
+    if (index > NUM_ALL_MACHINES || (index > GetActiveTMCount() && index <= NUM_TECHNICAL_MACHINES))
         return MOVE_NONE;
     if (!FlagGet(FLAG_RUN_RULE_TMS_TUTORS) || index == 0 || index > NUM_TECHNICAL_MACHINES)
         return gTMHMItemMoveIds[index].moveId;
@@ -67,7 +70,15 @@ u16 GetOriginalTeachingMove(u16 assigned)
     if (!FlagGet(FLAG_RUN_RULE_TMS_TUTORS) || assigned >= MOVES_COUNT)
         return assigned;
     InitTeachingMoves();
-    return sOriginalMoves[assigned];
+    for (u32 index = 0; index < sTeachingTMCount + TUTOR_MOVE_COUNT; index++)
+    {
+        if (sTeachingMoves[index] == assigned)
+        {
+            u16 original = index < sTeachingTMCount ? gTMHMItemMoveIds[index + 1].moveId : gTutorMoves[index - sTeachingTMCount];
+            return original == MOVE_NONE ? assigned : original;
+        }
+    }
+    return assigned;
 }
 
 u16 GetRandomizedTeachingMove(u16 original)
@@ -75,7 +86,13 @@ u16 GetRandomizedTeachingMove(u16 original)
     if (!FlagGet(FLAG_RUN_RULE_TMS_TUTORS) || original >= MOVES_COUNT)
         return original;
     InitTeachingMoves();
-    return sAssignedMoves[original];
+    for (u32 index = sTeachingTMCount + TUTOR_MOVE_COUNT; index > 0; index--)
+    {
+        u16 source = index <= sTeachingTMCount ? gTMHMItemMoveIds[index].moveId : gTutorMoves[index - sTeachingTMCount - 1];
+        if (source != MOVE_NONE && source == original)
+            return sTeachingMoves[index - 1];
+    }
+    return original;
 }
 
 u16 GetTutorMove(u32 index)
@@ -85,7 +102,7 @@ u16 GetTutorMove(u32 index)
     if (!FlagGet(FLAG_RUN_RULE_TMS_TUTORS))
         return gTutorMoves[index];
     InitTeachingMoves();
-    return sTeachingMoves[NUM_TECHNICAL_MACHINES + index];
+    return sTeachingMoves[GetActiveTMCount() + index];
 }
 
 u16 GetRandomizedTutorMove(u16 original)

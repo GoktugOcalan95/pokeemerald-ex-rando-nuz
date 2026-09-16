@@ -9,6 +9,7 @@
 #include "script.h"
 #include "slateport_shops.h"
 #include "battle_pyramid.h"
+#include "teaching_randomizer.h"
 
 static EWRAM_DATA u16 sRewardPool[ITEMS_COUNT] = {0};
 static EWRAM_DATA u16 sRewardPoolCount = 0;
@@ -58,17 +59,25 @@ bool32 IsRandomizedRewardItemAllowed(u16 item)
         && !IsUnimplementedItem(item) && !ItemIsMail(item) && !IsAbilityCustomizationItem(item) && IsItemAllowedByNoEVs(item);
 }
 
-static void PrepareRewardPool(void)
+bool32 IsRandomizedLootItemAllowed(u16 item)
+{
+    return IsRandomizedRewardItemAllowed(item)
+        || (FlagGet(FLAG_RUN_RULE_ITEMS) && !GetItemImportance(ITEM_TM01)
+         && item >= ITEM_TM01 && item < ITEM_TM01 + GetActiveTMCount());
+}
+
+static void PrepareRewardPool(bool32 heldItems)
 {
     u32 rules = FlagGet(FLAG_RUN_RULE_NO_EV_GAIN) | (FlagGet(FLAG_RUN_RULE_BAN_SLATEPORT) << 1)
         | (FlagGet(FLAG_RUN_RULE_BAN_MEGA_STONES) << 2) | (FlagGet(FLAG_RUN_RULE_BAN_BATTLE_ITEMS) << 3)
         | (FlagGet(FLAG_RUN_RULE_BAN_Z_CRYSTALS) << 4) | (FlagGet(FLAG_RUN_RULE_BAN_TERA_SHARDS) << 5)
-        | (FlagGet(FLAG_RUN_RULE_BAN_TYPE_GEMS) << 6);
+        | (FlagGet(FLAG_RUN_RULE_BAN_TYPE_GEMS) << 6)
+        | (FlagGet(FLAG_RUN_RULE_REUSABLE_TMS) << 7) | (IsExpandedTMListEnabled() << 8) | (heldItems << 9);
     if (sRewardPoolCount != 0 && rules == sRewardPoolRules)
         return;
     sRewardPoolCount = 0;
     for (u32 item = 1; item < ITEMS_COUNT; item++)
-        if (IsRandomizedRewardItemAllowed(item))
+        if (heldItems ? IsRandomizedRewardItemAllowed(item) : IsRandomizedLootItemAllowed(item))
             sRewardPool[sRewardPoolCount++] = item;
     sRewardPoolRules = rules;
 }
@@ -80,7 +89,7 @@ u16 RandomizeItemReward(u16 original, u32 domain, u32 source, u32 slot)
         return original;
     if (domain < ITEM_REWARD_WILD_HELD && (original == ITEM_RED_ORB || original == ITEM_BLUE_ORB))
         return original;
-    PrepareRewardPool();
+    PrepareRewardPool(domain >= ITEM_REWARD_WILD_HELD && domain <= ITEM_REWARD_FACILITY_HELD);
     if (sRewardPoolCount == 0)
         return original;
     return sRewardPool[RunRandomizerHash(domain, source, slot) % sRewardPoolCount];
@@ -108,4 +117,35 @@ void RandomizeGiftFromScript(struct ScriptContext *ctx)
 void RandomizeFreeGiftFromScript(struct ScriptContext *ctx)
 {
     gSpecialVar_0x8000 = RandomizeItemReward(gSpecialVar_0x8000, ITEM_REWARD_GIFT, (u32)ctx->scriptPtr, 0);
+}
+
+bool32 AddAuthoredItemReward(u16 original, u16 item, u16 count)
+{
+    u16 partner = IsExpandedTMListEnabled() && original >= ITEM_TM01 && original <= ITEM_TM50 ? original + 50 : ITEM_NONE;
+    if (partner != ITEM_NONE && !CheckBagHasSpace(partner, count))
+        return FALSE;
+    if (!AddBagItem(item, count))
+        return FALSE;
+    if (partner != ITEM_NONE && !AddBagItem(partner, count))
+    {
+        RemoveBagItem(item, count);
+        return FALSE;
+    }
+    return TRUE;
+}
+
+void GiveAuthoredItemFromScript(struct ScriptContext *ctx)
+{
+    u16 original = gSpecialVar_0x8000;
+    RandomizeFreeGiftFromScript(ctx);
+    gSpecialVar_Result = AddAuthoredItemReward(original, gSpecialVar_0x8000, gSpecialVar_0x8001);
+    gSpecialVar_0x800B = gSpecialVar_Result && IsExpandedTMListEnabled() && original >= ITEM_TM01 && original <= ITEM_TM50 ? original + 50 : ITEM_NONE;
+}
+
+void GiveAuthoredPickupFromScript(void)
+{
+    u16 original = gSpecialVar_0x8000;
+    RandomizePickupFromScript();
+    gSpecialVar_Result = AddAuthoredItemReward(original, gSpecialVar_0x8000, gSpecialVar_0x8001);
+    gSpecialVar_0x800B = gSpecialVar_Result && IsExpandedTMListEnabled() && original >= ITEM_TM01 && original <= ITEM_TM50 ? original + 50 : ITEM_NONE;
 }

@@ -4,8 +4,10 @@
 #include "event_data.h"
 #include "malloc.h"
 #include "shop_criteria.h"
+#include "teaching_randomizer.h"
 
 static EWRAM_DATA const u16 *sDynamicShopItemListRef = NULL;
+static EWRAM_DATA u16 sOriginalShopItemCount = 0;
 
 // Remove the UNUSED if you'll use the functions!
 static UNUSED bool32 ShopCriteriaByBadgeCount(u32 count);
@@ -15,8 +17,9 @@ static UNUSED bool32 ShopCriteriaByVar(u32 varId, u32 varValue);
 void TryBuildDynamicShopItemList(const u16 **ogItemList, u16 *resultingTotal)
 {
     sDynamicShopItemListRef = *ogItemList;
+    sOriginalShopItemCount = *resultingTotal;
 
-    u16 *list = AllocZeroed((*resultingTotal + 1) * sizeof(u16));
+    u16 *list = AllocZeroed((*resultingTotal * 2 + 1) * sizeof(u16));
     u32 overallIdx = 0, idx = 0;
 
     while (idx < *resultingTotal)
@@ -27,6 +30,8 @@ void TryBuildDynamicShopItemList(const u16 **ogItemList, u16 *resultingTotal)
         {
             list[overallIdx] = item;
             overallIdx++;
+            if (IsExpandedTMListEnabled() && item >= ITEM_TM01 && item <= ITEM_TM50)
+                list[overallIdx++] = item + 50;
         }
 
         idx++;
@@ -38,10 +43,11 @@ void TryBuildDynamicShopItemList(const u16 **ogItemList, u16 *resultingTotal)
     *resultingTotal = overallIdx;
 }
 
-void TryFreeDynamicShopItemList(const u16 **ogItemList)
+u16 TryFreeDynamicShopItemList(const u16 **ogItemList)
 {
     Free((u16 *)*ogItemList);
     *ogItemList = sDynamicShopItemListRef;
+    return sOriginalShopItemCount;
 }
 
 // Add new Criterias below!

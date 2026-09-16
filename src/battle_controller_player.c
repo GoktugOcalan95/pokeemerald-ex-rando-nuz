@@ -2428,46 +2428,24 @@ static u32 CheckTargetTypeEffectiveness(enum BattlerId battler)
 
 static void MoveSelectionDisplayMoveEffectiveness(u32 foeEffectiveness, enum BattlerId battler)
 {
-    static const u8 noIcon[] =  _("");
-    static const u8 effectiveIcon[] =  _("{CIRCLE_HOLLOW}");
-    static const u8 extremeleyEffectiveIcon[] =  _("{STAR}");
-    static const u8 superEffectiveIcon[] =  _("{CIRCLE_DOT}");
-    static const u8 notVeryEffectiveIcon[] =  _("{TRIANGLE}");
-    static const u8 mostlyIneffectiveIcon[] =  _("{TRIANGLE_UPSIDE_DOWN}");
-    static const u8 immuneIcon[] =  _("{BIG_MULT_X}");
+    static const u16 icons[][12] = {
+        [EFFECTIVENESS_NO_EFFECT] = {0, 0x303, 0x387, 0x1CE, 0x0FC, 0x078, 0x078, 0x0FC, 0x1CE, 0x387, 0x303, 0},
+        [EFFECTIVENESS_MOSTLY_INEFFECTIVE] = {0x303, 0x387, 0x1CE, 0x0FC, 0x078, 0, 0x303, 0x387, 0x1CE, 0x0FC, 0x078, 0},
+        [EFFECTIVENESS_NOT_VERY_EFFECTIVE] = {0, 0, 0, 0x303, 0x387, 0x1CE, 0x0FC, 0x078, 0, 0, 0, 0},
+        [EFFECTIVENESS_NORMAL] = {0, 0, 0x084, 0x186, 0x303, 0x201, 0x303, 0x186, 0x084, 0, 0, 0},
+        [EFFECTIVENESS_SUPER_EFFECTIVE] = {0, 0, 0, 0x078, 0x0FC, 0x1CE, 0x387, 0x303, 0, 0, 0, 0},
+        [EFFECTIVENESS_EXTREMELY_EFFECTIVE] = {0x078, 0x0FC, 0x1CE, 0x387, 0x303, 0, 0x078, 0x0FC, 0x1CE, 0x387, 0x303, 0},
+    };
     struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
-    u8 *txtPtr;
 
-    txtPtr = StringCopy(gDisplayedStringBattle, gText_MoveInterfacePP);
-
-    if (!IsBattleMoveStatus(moveInfo->moves[gMoveSelectionCursor[battler]]))
+    BattlePutTextOnWindow(gText_MoveInterfacePP, B_WIN_PP);
+    if (!IsBattleMoveStatus(moveInfo->moves[gMoveSelectionCursor[battler]])
+     && foeEffectiveness > EFFECTIVENESS_CANNOT_VIEW && foeEffectiveness < ARRAY_COUNT(icons))
     {
-        switch (foeEffectiveness)
-        {
-        case EFFECTIVENESS_EXTREMELY_EFFECTIVE:
-            StringCopy(txtPtr, extremeleyEffectiveIcon);
-            break;
-        case EFFECTIVENESS_SUPER_EFFECTIVE:
-            StringCopy(txtPtr, superEffectiveIcon);
-            break;
-        case EFFECTIVENESS_NOT_VERY_EFFECTIVE:
-            StringCopy(txtPtr, notVeryEffectiveIcon);
-            break;
-        case EFFECTIVENESS_MOSTLY_INEFFECTIVE:
-            StringCopy(txtPtr, mostlyIneffectiveIcon);
-            break;
-        case EFFECTIVENESS_NO_EFFECT:
-            StringCopy(txtPtr, immuneIcon);
-            break;
-        case EFFECTIVENESS_NORMAL:
-            StringCopy(txtPtr, effectiveIcon);
-            break;
-        default:
-        case EFFECTIVENESS_CANNOT_VIEW:
-            StringCopy(txtPtr, noIcon);
-            break;
-        }
+        for (u32 y = 0; y < 12; y++)
+            for (u32 x = 0; x < 10; x++)
+                if (icons[foeEffectiveness][y] & (1 << (9 - x)))
+                    FillWindowPixelRect(B_WIN_PP, PIXEL_FILL(13), 21 + x, 2 + y, 1, 1);
+        CopyWindowToVram(B_WIN_PP, COPYWIN_GFX);
     }
-
-    BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_PP);
 }

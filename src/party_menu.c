@@ -5657,14 +5657,14 @@ static void Task_DoLearnedMoveFanfareAfterText(u8 taskId)
 {
     if (IsPartyMenuTextPrinterActive() != TRUE)
     {
-        PlayFanfare(MUS_LEVEL_UP);
+        PlayFanfareWithDuration(MUS_LEVEL_UP, 64);
         gTasks[taskId].func = Task_LearnNextMoveOrClosePartyMenu;
     }
 }
 
 static void Task_LearnNextMoveOrClosePartyMenu(u8 taskId)
 {
-    if (IsFanfareTaskInactive() && ((JOY_NEW(A_BUTTON)) || (JOY_NEW(B_BUTTON))))
+    if (IsFanfareTaskInactive() && (GetPlayerTextSpeed() == OPTIONS_TEXT_SPEED_AUTO || JOY_NEW(A_BUTTON | B_BUTTON)))
     {
         if (gPartyMenu.learnMoveState == 1)
         {

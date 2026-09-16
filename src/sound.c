@@ -227,6 +227,12 @@ void PlayFanfare(u16 songNum)
     CreateFanfareTask();
 }
 
+void PlayFanfareWithDuration(u16 songNum, u16 duration)
+{
+    PlayFanfare(songNum);
+    sFanfareCounter = duration;
+}
+
 bool8 IsFanfareTaskInactive(void)
 {
     if (FuncIsActiveTask(Task_Fanfare) == TRUE)

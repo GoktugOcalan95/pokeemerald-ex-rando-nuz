@@ -1,5 +1,5 @@
 #include "global.h"
-#include "run_history.h"
+#include "run_companion.h"
 #include "teaching_randomizer.h"
 #include "debug.h"
 #include "malloc.h"
@@ -2701,7 +2701,7 @@ static u32 BuildScrollableMultichoiceItems(u32 menu, u32 count, struct ListMenuI
             continue;
         items[shown].name = sScrollableMultichoiceOptions[menu][i];
         if (i < 10 && (menu == SCROLL_MULTI_BF_MOVE_TUTOR_1 || menu == SCROLL_MULTI_BF_MOVE_TUTOR_2))
-            RunHistory_RecordTutor(GetOriginalFrontierTutorMove(menu == SCROLL_MULTI_BF_MOVE_TUTOR_2, i));
+            RunCompanion_RecordTutor(GetOriginalFrontierTutorMove(menu == SCROLL_MULTI_BF_MOVE_TUTOR_2, i));
         if (FlagGet(FLAG_RUN_RULE_TMS_TUTORS) && i < 10
             && (menu == SCROLL_MULTI_BF_MOVE_TUTOR_1 || menu == SCROLL_MULTI_BF_MOVE_TUTOR_2))
         {

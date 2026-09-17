@@ -1,5 +1,4 @@
 #include "global.h"
-#include "run_history.h"
 #include "species_randomizer.h"
 #include "item_randomizer.h"
 #include "no_evs.h"
@@ -3108,7 +3107,6 @@ static void TradeMons(u8 playerPartyIdx, u8 partnerPartyIdx)
         ClearMail(&gSaveBlock1Ptr->mail[playerMail]);
 
     SWAP(*playerMon, *partnerMon, sTradeAnim->tempMon);
-    RunHistory_RecordAcquisition(playerMon);
     NormalizeMonEVs(playerMon);
     NormalizeMonEVs(partnerMon);
 

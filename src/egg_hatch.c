@@ -1,5 +1,4 @@
 #include "global.h"
-#include "run_history.h"
 #include "pokemon.h"
 #include "egg_hatch.h"
 #include "pokedex.h"
@@ -317,7 +316,6 @@ static void AddHatchedMonToParty(u8 id)
 
     bool32 isEgg = FALSE;
     SetMonData(mon, MON_DATA_IS_EGG, &isEgg);
-    RunHistory_RecordHatch(mon);
 
     species = GetMonData(mon, MON_DATA_SPECIES);
     StringCopy(name, GetSpeciesName(species));

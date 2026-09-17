@@ -1,5 +1,4 @@
 #include "global.h"
-#include "run_history.h"
 #include "learnset_randomizer.h"
 #include "teaching_randomizer.h"
 #include "ability_randomizer.h"
@@ -2997,14 +2996,7 @@ u8 GiveCapturedMonToPlayer(struct Pokemon *mon)
     }
 
     if (i >= PARTY_SIZE)
-    {
-        u32 result = CopyMonToPC(mon);
-        if (result != MON_CANT_GIVE)
-            RunHistory_RecordAcquisition(mon);
-        return result;
-    }
-
-    RunHistory_RecordAcquisition(mon);
+        return CopyMonToPC(mon);
 
     CopyMon(&gParties[B_TRAINER_PLAYER][i], mon, sizeof(*mon));
     gPartiesCount[B_TRAINER_PLAYER] = i + 1;
@@ -6778,7 +6770,6 @@ u32 GiveScriptedMonToPlayer(struct Pokemon *mon, u8 slot)
     }
     if (sentToPc != MON_CANT_GIVE)
     {
-        RunHistory_RecordAcquisition(mon);
         HandleSetPokedexFlagFromMon(mon, FLAG_SET_SEEN);
         HandleSetPokedexFlagFromMon(mon, FLAG_SET_CAUGHT);
     }

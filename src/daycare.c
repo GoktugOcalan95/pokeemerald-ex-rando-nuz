@@ -1,5 +1,4 @@
 #include "global.h"
-#include "run_history.h"
 #include "pokemon.h"
 #include "battle.h"
 #include "daycare.h"
@@ -1015,7 +1014,6 @@ static void _GiveEggFromDaycare(struct DayCare *daycare)
 
     isEgg = TRUE;
     SetMonData(&egg, MON_DATA_IS_EGG, &isEgg);
-    RunHistory_RecordAcquisition(&egg);
     gParties[B_TRAINER_PLAYER][PARTY_SIZE - 1] = egg;
     CompactPartySlots();
     CalculatePlayerPartyCount();

@@ -1,5 +1,4 @@
 #include "global.h"
-#include "run_history.h"
 #include "route_fly.h"
 #include "berry_plots.h"
 #include "field_move.h"
@@ -489,7 +488,6 @@ static void UpdateMiscOverworldStates(void)
     ChooseAmbientCrySpecies();
     ResetCyclingRoadChallengeData();
     UpdateLocationHistoryForRoamer();
-    RunHistory_RecordArea();
     MoveAllRoamersToOtherLocationSets();
 }
 
@@ -915,7 +913,6 @@ void LoadMapFromCameraTransition(u8 mapGroup, u8 mapNum)
 
     InitSecondaryTilesetAnimation();
     UpdateLocationHistoryForRoamer();
-    RunHistory_RecordArea();
     MoveAllRoamers();
     DoCurrentWeather();
     ResetFieldTasksArgs();
@@ -979,7 +976,6 @@ static void LoadMapFromWarp(bool32 a1)
     Overworld_ClearSavedMusic();
     RunOnTransitionMapScript();
     UpdateLocationHistoryForRoamer();
-    RunHistory_RecordArea();
     MoveAllRoamersToOtherLocationSets();
     gChainFishingDexNavStreak = 0;
     if (gMapHeader.mapLayoutId == LAYOUT_BATTLE_FRONTIER_BATTLE_PYRAMID_FLOOR)

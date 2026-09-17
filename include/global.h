@@ -24,7 +24,7 @@
 #include "constants/trainer_hill.h"
 #include "constants/trainer_tower.h"
 #include "constants/items.h"
-#include "run_history.h"
+#include "run_companion.h"
 #include "constants/moves.h"
 #include "config/save.h"
 

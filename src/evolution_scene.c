@@ -1,5 +1,4 @@
 #include "global.h"
-#include "run_history.h"
 #include "storage_level_cap.h"
 #include "malloc.h"
 #include "battle.h"
@@ -595,7 +594,6 @@ static void CreateShedinja(enum Species preEvoSpecies, enum Species postEvoSpeci
             SetMonData(shedinja, MON_DATA_MAIL, &data);
 
             CalculateMonStats(shedinja);
-            RunHistory_RecordSplitEvolution(shedinja);
             if (!boxed)
                 CalculatePlayerPartyCount();
 

@@ -109,3 +109,20 @@ TEST("Trainer randomizer excludes special battles and keeps two opponent parties
     FlagClear(FLAG_RUN_RULE_TRAINERS);
     EXPECT(!CreateRunTrainerParty(gParties[B_TRAINER_OPPONENT_A], TRAINER_ROXANNE_1));
 }
+
+TEST("Trainer randomizer disabled Tera overrides forced species types")
+{
+    struct Pokemon mon;
+    for (u32 species = 1; species < NUM_SPECIES; species++)
+    {
+        if (!gSpeciesInfo[species].baseHP || !gSpeciesInfo[species].forceTeraType)
+            continue;
+        CreateMon(&mon, species, 50, 0, OTID_STRUCT_PLAYER_ID);
+        u32 type = TYPE_MYSTERY;
+        SetMonData(&mon, MON_DATA_TERA_TYPE, &type);
+        EXPECT_EQ(GetMonData(&mon, MON_DATA_TERA_TYPE), TYPE_MYSTERY);
+        type = TYPE_NONE;
+        SetMonData(&mon, MON_DATA_TERA_TYPE, &type);
+        EXPECT_EQ(GetMonData(&mon, MON_DATA_TERA_TYPE), gSpeciesInfo[species].forceTeraType);
+    }
+}

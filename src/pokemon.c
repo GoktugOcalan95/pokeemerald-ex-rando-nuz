@@ -2434,7 +2434,11 @@ u32 GetBoxMonData3(struct BoxPokemon *boxMon, s32 field, u8 *data)
         case MON_DATA_TERA_TYPE:
             {
                 struct PokemonSubstruct0 *substruct0 = GetSubstruct0(boxMon);
-                if (gSpeciesInfo[substruct0->species].forceTeraType)
+                if (substruct0->teraType == TYPE_MYSTERY)
+                {
+                    retVal = TYPE_MYSTERY;
+                }
+                else if (gSpeciesInfo[substruct0->species].forceTeraType)
                 {
                     retVal = gSpeciesInfo[substruct0->species].forceTeraType;
                 }

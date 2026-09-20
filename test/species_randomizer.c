@@ -1,4 +1,7 @@
 #include "global.h"
+#include "event_object_movement.h"
+#include "constants/event_objects.h"
+#include "constants/vars.h"
 #include "item_randomizer.h"
 #include "roamer.h"
 #include "string_util.h"
@@ -344,4 +347,22 @@ TEST("Species randomizer move dependent forms follow the actual initial moves")
     EXPECT(TryFormChange(&mon, FORM_CHANGE_MOVE, B_TRAINER_PLAYER));
     EXPECT_EQ(GetMonData(&mon, MON_DATA_SPECIES), SPECIES_KELDEO_ORDINARY);
     FlagClear(FLAG_RUN_RULE_ENCOUNTERS);
+}
+
+TEST("Birch chase graphics match the seeded battle species and preserve the authored default")
+{
+    InitEventData();
+    SetBirchChaseGraphics();
+    EXPECT_EQ(VarGet(VAR_OBJ_GFX_ID_0), OBJ_EVENT_GFX_ZIGZAGOON_1);
+    EXPECT_EQ(GetBirchRescueSpecies(), SPECIES_ZIGZAGOON);
+    FlagSet(FLAG_RUN_RULE_ENCOUNTERS);
+    for (u32 seed = 0; seed < 64; seed++)
+    {
+        memcpy(gSaveBlock2Ptr->playerTrainerId, &seed, sizeof(seed));
+        u16 species = GetBirchRescueSpecies();
+        SetBirchChaseGraphics();
+        EXPECT_EQ(VarGet(VAR_OBJ_GFX_ID_0), GetGraphicsIdForMon(species, FALSE, FALSE));
+        EXPECT_EQ(GetBirchRescueSpecies(), species);
+    }
+    InitEventData();
 }

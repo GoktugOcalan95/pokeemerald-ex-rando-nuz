@@ -1,4 +1,7 @@
 #include "global.h"
+#include "event_object_movement.h"
+#include "constants/event_objects.h"
+#include "constants/vars.h"
 #include "pokemon.h"
 #include "event_data.h"
 #include "battle_pike.h"
@@ -266,4 +269,17 @@ void CreateRandomizedEnemyEventMon(struct ScriptContext *ctx)
     gSpecialVar_0x8006 = RandomizeItemReward(VarGet(ScriptReadHalfword(ctx)), ITEM_REWARD_GIFT_HELD, source, 0);
     CreateEnemyEventMon();
     PrepareRandomizedEncounterMon(&gParties[B_TRAINER_OPPONENT_A][0]);
+}
+
+u16 GetBirchRescueSpecies(void)
+{
+    return RandomizeEncounterSpecies(SPECIES_ZIGZAGOON, SPECIES_REWARD_FIRST_BATTLE, 0, 0);
+}
+
+void SetBirchChaseGraphics(void)
+{
+    u16 graphics = OBJ_EVENT_GFX_ZIGZAGOON_1;
+    if (FlagGet(FLAG_RUN_RULE_ENCOUNTERS))
+        graphics = GetGraphicsIdForMon(GetBirchRescueSpecies(), FALSE, FALSE);
+    VarSet(VAR_OBJ_GFX_ID_0, graphics);
 }

@@ -4,6 +4,7 @@ Route101_MapScripts::
 	.byte 0
 
 Route101_OnTransition:
+	special SetBirchChaseGraphics
 	call ProfBirch_EventScript_UpdateLocation
 	end
 

@@ -103,6 +103,25 @@ static const u8 sCatchHelpHigh[] = _("5x the normal catch chance,\nup to 100%. B
 static const u8 sCatchHelpInstant[] = _("Guarantee valid wild catches with\na short animation. Balls are used.");
 static const u8 *const sCatchHelp[] = {sCatchHelpNone, sCatchHelpLow, sCatchHelpMedium, sCatchHelpHigh, sCatchHelpInstant};
 
+static const u8 sDifficultyHelpNormal[] = _("Standard trainer levels and IVs.\nRandomized teams keep their size.");
+static const u8 sDifficultyHelpHard[] = _("31 IVs; +1 level for non-bosses.\nStronger randomized teams and AI.");
+static const u8 sDifficultyHelpUnfair[] = _("31 IVs; +1 to +5 levels as you progress.\nStronger randomized teams and AI.");
+static const u8 *const sDifficultyHelp[] = {sDifficultyHelpNormal, sDifficultyHelpHard, sDifficultyHelpUnfair};
+static const u8 sGoodHelp0[] = _("Use the full eligible move pool.\nGood attacks may still be chosen.");
+static const u8 sGoodHelp1[] = _("10% chance to prefer a good attack.\nOtherwise use the full move pool.");
+static const u8 sGoodHelp2[] = _("20% chance to prefer a good attack.\nOtherwise use the full move pool.");
+static const u8 sGoodHelp3[] = _("30% chance to prefer a good attack.\nOtherwise use the full move pool.");
+static const u8 sGoodHelp4[] = _("40% chance to prefer a good attack.\nOtherwise use the full move pool.");
+static const u8 sGoodHelp5[] = _("50% chance to prefer a good attack.\nOtherwise use the full move pool.");
+static const u8 sGoodHelp6[] = _("60% chance to prefer a good attack.\nOtherwise use the full move pool.");
+static const u8 sGoodHelp7[] = _("70% chance to prefer a good attack.\nOtherwise use the full move pool.");
+static const u8 sGoodHelp8[] = _("80% chance to prefer a good attack.\nOtherwise use the full move pool.");
+static const u8 sGoodHelp9[] = _("90% chance to prefer a good attack.\nOtherwise use the full move pool.");
+static const u8 sGoodHelp10[] = _("Always prefer a good attack.\nUse other moves if none remain.");
+static const u8 *const sGoodHelp[] = {sGoodHelp0, sGoodHelp1, sGoodHelp2, sGoodHelp3, sGoodHelp4, sGoodHelp5, sGoodHelp6, sGoodHelp7, sGoodHelp8, sGoodHelp9, sGoodHelp10};
+static const u8 sAutoHealHelpOff[] = _("Keep HP, status and PP after battles.\nTera charge is not restored.");
+static const u8 *const sAutoHealHelp[] = {sAutoHealHelpOff, sHelp_AUTO_HEAL};
+
 const struct RunSetupSettingInfo gRunSetupSettings[RUN_SETUP_SETTING_COUNT] =
 {
     [RUN_SETUP_ENCOUNTERS] = {sLabel_ENCOUNTERS, sHelp_ENCOUNTERS, sBooleanChoices, FLAG_RUN_RULE_ENCOUNTERS, RUN_SETUP_CATEGORY_POKEMON, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 0, 1}},
@@ -110,8 +129,8 @@ const struct RunSetupSettingInfo gRunSetupSettings[RUN_SETUP_SETTING_COUNT] =
     [RUN_SETUP_SETUP_MOVE_PP] = {sLabel_SETUP_MOVE_PP, sHelp_SETUP_MOVE_PP, sBooleanChoices, FLAG_RUN_RULE_SETUP_MOVE_PP, RUN_SETUP_CATEGORY_MOVES, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 1, 1}},
     [RUN_SETUP_LEARNSETS] = {sLabel_LEARNSETS, sHelp_LEARNSETS, sBooleanChoices, FLAG_RUN_RULE_LEARNSETS, RUN_SETUP_CATEGORY_POKEMON, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 0, 1}},
     [RUN_SETUP_TMS_TUTORS] = {sLabel_TMS_TUTORS, sHelp_TMS_TUTORS, sBooleanChoices, FLAG_RUN_RULE_TMS_TUTORS, RUN_SETUP_CATEGORY_MOVES, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 0, 1}},
-    [RUN_SETUP_GOOD_MOVE_CHANCE] = {sLabel_GOOD_MOVE_CHANCE, sHelp_GOOD_MOVE_CHANCE, sChanceChoices, VAR_RUN_RULE_GOOD_MOVE_CHANCE, RUN_SETUP_CATEGORY_MOVES, ARRAY_COUNT(sChanceChoices), RUN_SETUP_DEPENDENCY_MOVES, {0, 0, 3}},
-    [RUN_SETUP_DIFFICULTY] = {sLabel_DIFFICULTY, sHelp_DIFFICULTY, sDifficultyChoices, VAR_RUN_RULE_DIFFICULTY, RUN_SETUP_CATEGORY_TRAINERS, ARRAY_COUNT(sDifficultyChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 1, 2}},
+    [RUN_SETUP_GOOD_MOVE_CHANCE] = {sLabel_GOOD_MOVE_CHANCE, sHelp_GOOD_MOVE_CHANCE, sChanceChoices, VAR_RUN_RULE_GOOD_MOVE_CHANCE, RUN_SETUP_CATEGORY_MOVES, ARRAY_COUNT(sChanceChoices), RUN_SETUP_DEPENDENCY_MOVES, {0, 0, 3}, sGoodHelp},
+    [RUN_SETUP_DIFFICULTY] = {sLabel_DIFFICULTY, sHelp_DIFFICULTY, sDifficultyChoices, VAR_RUN_RULE_DIFFICULTY, RUN_SETUP_CATEGORY_TRAINERS, ARRAY_COUNT(sDifficultyChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 1, 2}, sDifficultyHelp},
     [RUN_SETUP_TRAINERS] = {sLabel_TRAINERS, sHelp_TRAINERS, sBooleanChoices, FLAG_RUN_RULE_TRAINERS, RUN_SETUP_CATEGORY_TRAINERS, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 0, 1}},
     [RUN_SETUP_ENEMY_STAB] = {sLabel_ENEMY_STAB, sHelp_ENEMY_STAB, sBooleanChoices, FLAG_RUN_RULE_ENEMY_STAB, RUN_SETUP_CATEGORY_TRAINERS, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_TRAINERS, {0, 0, 1}},
     [RUN_SETUP_LEVEL_CAPS] = {sLabel_LEVEL_CAPS, sHelp_LEVEL_CAPS, sBooleanChoices, FLAG_RUN_RULE_LEVEL_CAPS, RUN_SETUP_CATEGORY_BATTLE, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 1, 1}},
@@ -133,7 +152,7 @@ const struct RunSetupSettingInfo gRunSetupSettings[RUN_SETUP_SETTING_COUNT] =
     [RUN_SETUP_REMOVE_STORY] = {sLabel_REMOVE_STORY, sHelp_REMOVE_STORY, sStoryChoices, FLAG_RUN_RULE_REMOVE_STORY, RUN_SETUP_CATEGORY_PROGRESSION, ARRAY_COUNT(sStoryChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 1, 1}},
     [RUN_SETUP_EARLY_SURF] = {sLabel_EARLY_SURF, sHelp_EARLY_SURF, sBooleanChoices, FLAG_RUN_RULE_EARLY_SURF, RUN_SETUP_CATEGORY_PROGRESSION, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 0, 1}},
     [RUN_SETUP_EARLY_FLY] = {sLabel_EARLY_FLY, sHelp_EARLY_FLY, sBooleanChoices, FLAG_RUN_RULE_EARLY_FLY, RUN_SETUP_CATEGORY_PROGRESSION, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 0, 1}},
-    [RUN_SETUP_AUTO_HEAL] = {sLabel_AUTO_HEAL, sHelp_AUTO_HEAL, sBooleanChoices, FLAG_RUN_RULE_AUTO_HEAL, RUN_SETUP_CATEGORY_MISC, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 1, 1}},
+    [RUN_SETUP_AUTO_HEAL] = {sLabel_AUTO_HEAL, sHelp_AUTO_HEAL, sBooleanChoices, FLAG_RUN_RULE_AUTO_HEAL, RUN_SETUP_CATEGORY_MISC, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 1, 1}, sAutoHealHelp},
     [RUN_SETUP_CATCH_BONUS] = {sLabel_CATCH_BONUS, sHelp_CATCH_BONUS, sCatchChoices, VAR_RUN_RULE_CATCH_BONUS, RUN_SETUP_CATEGORY_MISC, ARRAY_COUNT(sCatchChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 1, 4}, sCatchHelp},
 };
 

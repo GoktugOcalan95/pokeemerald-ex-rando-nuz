@@ -114,6 +114,14 @@ void RandomizeGiftFromScript(struct ScriptContext *ctx)
     gSpecialVar_0x8000 = RandomizeItemReward(gSpecialVar_0x8000, ITEM_REWARD_GIFT, source, slot);
 }
 
+void GiveAuthoredRandomGiftFromScript(struct ScriptContext *ctx)
+{
+    u16 original = gSpecialVar_0x8000;
+    RandomizeGiftFromScript(ctx);
+    gSpecialVar_Result = AddAuthoredItemReward(original, gSpecialVar_0x8000, gSpecialVar_0x8001);
+    gSpecialVar_0x800B = gSpecialVar_Result && IsExpandedTMListEnabled() && original >= ITEM_TM01 && original <= ITEM_TM50 ? original + 50 : ITEM_NONE;
+}
+
 void RandomizeFreeGiftFromScript(struct ScriptContext *ctx)
 {
     gSpecialVar_0x8000 = RandomizeItemReward(gSpecialVar_0x8000, ITEM_REWARD_GIFT, (u32)ctx->scriptPtr, 0);

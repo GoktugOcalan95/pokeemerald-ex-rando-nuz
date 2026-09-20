@@ -23,6 +23,7 @@ TEST("Full compatibility Off preserves species teachable moves")
     u32 count = GetNormalTeachableMoveCount(SPECIES_BULBASAUR);
 
     FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    FlagSet(FLAG_RUN_RULE_EXPANDED_TMS);
 
     EXPECT_EQ(GetPlayerTeachableMoveCount(SPECIES_BULBASAUR), count);
     for (u32 i = 0; i < count; i++)
@@ -48,8 +49,10 @@ TEST("Full compatibility On allows offered moves for valid non-Egg species")
 TEST("Full compatibility Pokédex moves match effective compatibility without duplicates")
 {
     u32 count;
+    bool8 seen[MOVES_COUNT] = {0};
 
     FlagSet(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    FlagSet(FLAG_RUN_RULE_EXPANDED_TMS);
     count = GetPlayerTeachableMoveCount(SPECIES_BULBASAUR);
 
     EXPECT_GT(count, GetNormalTeachableMoveCount(SPECIES_BULBASAUR));
@@ -59,8 +62,8 @@ TEST("Full compatibility Pokédex moves match effective compatibility without du
 
         EXPECT_NE(move, MOVE_NONE);
         EXPECT(CanPlayerLearnTeachableMove(SPECIES_BULBASAUR, move));
-        for (u32 j = 0; j < i; j++)
-            EXPECT_NE(move, GetPlayerTeachableMove(SPECIES_BULBASAUR, j));
+        EXPECT(!seen[move]);
+        seen[move] = TRUE;
     }
     EXPECT_EQ(GetPlayerTeachableMove(SPECIES_BULBASAUR, count), MOVE_NONE);
 

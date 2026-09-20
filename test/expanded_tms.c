@@ -1,4 +1,6 @@
 #include "global.h"
+#include "player_teachable_moves.h"
+#include "test/overworld_script.h"
 #include "coins.h"
 #include "event_data.h"
 #include "expanded_tms.h"
@@ -12,19 +14,22 @@
 #include "teaching_randomizer.h"
 #include "test/test.h"
 #include "constants/flags.h"
+#include "constants/vars.h"
 
-TEST("Expanded TMs require randomized teaching and retain their saved preset choice")
+asm(".set VAR_TRICK_HOUSE_PRIZE_PICKUP, " STR(VAR_TRICK_HOUSE_PRIZE_PICKUP) "\n");
+
+TEST("Expanded TMs work independently of randomized teaching and retain their saved choice")
 {
     RunSetup_Begin();
     RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
     EXPECT(RunSetup_IsAvailable(RUN_SETUP_EXPANDED_TMS));
     RunSetup_SetValue(RUN_SETUP_TMS_TUTORS, FALSE);
-    EXPECT(!RunSetup_IsAvailable(RUN_SETUP_EXPANDED_TMS));
+    EXPECT(RunSetup_IsAvailable(RUN_SETUP_EXPANDED_TMS));
     EXPECT(RunSetup_GetValue(RUN_SETUP_EXPANDED_TMS));
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
-    EXPECT(!IsExpandedTMListEnabled());
-    EXPECT_EQ(GetItemTMHMMoveId(ITEM_TM51), MOVE_NONE);
+    EXPECT(IsExpandedTMListEnabled());
+    EXPECT_EQ(GetItemTMHMMoveId(ITEM_TM51), MOVE_FOCUS_BLAST);
     RunSetup_Begin();
     RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
     RunSetup_Confirm();
@@ -139,4 +144,62 @@ TEST("Expanded TMs join consumable loot with equal item weights and never enter 
     for (u32 source = 0; source < 256; source++)
         EXPECT_NE(GetItemPocket(RandomizeItemReward(ITEM_POTION, ITEM_REWARD_WILD_HELD, source, 0)), POCKET_TM_HM);
     EXPECT_EQ(foundTM, !reusable);
+}
+
+TEST("Expanded TMs use approved fixed moves and native compatibility")
+{
+    static const u16 moves[] = {MOVE_FOCUS_BLAST, MOVE_PLAY_ROUGH, MOVE_DRAGON_PULSE, MOVE_TRICK_ROOM, MOVE_ACROBATICS, MOVE_WILL_O_WISP, MOVE_ICE_SPINNER, MOVE_ROCK_POLISH, MOVE_FALSE_SWIPE, MOVE_TRAILBLAZE, MOVE_ENERGY_BALL, MOVE_ENCORE, MOVE_SEED_BOMB, MOVE_STONE_EDGE, MOVE_HYPER_VOICE, MOVE_DAZZLING_GLEAM, MOVE_ROOST, MOVE_SCALD, MOVE_X_SCISSOR, MOVE_TAILWIND, MOVE_KNOCK_OFF, MOVE_BUG_BUZZ, MOVE_PSYCHIC_FANGS, MOVE_WILD_CHARGE, MOVE_POWER_GEM, MOVE_EARTH_POWER, MOVE_U_TURN, MOVE_POISON_JAB, MOVE_SHADOW_CLAW, MOVE_DARK_PULSE, MOVE_AURA_SPHERE, MOVE_AVALANCHE, MOVE_BODY_PRESS, MOVE_VOLT_SWITCH, MOVE_AIR_SLASH, MOVE_FLASH_CANNON, MOVE_STEALTH_ROCK, MOVE_HEAT_WAVE, MOVE_BULLDOZE, MOVE_LIQUIDATION, MOVE_SNARL, MOVE_NASTY_PLOT, MOVE_GRASS_KNOT, MOVE_PSYSHOCK, MOVE_DRAINING_KISS, MOVE_PAYBACK, MOVE_GYRO_BALL, MOVE_IRON_HEAD, MOVE_DRAGON_DANCE, MOVE_DRAIN_PUNCH};
+    InitEventData();
+    FlagSet(FLAG_RUN_RULE_EXPANDED_TMS);
+    for (u32 i = 0; i < ARRAY_COUNT(moves); i++)
+        EXPECT_EQ(GetTMHMMoveId(51 + i), moves[i]);
+    EXPECT_EQ(GetTMHMMoveId(1), MOVE_FOCUS_PUNCH);
+    EXPECT_EQ(GetTMHMMoveId(50), MOVE_OVERHEAT);
+    EXPECT_EQ(GetItemTMHMMoveId(ITEM_HM01), MOVE_CUT);
+    EXPECT(CanPlayerLearnTeachableMove(SPECIES_GENGAR, MOVE_FOCUS_BLAST));
+    EXPECT(!CanPlayerLearnTeachableMove(SPECIES_MAGIKARP, MOVE_FOCUS_BLAST));
+    FlagSet(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+    EXPECT(CanPlayerLearnTeachableMove(SPECIES_MAGIKARP, MOVE_FOCUS_BLAST));
+    InitEventData();
+}
+
+TEST("Expanded TMs pair stable randomized Trick House gifts")
+{
+    bool32 randomItems = FALSE;
+    PARAMETRIZE { randomItems = FALSE; }
+    PARAMETRIZE { randomItems = TRUE; }
+    InitEventData();
+    ClearBag();
+    FlagSet(FLAG_RUN_RULE_EXPANDED_TMS);
+    if (randomItems)
+        FlagSet(FLAG_RUN_RULE_ITEMS);
+    gSpecialVar_0x8000 = ITEM_TM_TAUNT;
+    gSpecialVar_0x8001 = 1;
+    RUN_OVERWORLD_SCRIPT(
+        callnative GiveAuthoredRandomGiftFromScript;
+        .2byte VAR_TRICK_HOUSE_PRIZE_PICKUP;
+        .byte 4;
+    );
+    EXPECT(gSpecialVar_Result);
+    EXPECT_EQ(gSpecialVar_0x800B, ITEM_TM62);
+    EXPECT_EQ(CountTotalItemQuantityInBag(ITEM_TM62), 1);
+    EXPECT(CheckBagHasItem(gSpecialVar_0x8000, 1));
+    if (!randomItems)
+        EXPECT_EQ(gSpecialVar_0x8000, ITEM_TM_TAUNT);
+    InitEventData();
+}
+
+TEST("Expanded TMs hide inactive fixed moves without changing native compatibility")
+{
+    InitEventData();
+    bool32 found = FALSE;
+    for (u32 i = 0; i < GetPlayerTeachableMoveCount(SPECIES_GENGAR); i++)
+        found |= GetPlayerTeachableMove(SPECIES_GENGAR, i) == MOVE_FOCUS_BLAST;
+    EXPECT(!found);
+    EXPECT(CanLearnTeachableMove(SPECIES_GENGAR, MOVE_FOCUS_BLAST));
+    FlagSet(FLAG_RUN_RULE_EXPANDED_TMS);
+    for (u32 i = 0; i < GetPlayerTeachableMoveCount(SPECIES_GENGAR); i++)
+        found |= GetPlayerTeachableMove(SPECIES_GENGAR, i) == MOVE_FOCUS_BLAST;
+    EXPECT(found);
+    InitEventData();
 }

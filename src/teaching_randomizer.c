@@ -27,7 +27,7 @@ static EWRAM_DATA u8 sMoveDescription[256] = {0};
 
 bool32 IsExpandedTMListEnabled(void)
 {
-    return FlagGet(FLAG_RUN_RULE_EXPANDED_TMS) && FlagGet(FLAG_RUN_RULE_TMS_TUTORS);
+    return FlagGet(FLAG_RUN_RULE_EXPANDED_TMS);
 }
 
 u32 GetActiveTMCount(void)

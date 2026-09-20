@@ -62,7 +62,7 @@ TEST("Teaching randomizer uses one unique TM and tutor pool and leaves HMs fixed
     EXPECT_EQ(GetTutorMove(999), MOVE_UNAVAILABLE);
     FlagClear(FLAG_RUN_RULE_TMS_TUTORS);
     for (u32 index = 0; index <= NUM_ALL_MACHINES; index++)
-        EXPECT_EQ(GetTMHMMoveId(index), gTMHMItemMoveIds[index].moveId);
+        EXPECT_EQ(GetTMHMMoveId(index), index > GetActiveTMCount() && index <= NUM_TECHNICAL_MACHINES ? MOVE_NONE : gTMHMItemMoveIds[index].moveId);
     for (u32 index = 0; gTutorMoves[index] != MOVE_UNAVAILABLE; index++)
         EXPECT_EQ(GetTutorMove(index), gTutorMoves[index]);
 }

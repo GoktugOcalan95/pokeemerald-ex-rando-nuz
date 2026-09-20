@@ -17,11 +17,10 @@
 enum TMHMIndex
 {
     FOREACH_TM(UNPACK_TM_HM_ENUM)
-    ENUM_TM_HM_LAST_EXTRA = 99,
     FOREACH_HM(UNPACK_TM_HM_ENUM)
     NUM_ALL_MACHINES,
-    NUM_TECHNICAL_MACHINES = 100,
-    NUM_ORIGINAL_TECHNICAL_MACHINES = (0 FOREACH_TM(PLUS_ONE)),
+    NUM_TECHNICAL_MACHINES = (0 FOREACH_TM(PLUS_ONE)),
+    NUM_ORIGINAL_TECHNICAL_MACHINES = (0 FOREACH_ORIGINAL_TM(PLUS_ONE)),
     NUM_HIDDEN_MACHINES = (0 FOREACH_HM(PLUS_ONE)),
 };
 #undef UNPACK_TM_HM_ENUM
@@ -123,8 +122,6 @@ extern const struct TmHmIndexKey gTMHMItemMoveIds[];
 
 static inline enum TMHMIndex GetItemTMHMIndex(enum Item item)
 {
-    if (item >= ITEM_TM51 && item <= ITEM_TM100)
-        return item - ITEM_TM01 + 1;
     switch (item)
     {
     /* Expands to:

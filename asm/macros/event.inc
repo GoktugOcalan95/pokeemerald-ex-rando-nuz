@@ -2180,8 +2180,13 @@
 	.endm
 
 	.macro giveitem_random item:req, source:req, amount=1, slot=0
-	resolveitem_random \item, \source, \amount, \slot
-	callstd STD_OBTAIN_ITEM
+	setorcopyvar VAR_0x8000, \item
+	setorcopyvar VAR_0x8001, \amount
+	callnative GiveAuthoredRandomGiftFromScript
+	.2byte \source
+	.byte \slot
+	call EventScript_ObtainGrantedItem
+	call EventScript_ObtainTMPartnerMessage
 	.endm
 
 	.macro msgbox_randomgift text:req, type=MSGBOX_DEFAULT

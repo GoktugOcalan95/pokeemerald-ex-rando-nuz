@@ -105,6 +105,21 @@ bool32 CanPlayerLearnTeachableMove(enum Species species, enum Move move)
         || IsMoveInLevelUpLearnset(GetSpeciesLevelUpLearnset(species), move);
 }
 
+static bool32 IsInactiveExpandedTeachingMove(enum Move move)
+{
+    if (IsExpandedTMListEnabled())
+        return FALSE;
+    for (u32 i = NUM_ORIGINAL_TECHNICAL_MACHINES + 1; i <= NUM_TECHNICAL_MACHINES; i++)
+    {
+        if (gTMHMItemMoveIds[i].moveId != move)
+            continue;
+        if (IsMachineMove(move) || IsTutorMove(move) || IsMoveInLearnset(gTutorMoves, move))
+            return FALSE;
+        return TRUE;
+    }
+    return FALSE;
+}
+
 static enum Move GetPlayerTeachableMoveInternal(enum Species species, u32 index, u32 *count)
 {
     const u16 *learnset = GetSpeciesTeachableLearnset(species);
@@ -112,7 +127,7 @@ static enum Move GetPlayerTeachableMoveInternal(enum Species species, u32 index,
 
     for (u32 i = 0; learnset[i] != MOVE_UNAVAILABLE; i++)
     {
-        if (IsDuplicateLearnsetMove(learnset, i))
+        if (IsDuplicateLearnsetMove(learnset, i) || IsInactiveExpandedTeachingMove(learnset[i]))
             continue;
         if ((*count)++ == index)
             return learnset[i];

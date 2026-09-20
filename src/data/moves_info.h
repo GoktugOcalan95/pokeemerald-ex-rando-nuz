@@ -21548,7 +21548,9 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     [MOVE_WICKED_TORQUE] =
     {
         .name = COMPOUND_STRING("Wicked Torque"),
-        .description = COMPOUND_STRING("---"),
+        .description = COMPOUND_STRING(
+            "A wicked charge that may\n"
+            "put the target to sleep."),
         .effect = EFFECT_HIT,
         .power = 80,
         .type = TYPE_DARK,

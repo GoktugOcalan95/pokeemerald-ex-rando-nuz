@@ -2428,13 +2428,13 @@ static u32 CheckTargetTypeEffectiveness(enum BattlerId battler)
 
 static void MoveSelectionDisplayMoveEffectiveness(u32 foeEffectiveness, enum BattlerId battler)
 {
-    static const u16 icons[][12] = {
-        [EFFECTIVENESS_NO_EFFECT] = {0, 0x303, 0x387, 0x1CE, 0x0FC, 0x078, 0x078, 0x0FC, 0x1CE, 0x387, 0x303, 0},
-        [EFFECTIVENESS_MOSTLY_INEFFECTIVE] = {0x303, 0x387, 0x1CE, 0x0FC, 0x078, 0, 0x303, 0x387, 0x1CE, 0x0FC, 0x078, 0},
-        [EFFECTIVENESS_NOT_VERY_EFFECTIVE] = {0, 0, 0, 0x303, 0x387, 0x1CE, 0x0FC, 0x078, 0, 0, 0, 0},
-        [EFFECTIVENESS_NORMAL] = {0, 0, 0x084, 0x186, 0x303, 0x201, 0x303, 0x186, 0x084, 0, 0, 0},
-        [EFFECTIVENESS_SUPER_EFFECTIVE] = {0, 0, 0, 0x078, 0x0FC, 0x1CE, 0x387, 0x303, 0, 0, 0, 0},
-        [EFFECTIVENESS_EXTREMELY_EFFECTIVE] = {0x078, 0x0FC, 0x1CE, 0x387, 0x303, 0, 0x078, 0x0FC, 0x1CE, 0x387, 0x303, 0},
+    static const u8 icons[][9] = {
+        [EFFECTIVENESS_NO_EFFECT] = {0x00, 0x22, 0x14, 0x08, 0x14, 0x22, 0x00, 0x00, 0x00},
+        [EFFECTIVENESS_MOSTLY_INEFFECTIVE] = {0x41, 0x22, 0x14, 0x08, 0x00, 0x41, 0x22, 0x14, 0x08},
+        [EFFECTIVENESS_NOT_VERY_EFFECTIVE] = {0x00, 0x00, 0x41, 0x22, 0x14, 0x08, 0x00, 0x00, 0x00},
+        [EFFECTIVENESS_NORMAL] = {0x00, 0x00, 0x14, 0x22, 0x41, 0x22, 0x14, 0x00, 0x00},
+        [EFFECTIVENESS_SUPER_EFFECTIVE] = {0x00, 0x00, 0x08, 0x14, 0x22, 0x41, 0x00, 0x00, 0x00},
+        [EFFECTIVENESS_EXTREMELY_EFFECTIVE] = {0x08, 0x14, 0x22, 0x41, 0x00, 0x08, 0x14, 0x22, 0x41},
     };
     struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleResources->bufferA[battler][4]);
 
@@ -2442,10 +2442,10 @@ static void MoveSelectionDisplayMoveEffectiveness(u32 foeEffectiveness, enum Bat
     if (!IsBattleMoveStatus(moveInfo->moves[gMoveSelectionCursor[battler]])
      && foeEffectiveness > EFFECTIVENESS_CANNOT_VIEW && foeEffectiveness < ARRAY_COUNT(icons))
     {
-        for (u32 y = 0; y < 12; y++)
-            for (u32 x = 0; x < 10; x++)
-                if (icons[foeEffectiveness][y] & (1 << (9 - x)))
-                    FillWindowPixelRect(B_WIN_PP, PIXEL_FILL(13), 21 + x, 2 + y, 1, 1);
+        for (u32 y = 0; y < 9; y++)
+            for (u32 x = 0; x < 7; x++)
+                if (icons[foeEffectiveness][y] & (1 << (6 - x)))
+                    FillWindowPixelRect(B_WIN_PP, PIXEL_FILL(13), 22 + x, 3 + y, 1, 1);
         CopyWindowToVram(B_WIN_PP, COPYWIN_GFX);
     }
 }

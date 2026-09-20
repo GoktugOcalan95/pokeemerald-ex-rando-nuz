@@ -1,6 +1,7 @@
 #include "global.h"
 #include "event_data.h"
 #include "item.h"
+#include "malloc.h"
 #include "move.h"
 #include "move_randomizer.h"
 #include "player_teachable_moves.h"
@@ -40,14 +41,56 @@ static void InitTeachingMoves(void)
     u32 tmCount = GetActiveTMCount();
     if (sTeachingReady && seed == sTeachingSeed && sTeachingChance == GetRandomizerGoodMoveChance() && sTeachingTMCount == tmCount)
         return;
-    bool8 used[MOVES_COUNT] = {0};
-    for (u32 index = NUM_TECHNICAL_MACHINES + 1; index <= NUM_ALL_MACHINES; index++)
-        used[gTMHMItemMoveIds[index].moveId] = TRUE;
-    for (u32 index = 0; index < tmCount + TUTOR_MOVE_COUNT; index++)
+    bool8 excluded[MOVES_COUNT] = {0};
+    struct TeachingPool
     {
-        u32 move = ChooseRandomizerMove(TEACHING_DOMAIN, index, 0, used);
-        sTeachingMoves[index] = move;
-        used[move] = TRUE;
+        bool8 good[MOVES_COUNT];
+        u16 moves[MOVES_COUNT];
+    } *pool = Alloc(sizeof(*pool));
+    u32 count = 0, goodCount = 0;
+    u32 chance = GetRandomizerGoodMoveChance();
+    for (u32 index = NUM_TECHNICAL_MACHINES + 1; index <= NUM_ALL_MACHINES; index++)
+        excluded[gTMHMItemMoveIds[index].moveId] = TRUE;
+    if (pool == NULL)
+    {
+        for (u32 index = 0; index < tmCount + TUTOR_MOVE_COUNT; index++)
+        {
+            sTeachingMoves[index] = ChooseRandomizerMove(TEACHING_DOMAIN, index, 0, excluded);
+            excluded[sTeachingMoves[index]] = TRUE;
+        }
+    }
+    else
+    {
+        for (u32 move = 1; move < MOVES_COUNT; move++)
+        {
+            if (excluded[move] || !IsRandomizerMoveAllowed(move))
+                continue;
+            pool->moves[count++] = move;
+            pool->good[move] = IsRandomizerGoodAttack(move);
+            goodCount += pool->good[move];
+        }
+        for (u32 index = 0; index < tmCount + TUTOR_MOVE_COUNT; index++)
+        {
+            if (count == 0)
+            {
+                sTeachingMoves[index] = MOVE_NONE;
+                continue;
+            }
+            bool32 preferGood = goodCount != 0 && RunRandomizerHash(TEACHING_DOMAIN ^ 0x80000000, index, 0) % 100 < chance;
+            u32 choice = RunRandomizerHash(TEACHING_DOMAIN, index, 0) % (preferGood ? goodCount : count);
+            for (u32 slot = 0; slot < count; slot++)
+            {
+                if ((!preferGood || pool->good[pool->moves[slot]]) && choice-- == 0)
+                {
+                    sTeachingMoves[index] = pool->moves[slot];
+                    goodCount -= pool->good[pool->moves[slot]];
+                    // Preserve ascending pool order so seeded selections stay identical.
+                    memmove(&pool->moves[slot], &pool->moves[slot + 1], (--count - slot) * sizeof(pool->moves[0]));
+                    break;
+                }
+            }
+        }
+        Free(pool);
     }
     sTeachingTMCount = tmCount;
     sTeachingSeed = seed;

@@ -1,4 +1,5 @@
 #include "global.h"
+#include "constants/vars.h"
 #include "event_data.h"
 #include "item.h"
 #include "list_menu.h"
@@ -245,4 +246,63 @@ TEST("Teaching randomizer move descriptions and Frontier labels fit their window
         StringCopy(description, GetItemDescription(GetTMHMItemId(i)));
         EXPECT_EQ(StringCompare(description, GetRandomizedMoveDescription(GetTMHMMoveId(i), 106)), 0);
     }
+}
+
+TEST("Teaching startup preserves assignments and reduces cold TM lookup cost")
+{
+    u32 chance = 0;
+    bool32 expanded = FALSE;
+    for (u32 c = 0; c <= 100; c += 50)
+    {
+        PARAMETRIZE { chance = c; expanded = FALSE; }
+        PARAMETRIZE { chance = c; expanded = TRUE; }
+    }
+    InitEventData();
+    FlagSet(FLAG_RUN_RULE_TMS_TUTORS);
+    if (expanded)
+        FlagSet(FLAG_RUN_RULE_EXPANDED_TMS);
+    VarSet(VAR_RUN_RULE_GOOD_MOVE_CHANCE, chance);
+    gSaveBlock2Ptr->playerTrainerId[0]++;
+    ClearBag();
+    AddBagItem(ITEM_TM01, 1);
+    AddBagItem(ITEM_TM02, 1);
+    AddBagItem(ITEM_HM01, 1);
+    u32 tmCount = GetActiveTMCount(), tutorCount = 0;
+    while (gTutorMoves[tutorCount] != MOVE_UNAVAILABLE)
+        tutorCount++;
+    u16 expected[NUM_TECHNICAL_MACHINES + 64];
+    bool8 used[MOVES_COUNT] = {0};
+    for (u32 i = NUM_TECHNICAL_MACHINES + 1; i <= NUM_ALL_MACHINES; i++)
+        used[gTMHMItemMoveIds[i].moveId] = TRUE;
+    u32 baseline = 0;
+    VBlankIntrWait();
+    for (u32 i = 0; i < tmCount + tutorCount; i++)
+    {
+        REG_TM3CNT = (TIMER_ENABLE | TIMER_1024CLK) << 16;
+        expected[i] = ChooseRandomizerMove(0x300, i, 0, used);
+        used[expected[i]] = TRUE;
+        REG_TM3CNT_H = 0;
+        baseline += REG_TM3CNT_L;
+    }
+    VBlankIntrWait();
+    REG_TM3CNT = (TIMER_ENABLE | TIMER_1024CLK) << 16;
+    EXPECT_EQ(GetItemTMHMMoveId(ITEM_TM01), expected[0]);
+    EXPECT_EQ(GetItemTMHMMoveId(ITEM_TM02), expected[1]);
+    EXPECT_EQ(GetItemTMHMMoveId(ITEM_HM01), MOVE_CUT);
+    REG_TM3CNT_H = 0;
+    u32 cold = REG_TM3CNT_L;
+    VBlankIntrWait();
+    REG_TM3CNT = (TIMER_ENABLE | TIMER_1024CLK) << 16;
+    GetItemTMHMMoveId(ITEM_TM01);
+    GetItemTMHMMoveId(ITEM_TM02);
+    GetItemTMHMMoveId(ITEM_HM01);
+    REG_TM3CNT_H = 0;
+    u32 warm = REG_TM3CNT_L;
+    Test_MgbaPrintf("Teaching startup: %d TMs, %d%% good; baseline %d, cold %d, warm %d ticks (1024 cycles)", tmCount, chance, baseline, cold, warm);
+    EXPECT_LT(cold, baseline);
+    for (u32 i = 0; i < tmCount; i++)
+        EXPECT_EQ(GetTMHMMoveId(i + 1), expected[i]);
+    for (u32 i = 0; i < tutorCount; i++)
+        EXPECT_EQ(GetTutorMove(i), expected[tmCount + i]);
+    InitEventData();
 }

@@ -134,8 +134,6 @@ static u8 SaveConfirmOverwriteCallback(void);
 static u8 SaveOverwriteInputCallback(void);
 static u8 SaveSavingMessageCallback(void);
 static u8 SaveDoSaveCallback(void);
-static u8 SaveSuccessCallback(void);
-static u8 SaveReturnSuccessCallback(void);
 static u8 SaveErrorCallback(void);
 static u8 SaveReturnErrorCallback(void);
 static u8 BattlePyramidConfirmRetireCallback(void);
@@ -276,7 +274,6 @@ static void ShowSaveMessage(const u8 *message, u8 (*saveCallback)(void));
 static void HideSaveMessageWindow(void);
 static void HideSaveInfoWindow(void);
 static void SaveStartTimer(void);
-static bool8 SaveSuccesTimer(void);
 static bool8 SaveErrorTimer(void);
 static void InitBattlePyramidRetire(void);
 static void VBlankCB_LinkBattleSave(void);
@@ -991,7 +988,10 @@ static void ShowSaveMessage(const u8 *message, u8 (*saveCallback)(void))
 {
     StringExpandPlaceholders(gStringVar4, message);
     LoadMessageBoxAndFrameGfx(0, TRUE);
-    AddTextPrinterForMessage(TRUE);
+    if (message == gText_SavingDontTurnOff)
+        AddTextPrinterWithCustomSpeedForMessage(FALSE, 0);
+    else
+        AddTextPrinterForMessage(TRUE);
     sSavingComplete = TRUE;
     sSaveDialogCallback = saveCallback;
 }
@@ -1030,23 +1030,6 @@ static void HideSaveInfoWindow(void)
 static void SaveStartTimer(void)
 {
     sSaveDialogTimer = 60;
-}
-
-static bool8 SaveSuccesTimer(void)
-{
-    sSaveDialogTimer--;
-
-    if (JOY_HELD(A_BUTTON))
-    {
-        PlaySE(SE_SELECT);
-        return TRUE;
-    }
-    if (sSaveDialogTimer == 0)
-    {
-        return TRUE;
-    }
-
-    return FALSE;
 }
 
 static bool8 SaveErrorTimer(void)
@@ -1192,36 +1175,16 @@ static u8 SaveDoSaveCallback(void)
     }
 
     if (saveStatus == SAVE_STATUS_OK)
-        ShowSaveMessage(gText_PlayerSavedGame, SaveSuccessCallback);
-    else
-        ShowSaveMessage(gText_SaveError, SaveErrorCallback);
-
-    SaveStartTimer();
-    return SAVE_IN_PROGRESS;
-}
-
-static u8 SaveSuccessCallback(void)
-{
-    if (!IsTextPrinterActiveOnWindow(0))
     {
         PlaySE(SE_SAVE);
-        sSaveDialogCallback = SaveReturnSuccessCallback;
-    }
-
-    return SAVE_IN_PROGRESS;
-}
-
-static u8 SaveReturnSuccessCallback(void)
-{
-    if (!IsSEPlaying() && SaveSuccesTimer())
-    {
         HideSaveInfoWindow();
+        HideSaveMessageWindow();
         return SAVE_SUCCESS;
     }
-    else
-    {
-        return SAVE_IN_PROGRESS;
-    }
+
+    ShowSaveMessage(gText_SaveError, SaveErrorCallback);
+    SaveStartTimer();
+    return SAVE_IN_PROGRESS;
 }
 
 static u8 SaveErrorCallback(void)

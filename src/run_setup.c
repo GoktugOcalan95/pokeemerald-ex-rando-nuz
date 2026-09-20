@@ -87,8 +87,21 @@ static const u8 sLabel_EARLY_FLY[] = _("Early Fly");
 static const u8 sHelp_EARLY_FLY[] = _("Receive Fly from the Route 110 rival.\nNo badge needed for field use.");
 static const u8 sLabel_AUTO_HEAL[] = _("Auto heal");
 static const u8 sHelp_AUTO_HEAL[] = _("Heal surviving party Pokémon\nand recharge Tera after battles.");
-static const u8 sLabel_INSTANT_CATCH[] = _("Instant catch");
-static const u8 sHelp_INSTANT_CATCH[] = _("Guarantee valid wild catches with\na short animation. Balls are used.");
+static const u8 sCatchNone[] = _("None");
+static const u8 sCatchLow[] = _("Low");
+static const u8 sCatchMedium[] = _("Medium");
+static const u8 sCatchHigh[] = _("High");
+static const u8 sCatchInstant[] = _("Instant");
+static const u8 *const sCatchChoices[] = {sCatchNone, sCatchLow, sCatchMedium, sCatchHigh, sCatchInstant};
+static const u8 sLabel_CATCH_BONUS[] = _("Catch bonus");
+static const u8 sHelp_CATCH_BONUS[] = _("Boost the normal catch chance.\nBalls are still used.");
+
+static const u8 sCatchHelpNone[] = _("Use the normal catch chance.\nBalls are still used.");
+static const u8 sCatchHelpLow[] = _("1.5x the normal catch chance,\nup to 100%. Balls are still used.");
+static const u8 sCatchHelpMedium[] = _("3x the normal catch chance,\nup to 100%. Balls are still used.");
+static const u8 sCatchHelpHigh[] = _("5x the normal catch chance,\nup to 100%. Balls are still used.");
+static const u8 sCatchHelpInstant[] = _("Guarantee valid wild catches with\na short animation. Balls are used.");
+static const u8 *const sCatchHelp[] = {sCatchHelpNone, sCatchHelpLow, sCatchHelpMedium, sCatchHelpHigh, sCatchHelpInstant};
 
 const struct RunSetupSettingInfo gRunSetupSettings[RUN_SETUP_SETTING_COUNT] =
 {
@@ -121,7 +134,7 @@ const struct RunSetupSettingInfo gRunSetupSettings[RUN_SETUP_SETTING_COUNT] =
     [RUN_SETUP_EARLY_SURF] = {sLabel_EARLY_SURF, sHelp_EARLY_SURF, sBooleanChoices, FLAG_RUN_RULE_EARLY_SURF, RUN_SETUP_CATEGORY_PROGRESSION, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 0, 1}},
     [RUN_SETUP_EARLY_FLY] = {sLabel_EARLY_FLY, sHelp_EARLY_FLY, sBooleanChoices, FLAG_RUN_RULE_EARLY_FLY, RUN_SETUP_CATEGORY_PROGRESSION, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 0, 1}},
     [RUN_SETUP_AUTO_HEAL] = {sLabel_AUTO_HEAL, sHelp_AUTO_HEAL, sBooleanChoices, FLAG_RUN_RULE_AUTO_HEAL, RUN_SETUP_CATEGORY_MISC, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 1, 1}},
-    [RUN_SETUP_INSTANT_CATCH] = {sLabel_INSTANT_CATCH, sHelp_INSTANT_CATCH, sBooleanChoices, FLAG_RUN_RULE_INSTANT_CATCH, RUN_SETUP_CATEGORY_MISC, ARRAY_COUNT(sBooleanChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 0, 1}},
+    [RUN_SETUP_CATCH_BONUS] = {sLabel_CATCH_BONUS, sHelp_CATCH_BONUS, sCatchChoices, VAR_RUN_RULE_CATCH_BONUS, RUN_SETUP_CATEGORY_MISC, ARRAY_COUNT(sCatchChoices), RUN_SETUP_DEPENDENCY_NONE, {0, 1, 4}, sCatchHelp},
 };
 
 enum RunSetupState
@@ -372,12 +385,28 @@ void RunSetup_SetSetupMovePP(bool32 enabled)
     RunSetup_SetValue(RUN_SETUP_SETUP_MOVE_PP, enabled != FALSE);
 }
 
-bool32 RunSetup_GetInstantCatch(void)
+u32 RunSetup_GetCatchBonus(void)
 {
-    return RunSetup_GetValue(RUN_SETUP_INSTANT_CATCH);
+    return RunSetup_GetValue(RUN_SETUP_CATCH_BONUS);
 }
 
-void RunSetup_SetInstantCatch(bool32 enabled)
+void RunSetup_SetCatchBonus(u32 value)
 {
-    RunSetup_SetValue(RUN_SETUP_INSTANT_CATCH, enabled != FALSE);
+    RunSetup_SetValue(RUN_SETUP_CATCH_BONUS, value);
+}
+
+u32 GetSavedCatchBonus(void)
+{
+#if !IS_FRLG
+    u32 value = VarGet(VAR_RUN_RULE_CATCH_BONUS);
+    return value < CATCH_BONUS_COUNT ? value : CATCH_BONUS_NONE;
+#else
+    return CATCH_BONUS_NONE;
+#endif
+}
+
+const u8 *RunSetup_GetHelp(enum RunSetupSetting setting)
+{
+    const struct RunSetupSettingInfo *info = &gRunSetupSettings[setting];
+    return info->valueHelp != NULL ? info->valueHelp[RunSetup_GetValue(setting)] : info->help;
 }

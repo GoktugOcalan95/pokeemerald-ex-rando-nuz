@@ -3,6 +3,16 @@
 
 #define RUN_SETUP_VISIBLE_ROWS 4
 
+enum CatchBonus
+{
+    CATCH_BONUS_NONE,
+    CATCH_BONUS_LOW,
+    CATCH_BONUS_MEDIUM,
+    CATCH_BONUS_HIGH,
+    CATCH_BONUS_INSTANT,
+    CATCH_BONUS_COUNT,
+};
+
 enum RunSetupPreset
 {
     RUN_SETUP_PRESET_VANILLA,
@@ -57,7 +67,7 @@ enum RunSetupSetting
     RUN_SETUP_EARLY_SURF,
     RUN_SETUP_EARLY_FLY,
     RUN_SETUP_AUTO_HEAL,
-    RUN_SETUP_INSTANT_CATCH,
+    RUN_SETUP_CATCH_BONUS,
     RUN_SETUP_SETTING_COUNT,
 };
 
@@ -80,6 +90,7 @@ struct RunSetupSettingInfo
     u8 choiceCount;
     u8 dependency;
     u8 presets[RUN_SETUP_PRESET_COUNT];
+    const u8 *const *valueHelp;
 };
 
 struct RunSetupNavigation
@@ -90,6 +101,7 @@ struct RunSetupNavigation
 
 extern const struct RunSetupSettingInfo gRunSetupSettings[RUN_SETUP_SETTING_COUNT];
 u32 RunSetup_GetValue(enum RunSetupSetting setting);
+const u8 *RunSetup_GetHelp(enum RunSetupSetting setting);
 void RunSetup_SetValue(enum RunSetupSetting setting, u32 value);
 bool32 RunSetup_IsAvailable(enum RunSetupSetting setting);
 u32 RunSetup_GetCategoryCount(u32 category);
@@ -128,7 +140,8 @@ void RunSetup_SetFrostbite(bool32 enabled);
 bool32 RunSetup_GetSetupMovePP(void);
 void RunSetup_SetSetupMovePP(bool32 enabled);
 
-bool32 RunSetup_GetInstantCatch(void);
-void RunSetup_SetInstantCatch(bool32 enabled);
+u32 RunSetup_GetCatchBonus(void);
+u32 GetSavedCatchBonus(void);
+void RunSetup_SetCatchBonus(u32 value);
 
 #endif // GUARD_RUN_SETUP_H

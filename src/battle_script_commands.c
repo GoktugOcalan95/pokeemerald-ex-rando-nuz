@@ -1,4 +1,6 @@
 #include "global.h"
+#include "catch_bonus.h"
+#include "run_setup.h"
 #include "battle.h"
 #include "battle_hold_effects.h"
 #include "battle_message.h"
@@ -8123,12 +8125,13 @@ static u32 ComputeCaptureOdds(u32 wildMonBattler, u32 playerBattler)
     return odds;
 }
 
-static bool32 CriticalCapture(u32 odds)
+static bool32 CriticalCapture(u32 odds, u32 *threshold)
 {
     u32 numCaught;
     u32 totalDexCount;
     u32 charmBoost = 1;
 
+    *threshold = 0;
     if (B_CRITICAL_CAPTURE == FALSE)
         return FALSE;
 
@@ -8157,15 +8160,14 @@ static bool32 CriticalCapture(u32 odds)
     if (odds > 255)
         odds = 255;
 
-    odds /= 6;
-    if (RandomUniform(RNG_BALLTHROW_CRITICAL, 0, MAX_u8) < odds)
-        return TRUE;
-
-    return FALSE;
+    *threshold = odds / 6;
+    return RandomUniform(RNG_BALLTHROW_CRITICAL, 0, MAX_u8) < *threshold;
 }
 
 static u32 ComputeBallShakeOdds(u32 odds)
 {
+    if (odds == 0)
+        return 0;
     odds = Sqrt(Sqrt(16711680 / odds));
     odds = 1048560 / odds;
     return odds;
@@ -8187,7 +8189,7 @@ static void SetBallThrowShakes(void)
     gBattleSpritesDataPtr->animationData->criticalCaptureSuccess = FALSE;
 
 #if !IS_FRLG
-    if (FlagGet(FLAG_RUN_RULE_INSTANT_CATCH))
+    if (GetSavedCatchBonus() == CATCH_BONUS_INSTANT)
     {
         gBattleSpritesDataPtr->animationData->isCriticalCapture = TRUE;
         FinalizeCapture();
@@ -8205,7 +8207,8 @@ static void SetBallThrowShakes(void)
     u32 shakes;
     u32 maxShakes;
 
-    if (CriticalCapture(odds))
+    u32 criticalThreshold;
+    if (CriticalCapture(odds, &criticalThreshold))
     {
         maxShakes = BALL_1_SHAKE;  // critical capture doesn't guarantee capture
         gBattleSpritesDataPtr->animationData->isCriticalCapture = TRUE;
@@ -8227,7 +8230,14 @@ static void SetBallThrowShakes(void)
             break;
     }
 
-    if (shakes == maxShakes) // mon caught, copy of the code above
+    if (shakes != maxShakes && GetSavedCatchBonus() != CATCH_BONUS_NONE)
+    {
+        u64 rescue = CalculateCatchBonusRescueThreshold(odds, criticalThreshold, GetSavedCatchBonus());
+        if (rescue != 0 && (rescue >= (1ULL << 32) || RandomUniform(RNG_BALLTHROW_BONUS, 0, MAX_u16) < ((rescue + 32768) >> 16)))
+            shakes = maxShakes;
+    }
+
+    if (shakes == maxShakes)
     {
         if (IsCriticalCapture())
             gBattleSpritesDataPtr->animationData->criticalCaptureSuccess = TRUE;

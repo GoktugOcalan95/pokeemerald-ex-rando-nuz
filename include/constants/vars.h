@@ -269,7 +269,7 @@
 #define VAR_UNUSED_0x40F7                                0x40F7 // Unused Var
 #define VAR_UNUSED_0x40F8                                0x40F8 // Unused Var
 #define VAR_UNUSED_0x40F9                                0x40F9 // Unused Var
-#define VAR_UNUSED_0x40FA                                0x40FA // Unused Var
+#define VAR_RUN_RULE_CATCH_BONUS                         0x40FA
 #define VAR_MOUNTED_BIKE                                 0x40FB
 #define VAR_BOSS_REWARDS_EARNED                          0x40FC
 #define VAR_BOSS_REWARDS_DELIVERED                       0x40FD

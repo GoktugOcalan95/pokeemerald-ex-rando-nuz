@@ -253,6 +253,7 @@ WILD_BATTLE_TEST("Capture: ball data is properly set in captured pokemon")
     }
 
     GIVEN {
+        WITH_CONFIG(B_MISSING_BADGE_CATCH_MALUS, GEN_7);
         PLAYER(SPECIES_WOBBUFFET);
         OPPONENT(SPECIES_WOBBUFFET);
     } WHEN {

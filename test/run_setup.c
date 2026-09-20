@@ -295,6 +295,11 @@ TEST("Run setup labels, values and help fit the four-row layout")
         u32 x = info->dependency == RUN_SETUP_DEPENDENCY_NONE ? 16 : 24;
         u32 labelWidth = GetStringWidth(FONT_NORMAL, info->label, 0);
         EXPECT(GetStringWidth(FONT_SMALL, info->help, 0) <= 208);
+        if (info->valueHelp != NULL)
+        {
+            for (u32 j = 0; j < info->choiceCount; j++)
+                EXPECT(GetStringWidth(FONT_SMALL, info->valueHelp[j], 0) <= 208);
+        }
         for (u32 choice = 0; choice < info->choiceCount; choice++)
             EXPECT(x + labelWidth + 8 + GetStringWidth(FONT_NORMAL, info->choices[choice], 0) <= 208);
         for (u32 j = i + 1; j < RUN_SETUP_SETTING_COUNT; j++)
@@ -398,5 +403,25 @@ TEST("Run setup Slateport limit is independent and saves both choices")
         FlagSet(FLAG_RUN_RULE_LIMIT_SLATEPORT_SHOP);
     EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
     EXPECT_EQ(FlagGet(FLAG_RUN_RULE_LIMIT_SLATEPORT_SHOP), enabled);
+    InitEventData();
+}
+
+TEST("Catch bonus tiers survive save and load and reject invalid values")
+{
+    u32 tier = 0;
+    for (u32 i = CATCH_BONUS_NONE; i < CATCH_BONUS_COUNT; i++)
+        PARAMETRIZE { tier = i; }
+    InitEventData();
+    RunSetup_Begin();
+    RunSetup_SetCatchBonus(tier);
+    RunSetup_Confirm();
+    RunSetup_ApplyToNewGame();
+    Save_ResetSaveCounters();
+    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
+    InitEventData();
+    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
+    EXPECT_EQ(GetSavedCatchBonus(), tier);
+    VarSet(VAR_RUN_RULE_CATCH_BONUS, CATCH_BONUS_COUNT);
+    EXPECT_EQ(GetSavedCatchBonus(), CATCH_BONUS_NONE);
     InitEventData();
 }

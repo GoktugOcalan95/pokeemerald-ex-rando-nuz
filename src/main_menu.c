@@ -1502,7 +1502,7 @@ static void DrawRunSetupScreen(u8 taskId)
     {
         enum RunSetupSetting setting = RunSetup_GetCategorySetting(category, selection - 2);
 
-        help = gRunSetupSettings[setting].help;
+        help = RunSetup_GetHelp(setting);
         if (!RunSetup_IsAvailable(setting))
         {
             switch (gRunSetupSettings[setting].dependency)

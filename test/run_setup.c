@@ -164,6 +164,7 @@ TEST("Run setup disabled children retain choices but have no saved effect")
 {
     RunSetup_Begin();
     RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
+    RunSetup_SetValue(RUN_SETUP_GOOD_MOVE_CHANCE, 3);
     RunSetup_SetValue(RUN_SETUP_ITEMS, 0);
     RunSetup_SetValue(RUN_SETUP_LEARNSETS, 0);
     RunSetup_SetValue(RUN_SETUP_TMS_TUTORS, 0);

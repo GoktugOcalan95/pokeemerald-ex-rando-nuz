@@ -35,28 +35,6 @@ static bool32 IsTutorMove(enum Move move)
     return FALSE;
 }
 
-static bool32 IsMoveInLearnset(const u16 *learnset, enum Move move)
-{
-    for (u32 i = 0; learnset[i] != MOVE_UNAVAILABLE; i++)
-    {
-        if (learnset[i] == move)
-            return TRUE;
-    }
-
-    return FALSE;
-}
-
-static bool32 IsDuplicateLearnsetMove(const u16 *learnset, u32 index)
-{
-    for (u32 i = 0; i < index; i++)
-    {
-        if (learnset[i] == learnset[index])
-            return TRUE;
-    }
-
-    return FALSE;
-}
-
 static bool32 IsDuplicateMachineMove(enum Move move, u32 index)
 {
     for (u32 i = 0; i < index; i++)
@@ -89,56 +67,33 @@ static bool32 IsMoveInLevelUpLearnset(const struct LevelUpMove *learnset, enum M
     return FALSE;
 }
 
-bool32 CanPlayerLearnTeachableMove(enum Species species, enum Move move)
+static bool32 CanPlayerLearnOfferedMove(enum Species species, enum Move move)
 {
-    if (!IsValidPlayerSpecies(species) || move == MOVE_NONE || move >= MOVES_COUNT)
-        return FALSE;
-    if (CanLearnTeachableMove(species, move))
-        return TRUE;
-    if (!IsMachineMove(move) && !IsTutorMove(move))
-        return FALSE;
-    if (FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY))
-        return TRUE;
-
-    return IsMoveInLearnset(GetSpeciesEggMoves(species), move)
-        || IsMoveInLevelUpLearnset(gSpeciesInfo[species].levelUpLearnset, move)
-        || IsMoveInLevelUpLearnset(GetSpeciesLevelUpLearnset(species), move);
+    return FlagGet(FLAG_RUN_RULE_FULL_COMPATIBILITY)
+        || IsSpeciesCompatibleWithMove(species, move)
+        || (FlagGet(FLAG_RUN_RULE_LEARNSETS)
+            && IsMoveInLevelUpLearnset(GetSpeciesLevelUpLearnset(species), move));
 }
 
-static bool32 IsInactiveExpandedTeachingMove(enum Move move)
+bool32 CanPlayerLearnTeachableMove(enum Species species, enum Move move)
 {
-    if (IsExpandedTMListEnabled())
+    if (!IsValidPlayerSpecies(species) || move <= MOVE_NONE || move >= MOVES_COUNT || move == MOVE_STRUGGLE)
         return FALSE;
-    for (u32 i = NUM_ORIGINAL_TECHNICAL_MACHINES + 1; i <= NUM_TECHNICAL_MACHINES; i++)
-    {
-        if (gTMHMItemMoveIds[i].moveId != move)
-            continue;
-        if (IsMachineMove(move) || IsTutorMove(move) || IsMoveInLearnset(gTutorMoves, move))
-            return FALSE;
-        return TRUE;
-    }
-    return FALSE;
+    if (!IsMachineMove(move) && !IsTutorMove(move))
+        return FALSE;
+    return CanPlayerLearnOfferedMove(species, move);
 }
 
 static enum Move GetPlayerTeachableMoveInternal(enum Species species, u32 index, u32 *count)
 {
-    const u16 *learnset = GetSpeciesTeachableLearnset(species);
     *count = 0;
-
-    for (u32 i = 0; learnset[i] != MOVE_UNAVAILABLE; i++)
-    {
-        if (IsDuplicateLearnsetMove(learnset, i) || IsInactiveExpandedTeachingMove(learnset[i]))
-            continue;
-        if ((*count)++ == index)
-            return learnset[i];
-    }
 
     for (u32 i = 0; i < NUM_ALL_MACHINES; i++)
     {
         enum Move move = GetTMHMMoveId(i + 1);
 
-        if (move == MOVE_NONE || IsMoveInLearnset(learnset, move) || IsDuplicateMachineMove(move, i)
-            || !CanPlayerLearnTeachableMove(species, move))
+        if (move == MOVE_NONE || IsDuplicateMachineMove(move, i)
+            || !CanPlayerLearnOfferedMove(species, move))
             continue;
         if ((*count)++ == index)
             return move;
@@ -148,8 +103,8 @@ static enum Move GetPlayerTeachableMoveInternal(enum Species species, u32 index,
     {
         enum Move move = GetTutorMove(i);
 
-        if (IsMoveInLearnset(learnset, move) || IsMachineMove(move) || IsDuplicateTutorMove(move, i)
-            || !CanPlayerLearnTeachableMove(species, move))
+        if (IsMachineMove(move) || IsDuplicateTutorMove(move, i)
+            || !CanPlayerLearnOfferedMove(species, move))
             continue;
         if ((*count)++ == index)
             return move;

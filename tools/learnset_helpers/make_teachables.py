@@ -3,10 +3,11 @@
 """
 Usage: python3 make_teachable.py SOURCE_DIR
 
-Build a C-header defining the set of teachable moves for each configured-on
+Build fixed teaching lists and full move compatibility for each configured-on
 species-family based on the learnable moves defined in SOURCE_DIR/all_learnables.json.
 
-A move is "teachable" if it is:
+Full compatibility retains source learnability independently of teaching sources.
+A move is in the fixed teaching list if it is:
     1. Can be taught by some Move Tutor in the overworld, which is identified by
        using the ChooseMonForMoveTutor special in a script and setting VAR_0x8005
        to the offered MOVE constant. (e.g., MOVE_SWAGGER)
@@ -77,11 +78,15 @@ def prepare_output(all_learnables: dict[str, set[str]], tms: list[str], tutors: 
 
     tm_litteracy_config = extract_tm_litteracy_config()
 
-    cursor = 0
+    move_source = pathlib.Path("include/constants/moves.h").read_text().split("    MOVES_COUNT =")[0]
+    all_moves = [name for name, value in re.findall(r"^\s*(MOVE_\w+)(?:\s*=\s*([^,]+))?,", move_source, re.M)
+                 if name not in ("MOVE_NONE", "MOVE_STRUGGLE") and not value.strip().startswith("MOVE_")]
     new = header + dedent("""
-    static const u16 sNoneTeachableLearnset[] = {
-        MOVE_UNAVAILABLE,
-    };
+    static const u16 sNoTeachingMoves[] = {MOVE_UNAVAILABLE};
+    static const struct TeachingLearnsets sNoneTeachableLearnset[] = {{
+        .fixedMoves = sNoTeachingMoves,
+        .compatibleMoves = sNoTeachingMoves,
+    }};
     """)
 
     joinpat = ",\n    "
@@ -91,10 +96,11 @@ def prepare_output(all_learnables: dict[str, set[str]], tms: list[str], tutors: 
             continue
         species = species_data["name"]
         teaching_type = species_data["teaching_type"]
-        new += f"static const u16 s{species}TeachableLearnset[] = "
+        new += f"static const u16 s{species}FixedTeachingMoves[] = "
         new += "{\n"
         species_upper =  SNAKIFY_PAT.sub(r"_\1", species).upper()
         if teaching_type == "ALL_TEACHABLES":
+            compatible = [move for move in all_moves if move not in special_movesets["signatureTeachables"]]
             part1 = list(filter(lambda m: m not in special_movesets["signatureTeachables"], tms))
             part2 = list(filter(lambda m: m not in special_movesets["signatureTeachables"], tutors))
         else:
@@ -104,12 +110,15 @@ def prepare_output(all_learnables: dict[str, set[str]], tms: list[str], tutors: 
                     learnables = filter(lambda m: m not in special_movesets["universalMoves"], learnables)
             else:
                 learnables = all_learnables[species_upper] + special_movesets["universalMoves"]
-            part1 = list(filter(lambda m: m in learnables, tms))
-            part2 = list(filter(lambda m: m in learnables, tutors))
+            compatible = list(learnables)
+            part1 = list(filter(lambda m: m in compatible, tms))
+            part2 = list(filter(lambda m: m in compatible, tutors))
 
 
         repo_species_teachables = part1 + part2
+        compatible = sorted(set(compatible))
         if species_upper == "TERAPAGOS":
+             compatible = [move for move in compatible if move != "MOVE_TERA_BLAST"]
              repo_species_teachables = filter(lambda m: m != "MOVE_TERA_BLAST", repo_species_teachables)
 
         repo_species_teachables = list(dict.fromkeys(repo_species_teachables))
@@ -117,6 +126,13 @@ def prepare_output(all_learnables: dict[str, set[str]], tms: list[str], tutors: 
             f"    {joinpat.join(chain(repo_species_teachables, ('MOVE_UNAVAILABLE',)))},",
             "};\n",
         ])
+
+        new += f"static const u16 s{species}MoveCompatibility[] = {{\n    "
+        new += joinpat.join(compatible + ["MOVE_UNAVAILABLE"]) + "\n};\n"
+        new += f"static const struct TeachingLearnsets s{species}TeachableLearnset[] = {{{{\n"
+        new += f"    .fixedMoves = s{species}FixedTeachingMoves,\n"
+        new += f"    .compatibleMoves = s{species}MoveCompatibility,\n"
+        new += "}};\n"
 
     return new
 

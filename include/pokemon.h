@@ -393,6 +393,12 @@ struct Evolution
     const struct EvolutionParam *params;
 };
 
+struct TeachingLearnsets
+{
+    const u16 *fixedMoves;
+    const u16 *compatibleMoves;
+};
+
 struct SpeciesInfo /*0xC4*/
 {
     u8 baseHP;
@@ -506,7 +512,7 @@ struct SpeciesInfo /*0xC4*/
     enum EggIds eggId:12;
     // Move Data
     const struct LevelUpMove *levelUpLearnset;
-    const u16 *teachableLearnset;
+    const struct TeachingLearnsets *teachableLearnset;
     const u16 *eggMoveLearnset;
     const struct Evolution *evolutions;
     const u16 *formSpeciesIdTable;
@@ -867,6 +873,8 @@ u32 GetSpeciesBaseStat(enum Species species, u32 statIndex);
 u32 GetSpeciesBaseStatTotal(enum Species species);
 const struct LevelUpMove *GetSpeciesLevelUpLearnset(enum Species species);
 const u16 *GetSpeciesTeachableLearnset(enum Species species);
+const u16 *GetSpeciesMoveCompatibility(enum Species species);
+bool32 IsSpeciesCompatibleWithMove(enum Species species, enum Move move);
 const u16 *GetSpeciesEggMoves(enum Species species);
 bool32 SpeciesHasEggMove(enum Species species, enum Move move);
 const struct Evolution *GetSpeciesEvolutions(enum Species species);

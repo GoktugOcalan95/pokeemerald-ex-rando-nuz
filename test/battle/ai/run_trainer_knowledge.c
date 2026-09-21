@@ -9,6 +9,8 @@
 #include "event_data.h"
 #include "trainer_difficulty.h"
 #include "constants/vars.h"
+#include "constants/flags.h"
+#include "player_teachable_moves.h"
 
 AI_SINGLE_BATTLE_TEST("Trainer AI keeps unrevealed abilities items and PP unknown")
 {
@@ -86,5 +88,60 @@ AI_SINGLE_BATTLE_TEST("Trainer AI PP stall simulations use remembered types and 
         SetActiveGimmick(B_BATTLER_0, GIMMICK_TERA);
         EXPECT_EQ(Test_PpStallReduction(MOVE_LOW_KICK, B_BATTLER_1, B_BATTLER_0), 0);
         EXPECT_EQ(GetActiveGimmick(B_BATTLER_0), GIMMICK_TERA);
+    }
+}
+
+bool32 Test_ShouldFailForIllusion(enum Species species, enum BattlerId battler);
+
+AI_SINGLE_BATTLE_TEST("Illusion AI respects full native compatibility and run teaching rules")
+{
+    GIVEN {
+        VarSet(VAR_RUN_RULE_DIFFICULTY, RUN_TRAINER_NORMAL);
+        FlagClear(FLAG_RUN_RULE_TRAINERS);
+        FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+        FlagClear(FLAG_RUN_RULE_LEARNSETS);
+        FlagClear(FLAG_RUN_RULE_TMS_TUTORS);
+        AI_FLAGS(AI_FLAG_BASIC_TRAINER);
+        PLAYER(SPECIES_ZOROARK) { Ability(ABILITY_ILLUSION); Moves(MOVE_SPLASH); }
+        PLAYER(SPECIES_VENUSAUR);
+        OPPONENT(SPECIES_ALAKAZAM) { Moves(MOVE_SPLASH); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_SPLASH); EXPECT_MOVE(opponent, MOVE_SPLASH); }
+    } THEN {
+        EXPECT(!UsesRunTrainerKnowledge());
+        gBattleHistory->abilities[B_BATTLER_0] = ABILITY_NONE;
+        for (u32 i = 0; i < MAX_MON_MOVES; i++)
+            gBattleHistory->usedMoves[B_BATTLER_0][i] = MOVE_NONE;
+
+        gBattleHistory->usedMoves[B_BATTLER_0][0] = MOVE_THUNDER_FANG;
+        EXPECT(!CanLearnTeachableMove(SPECIES_BAXCALIBUR, MOVE_THUNDER_FANG));
+        EXPECT(Test_ShouldFailForIllusion(SPECIES_BAXCALIBUR, B_BATTLER_0));
+
+        gBattleHistory->usedMoves[B_BATTLER_0][0] = MOVE_THUNDERBOLT;
+        EXPECT(!IsSpeciesCompatibleWithMove(SPECIES_VENUSAUR, MOVE_THUNDERBOLT));
+        EXPECT(!Test_ShouldFailForIllusion(SPECIES_VENUSAUR, B_BATTLER_0));
+        FlagSet(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+        EXPECT(CanPlayerLearnTeachableMove(SPECIES_VENUSAUR, MOVE_THUNDERBOLT));
+        EXPECT(Test_ShouldFailForIllusion(SPECIES_VENUSAUR, B_BATTLER_0));
+
+        gBattleHistory->usedMoves[B_BATTLER_0][0] = MOVE_DRAGON_ASCENT;
+        EXPECT(!CanPlayerLearnTeachableMove(SPECIES_VENUSAUR, MOVE_DRAGON_ASCENT));
+        EXPECT(!Test_ShouldFailForIllusion(SPECIES_VENUSAUR, B_BATTLER_0));
+        FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
+        FlagSet(FLAG_RUN_RULE_LEARNSETS);
+        const struct LevelUpMove *learnset = GetSpeciesLevelUpLearnset(SPECIES_VENUSAUR);
+        bool32 found = FALSE;
+        for (u32 i = 0; learnset[i].move != LEVEL_UP_MOVE_END; i++)
+            if (!IsSpeciesCompatibleWithMove(SPECIES_VENUSAUR, learnset[i].move))
+            {
+                found = TRUE;
+                gBattleHistory->usedMoves[B_BATTLER_0][0] = learnset[i].move;
+                EXPECT(Test_ShouldFailForIllusion(SPECIES_VENUSAUR, B_BATTLER_0));
+                break;
+            }
+        EXPECT(found);
+        gBattleHistory->abilities[B_BATTLER_0] = ABILITY_ILLUSION;
+        EXPECT(!Test_ShouldFailForIllusion(SPECIES_VENUSAUR, B_BATTLER_0));
+        FlagClear(FLAG_RUN_RULE_LEARNSETS);
     }
 }

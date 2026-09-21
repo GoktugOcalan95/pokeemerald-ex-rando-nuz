@@ -69,23 +69,10 @@ TEST("Teaching randomizer uses one unique TM and tutor pool and leaves HMs fixed
 
 static bool32 HasNaturalMove(enum Species species, enum Move move)
 {
-    const u16 *teachable = GetSpeciesTeachableLearnset(species);
-    const u16 *eggs = GetSpeciesEggMoves(species);
-    const struct LevelUpMove *levels = gSpeciesInfo[species].levelUpLearnset;
-    for (u32 i = 0; teachable[i] != MOVE_UNAVAILABLE; i++)
-        if (teachable[i] == move)
-            return TRUE;
-    for (u32 i = 0; eggs[i] != MOVE_UNAVAILABLE; i++)
-        if (eggs[i] == move)
-            return TRUE;
-    if (levels != NULL)
-        for (u32 i = 0; levels[i].move != LEVEL_UP_MOVE_END; i++)
-            if (levels[i].move == move)
-                return TRUE;
-    return FALSE;
+    return IsSpeciesCompatibleWithMove(species, move);
 }
 
-TEST("Teaching randomizer compatibility follows assigned moves and both level-up lists")
+TEST("Teaching randomizer compatibility follows assigned moves and full native data and randomized level-up moves")
 {
     const u16 species[] = {SPECIES_BULBASAUR, SPECIES_MAGIKARP, SPECIES_MEW, SPECIES_SMEARGLE, SPECIES_GENGAR};
     u32 naturalOnly = 0, randomizedOnly = 0, rejected = 0, sourceMismatch = 0;

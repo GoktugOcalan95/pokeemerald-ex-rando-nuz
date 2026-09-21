@@ -17,6 +17,7 @@
 #include "item.h"
 #include "move.h"
 #include "pokemon.h"
+#include "player_teachable_moves.h"
 #include "random.h"
 #include "recorded_battle.h"
 #include "util.h"
@@ -357,8 +358,9 @@ static bool32 ShouldFailForIllusion(enum Species illusionSpecies, enum BattlerId
         if (learnset[learnsetMoveIndex].move != MOVE_UNAVAILABLE)
             continue;
 
-        // The used move can be learned from Tm/Hm or Move Tutors.
-        if (CanLearnTeachableMove(illusionSpecies, move))
+        // Native moves and teaching allowed by the run rules are plausible.
+        if (IsSpeciesCompatibleWithMove(illusionSpecies, move)
+            || CanPlayerLearnTeachableMove(illusionSpecies, move))
             continue;
 
         // 'Illegal move', AI won't fail for the illusion.
@@ -367,6 +369,13 @@ static bool32 ShouldFailForIllusion(enum Species illusionSpecies, enum BattlerId
 
     return TRUE;
 }
+
+#if TESTING
+bool32 Test_ShouldFailForIllusion(enum Species species, enum BattlerId battler)
+{
+    return ShouldFailForIllusion(species, battler);
+}
+#endif
 
 void SetBattlerData(enum BattlerId battlerId)
 {

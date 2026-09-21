@@ -3335,12 +3335,34 @@ const struct LevelUpMove *GetSpeciesLevelUpLearnset(enum Species species)
     return GetRandomizedLearnset(SanitizeSpeciesId(species), learnset);
 }
 
+static const struct TeachingLearnsets *GetSpeciesTeachingLearnsets(enum Species species)
+{
+    const struct TeachingLearnsets *learnsets = gSpeciesInfo[SanitizeSpeciesId(species)].teachableLearnset;
+    if (learnsets == NULL)
+        return gSpeciesInfo[SPECIES_NONE].teachableLearnset;
+    return learnsets;
+}
+
 const u16 *GetSpeciesTeachableLearnset(enum Species species)
 {
-    const u16 *learnset = gSpeciesInfo[SanitizeSpeciesId(species)].teachableLearnset;
-    if (learnset == NULL)
-        return gSpeciesInfo[SPECIES_NONE].teachableLearnset;
-    return learnset;
+    return GetSpeciesTeachingLearnsets(species)->fixedMoves;
+}
+
+const u16 *GetSpeciesMoveCompatibility(enum Species species)
+{
+    return GetSpeciesTeachingLearnsets(species)->compatibleMoves;
+}
+
+bool32 IsSpeciesCompatibleWithMove(enum Species species, enum Move move)
+{
+    if (species <= SPECIES_NONE || species >= NUM_SPECIES || !IsSpeciesEnabled(species)
+        || species == SPECIES_EGG || move <= MOVE_NONE || move >= MOVES_COUNT || move == MOVE_STRUGGLE)
+        return FALSE;
+    const u16 *moves = GetSpeciesMoveCompatibility(species);
+    for (u32 i = 0; moves[i] != MOVE_UNAVAILABLE; i++)
+        if (moves[i] == move)
+            return TRUE;
+    return FALSE;
 }
 
 const u16 *GetSpeciesEggMoves(enum Species species)

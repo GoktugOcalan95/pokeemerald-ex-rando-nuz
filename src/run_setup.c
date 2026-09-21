@@ -104,7 +104,7 @@ static const u8 sCatchHelpInstant[] = _("Guarantee valid wild catches with\na sh
 static const u8 *const sCatchHelp[] = {sCatchHelpNone, sCatchHelpLow, sCatchHelpMedium, sCatchHelpHigh, sCatchHelpInstant};
 
 static const u8 sDifficultyHelpNormal[] = _("Standard trainer levels and IVs.\nRandomized teams keep their size.");
-static const u8 sDifficultyHelpHard[] = _("31 IVs; +1 level for non-bosses.\nStronger randomized teams and AI.");
+static const u8 sDifficultyHelpHard[] = _("+1 level; boss aces stay ahead.\n31 IVs; stronger teams and AI.");
 static const u8 sDifficultyHelpUnfair[] = _("31 IVs; +1 to +5 levels as you progress.\nStronger randomized teams and AI.");
 static const u8 *const sDifficultyHelp[] = {sDifficultyHelpNormal, sDifficultyHelpHard, sDifficultyHelpUnfair};
 static const u8 sGoodHelp0[] = _("Use the full eligible move pool.\nGood attacks may still be chosen.");

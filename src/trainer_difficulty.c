@@ -77,8 +77,22 @@ u32 GetRunTrainerLevel(u16 trainerId, u32 level)
         else
             level++;
     }
-    else if (difficulty == RUN_TRAINER_HARD && !IsRunTrainerBoss(trainerId))
-        level++;
+    else if (difficulty == RUN_TRAINER_HARD)
+    {
+        if (IsRunTrainerBoss(trainerId))
+        {
+            const struct Trainer *trainer = GetRunTrainer(trainerId);
+            const struct Trainer *source = trainer->overrideTrainer ? GetRunTrainer(trainer->overrideTrainer) : trainer;
+            u32 count = trainer->partySize ? trainer->partySize : source->partySize;
+            u32 aceLevel = 0;
+            for (u32 i = 0; i < count; i++)
+                aceLevel = max(aceLevel, source->party[i].lvl);
+            if (level < aceLevel)
+                level = min(level + 1, aceLevel - 1);
+        }
+        else
+            level++;
+    }
     return min(level, MAX_LEVEL);
 }
 

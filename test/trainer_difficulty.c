@@ -40,14 +40,21 @@ TEST("Trainer difficulty applies the level IV and party size matrix to campaign 
         if (!randomized && !difficulty)
             continue;
         u32 lowest = 0;
+        u32 aceLevel = trainer->party[0].lvl;
         for (u32 i = 1; i < trainer->partySize; i++)
+        {
             if (trainer->party[i].lvl < trainer->party[lowest].lvl)
                 lowest = i;
+            aceLevel = max(aceLevel, trainer->party[i].lvl);
+        }
         for (u32 i = 0; i < count; i++)
         {
             struct Pokemon *mon = &gParties[B_TRAINER_OPPONENT_A][i];
             const struct TrainerMon *entry = &trainer->party[i < trainer->partySize ? i : lowest];
-            EXPECT_EQ(GetMonData(mon, MON_DATA_LEVEL), entry->lvl + (difficulty == 2 ? 1 : difficulty == 1 && !boss));
+            u32 expectedLevel = entry->lvl + (difficulty == 2 ? 1 : difficulty == 1 && !boss);
+            if (difficulty == RUN_TRAINER_HARD && boss && entry->lvl < aceLevel)
+                expectedLevel = min(entry->lvl + 1, aceLevel - 1);
+            EXPECT_EQ(GetMonData(mon, MON_DATA_LEVEL), expectedLevel);
             EXPECT_EQ(GetMonData(mon, MON_DATA_IVS), difficulty ? TRAINER_PARTY_IVS(31, 31, 31, 31, 31, 31) : entry->iv);
             if (!randomized)
                 EXPECT_EQ(GetMonData(mon, MON_DATA_SPECIES), entry->species);
@@ -55,6 +62,18 @@ TEST("Trainer difficulty applies the level IV and party size matrix to campaign 
         if (count < PARTY_SIZE)
             EXPECT_EQ(GetMonData(&gParties[B_TRAINER_OPPONENT_A][count], MON_DATA_SPECIES), SPECIES_NONE);
     }
+    EXPECT_EQ(GetRunTrainerLevel(TRAINER_CALVIN_1, 100), 100);
+}
+
+TEST("Trainer difficulty Hard raises boss teammates while preserving the ace gap")
+{
+    VarSet(VAR_RUN_RULE_DIFFICULTY, RUN_TRAINER_HARD);
+    EXPECT_EQ(GetRunTrainerLevel(TRAINER_ROXANNE_1, 12), 13);
+    EXPECT_EQ(GetRunTrainerLevel(TRAINER_ROXANNE_1, 14), 14);
+    EXPECT_EQ(GetRunTrainerLevel(TRAINER_ROXANNE_1, 15), 15);
+    EXPECT_EQ(GetRunTrainerLevel(TRAINER_TATE_AND_LIZA_1, 41), 41);
+    EXPECT_EQ(GetRunTrainerLevel(TRAINER_TATE_AND_LIZA_1, 42), 42);
+    EXPECT_EQ(GetRunTrainerLevel(TRAINER_CALVIN_1, 5), 6);
     EXPECT_EQ(GetRunTrainerLevel(TRAINER_CALVIN_1, 100), 100);
 }
 

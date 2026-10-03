@@ -50,7 +50,9 @@ AI_SINGLE_BATTLE_TEST("Trainer AI respects publicly revealed Air Balloon")
     }
 }
 
-AI_SINGLE_BATTLE_TEST("Trainer AI keeps Illusion after an unusual revealed move")
+bool32 Test_ShouldFailForIllusion(enum Species species, enum BattlerId battler);
+
+AI_SINGLE_BATTLE_TEST("Trainer AI keeps Illusion after an unusual revealed move until a type matchup reveals it")
 {
     GIVEN {
         VarSet(VAR_RUN_RULE_DIFFICULTY, RUN_TRAINER_HARD);
@@ -60,7 +62,14 @@ AI_SINGLE_BATTLE_TEST("Trainer AI keeps Illusion after an unusual revealed move"
         OPPONENT(SPECIES_ALAKAZAM) { Moves(MOVE_PSYCHIC, MOVE_DARK_PULSE); }
     } WHEN {
         TURN { MOVE(player, MOVE_SPLASH); EXPECT_MOVE(opponent, MOVE_PSYCHIC); }
-        TURN { MOVE(player, MOVE_SPLASH); EXPECT_MOVE(opponent, MOVE_PSYCHIC); }
+        // Psychic not affecting "Venusaur" publicly reveals Illusion.
+        TURN { MOVE(player, MOVE_SPLASH); EXPECT_MOVE(opponent, MOVE_DARK_PULSE); }
+    } THEN {
+        EXPECT(UsesRunTrainerKnowledge());
+        EXPECT_EQ(gBattleHistory->abilities[B_BATTLER_0], ABILITY_ILLUSION);
+        EXPECT(!Test_ShouldFailForIllusion(SPECIES_VENUSAUR, B_BATTLER_0));
+        gBattleHistory->abilities[B_BATTLER_0] = ABILITY_NONE;
+        EXPECT(Test_ShouldFailForIllusion(SPECIES_VENUSAUR, B_BATTLER_0));
     }
 }
 
@@ -90,8 +99,6 @@ AI_SINGLE_BATTLE_TEST("Trainer AI PP stall simulations use remembered types and 
         EXPECT_EQ(GetActiveGimmick(B_BATTLER_0), GIMMICK_TERA);
     }
 }
-
-bool32 Test_ShouldFailForIllusion(enum Species species, enum BattlerId battler);
 
 AI_SINGLE_BATTLE_TEST("Illusion AI respects full native compatibility and run teaching rules")
 {

@@ -204,7 +204,13 @@ u16 RandomizeWildSlot(const struct WildPokemon *table, u32 slot)
 {
     if (InBattlePike() || CurrentBattlePyramidLocation() != PYRAMID_LOCATION_NONE)
         return table[slot].species;
-    u32 map = (gSaveBlock1Ptr->location.mapGroup << 8) | gSaveBlock1Ptr->location.mapNum;
+    return RandomizeWildSlotOnMap(table, slot, gSaveBlock1Ptr->location.mapGroup, gSaveBlock1Ptr->location.mapNum);
+}
+
+// For screens that describe another map's encounters (Pokédex area, Match Call).
+u16 RandomizeWildSlotOnMap(const struct WildPokemon *table, u32 slot, u32 mapGroup, u32 mapNum)
+{
+    u32 map = (mapGroup << 8) | mapNum;
     return RandomizeEncounterSpecies(table[slot].species, SPECIES_REWARD_WILD, (u32)table, (map << 8) | slot);
 }
 

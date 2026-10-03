@@ -22,6 +22,7 @@
 #include "script.h"
 #include "script_movement.h"
 #include "sound.h"
+#include "species_randomizer.h"
 #include "string_util.h"
 #include "strings.h"
 #include "task.h"
@@ -1758,7 +1759,8 @@ static void PopulateSpeciesFromTrainerLocation(int matchCallId, u8 *destStr)
             if (gWildMonHeaders[i].encounterTypes[timeOfDay].landMonsInfo)
             {
                 slot = GetLandEncounterSlotForMatchCall();
-                species[numSpecies] = gWildMonHeaders[i].encounterTypes[timeOfDay].landMonsInfo->wildPokemon[slot].species;
+                species[numSpecies] = RandomizeWildSlotOnMap(gWildMonHeaders[i].encounterTypes[timeOfDay].landMonsInfo->wildPokemon,
+                    slot, gWildMonHeaders[i].mapGroup, gWildMonHeaders[i].mapNum);
                 numSpecies++;
             }
 
@@ -1766,7 +1768,8 @@ static void PopulateSpeciesFromTrainerLocation(int matchCallId, u8 *destStr)
             if (gWildMonHeaders[i].encounterTypes[timeOfDay].waterMonsInfo)
             {
                 slot = GetWaterEncounterSlotForMatchCall();
-                species[numSpecies] = gWildMonHeaders[i].encounterTypes[timeOfDay].waterMonsInfo->wildPokemon[slot].species;
+                species[numSpecies] = RandomizeWildSlotOnMap(gWildMonHeaders[i].encounterTypes[timeOfDay].waterMonsInfo->wildPokemon,
+                    slot, gWildMonHeaders[i].mapGroup, gWildMonHeaders[i].mapNum);
                 numSpecies++;
             }
 

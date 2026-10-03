@@ -1,4 +1,5 @@
 #include "global.h"
+#include "item_randomizer.h"
 #include "species_randomizer.h"
 #include "frontier_util.h"
 #include "battle_setup.h"
@@ -2496,6 +2497,8 @@ bool8 ScrCmd_setwildbattle(struct ScriptContext *ctx)
 
     species = RandomizeEncounterSpecies(species, SPECIES_REWARD_STATIC, source, sourceSlot);
     species2 = RandomizeEncounterSpecies(species2, SPECIES_REWARD_STATIC, source, sourceSlot + 0x100);
+    item = RandomizeItemReward(item, ITEM_REWARD_GIFT_HELD, source, sourceSlot);
+    item2 = RandomizeItemReward(item2, ITEM_REWARD_GIFT_HELD, source, sourceSlot + 0x100);
     if (species2 == SPECIES_NONE)
     {
         CreateScriptedWildMon(species, level, item);

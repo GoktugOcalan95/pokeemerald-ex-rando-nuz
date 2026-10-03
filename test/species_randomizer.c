@@ -273,6 +273,29 @@ TEST("Species randomizer static previews match both battle slots and preserve le
     FlagClear(FLAG_RUN_RULE_ENCOUNTERS);
 }
 
+TEST("Static held items stay the same regardless of the last NPC talked to")
+{
+    FlagSet(FLAG_RUN_RULE_ITEMS);
+    const u8 *script = OVERWORLD_SCRIPT(
+        setwildbattle SPECIES_REGIROCK, 50, ITEM_ORAN_BERRY, SPECIES_KECLEON, 30, ITEM_SITRUS_BERRY;
+    );
+    u16 items[2];
+    for (u32 lastTalked = 1; lastTalked <= 8; lastTalked++)
+    {
+        gSpecialVar_LastTalked = lastTalked;
+        RunScriptImmediately(script);
+        for (u32 i = 0; i < 2; i++)
+        {
+            u16 item = GetMonData(&gParties[B_TRAINER_OPPONENT_A][i], MON_DATA_HELD_ITEM);
+            if (lastTalked == 1)
+                items[i] = item;
+            else
+                EXPECT_EQ(item, items[i]);
+        }
+    }
+    FlagClear(FLAG_RUN_RULE_ITEMS);
+}
+
 TEST("Species randomizer event encounters retain fateful state and matching previews")
 {
     FlagSet(FLAG_RUN_RULE_ENCOUNTERS);

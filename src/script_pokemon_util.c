@@ -141,7 +141,6 @@ void CreateScriptedWildMon(enum Species species, u8 level, enum Item item)
     GiveMonInitialMoveset(&gParties[B_TRAINER_OPPONENT_A][0]);
     if (item)
     {
-        item = RandomizeItemReward(item, ITEM_REWARD_GIFT_HELD, GetScriptedMonItemSource(), 0);
         heldItem[0] = item;
         heldItem[1] = item >> 8;
         SetMonData(&gParties[B_TRAINER_OPPONENT_A][0], MON_DATA_HELD_ITEM, heldItem);
@@ -162,7 +161,6 @@ void CreateScriptedDoubleWildMon(enum Species species1, u8 level1, enum Item ite
     GiveMonInitialMoveset(&gParties[B_TRAINER_OPPONENT_A][0]);
     if (item1)
     {
-        item1 = RandomizeItemReward(item1, ITEM_REWARD_GIFT_HELD, GetScriptedMonItemSource(), 0);
         heldItem1[0] = item1;
         heldItem1[1] = item1 >> 8;
         SetMonData(&gParties[B_TRAINER_OPPONENT_A][0], MON_DATA_HELD_ITEM, heldItem1);
@@ -176,7 +174,6 @@ void CreateScriptedDoubleWildMon(enum Species species1, u8 level1, enum Item ite
     GiveMonInitialMoveset(&gParties[B_TRAINER_OPPONENT_A][1]);
     if (item2)
     {
-        item2 = RandomizeItemReward(item2, ITEM_REWARD_GIFT_HELD, GetScriptedMonItemSource(), 1);
         heldItem2[0] = item2;
         heldItem2[1] = item2 >> 8;
         SetMonData(&gParties[B_TRAINER_OPPONENT_A][1], MON_DATA_HELD_ITEM, heldItem2);

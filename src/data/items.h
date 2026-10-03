@@ -14011,9 +14011,9 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Toggle Repel"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Toggles encounters.\n"
-            "Fishing and forced\n"
-            "encounters remain."),
+            "Toggles wild\n"
+            "encounters, except\n"
+            "fishing and forced."),
         .importance = 1,
         .pocket = POCKET_KEY_ITEMS,
         .type = ITEM_USE_FIELD,
@@ -14027,9 +14027,9 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("Mach Bike"),
         .price = 0,
         .description = COMPOUND_STRING(
-            "Builds speed quickly.\n"
-            "Hold B for help\n"
-            "steering past walls."),
+            "Gains speed fast.\n"
+            "Hold B to help\n"
+            "steer past walls."),
         .importance = 1,
         .pocket = POCKET_KEY_ITEMS,
         .type = ITEM_USE_FIELD,
@@ -15187,7 +15187,8 @@ const struct ItemInfo gItemsInfo[] =
         .price = 0,
         .description = COMPOUND_STRING(
             "Sets a Pokémon's\n"
-            "Tera type to Dragon."),
+            "Tera type to\n"
+            "Dragon."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
         .type = ITEM_USE_PARTY_MENU,
@@ -15269,7 +15270,8 @@ const struct ItemInfo gItemsInfo[] =
         .price = 0,
         .description = COMPOUND_STRING(
             "Sets a Pokémon's\n"
-            "Tera type to Flying."),
+            "Tera type to\n"
+            "Flying."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
         .type = ITEM_USE_PARTY_MENU,
@@ -15317,7 +15319,8 @@ const struct ItemInfo gItemsInfo[] =
         .price = 0,
         .description = COMPOUND_STRING(
             "Sets a Pokémon's\n"
-            "Tera type to Ground."),
+            "Tera type to\n"
+            "Ground."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
         .type = ITEM_USE_PARTY_MENU,
@@ -15349,7 +15352,8 @@ const struct ItemInfo gItemsInfo[] =
         .price = 0,
         .description = COMPOUND_STRING(
             "Sets a Pokémon's\n"
-            "Tera type to Normal."),
+            "Tera type to\n"
+            "Normal."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
         .type = ITEM_USE_PARTY_MENU,
@@ -15365,7 +15369,8 @@ const struct ItemInfo gItemsInfo[] =
         .price = 0,
         .description = COMPOUND_STRING(
             "Sets a Pokémon's\n"
-            "Tera type to Poison."),
+            "Tera type to\n"
+            "Poison."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
         .type = ITEM_USE_PARTY_MENU,
@@ -15868,7 +15873,8 @@ const struct ItemInfo gItemsInfo[] =
         .price = 0,
         .description = COMPOUND_STRING(
             "Sets a Pokémon's\n"
-            "Tera type to Stellar."),
+            "Tera type to\n"
+            "Stellar."),
         .pocket = POCKET_ITEMS,
         .sortType = ITEM_TYPE_TERA_SHARD,
         .type = ITEM_USE_PARTY_MENU,

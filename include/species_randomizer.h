@@ -18,6 +18,7 @@ u16 RandomizeWildSlot(const struct WildPokemon *table, u32 slot);
 u16 RandomizeWildSlotOnMap(const struct WildPokemon *table, u32 slot, u32 mapGroup, u32 mapNum);
 u16 RandomizeStarterSpecies(u16 original, u32 slot);
 void PrepareRandomizedEncounterMon(struct Pokemon *mon);
+void NormalizeRandomizedMonForm(struct Pokemon *mon);
 void RandomizeSpeciesFromScript(struct ScriptContext *ctx);
 
 #endif

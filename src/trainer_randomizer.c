@@ -169,9 +169,11 @@ bool32 CreateRunTrainerParty(struct Pokemon *party, u16 trainerId)
             memset(entry.moves, 0, sizeof(entry.moves));
         }
         GenerateMonFromTrainerMon(&party[i], &entry, &generator);
-        EnsureEnemyStabMoves(&party[i], trainerId, i);
         if (megaStone != ITEM_NONE)
             SetMonData(&party[i], MON_DATA_HELD_ITEM, &megaStone);
+        if (FlagGet(FLAG_RUN_RULE_TRAINERS) || FlagGet(FLAG_RUN_RULE_ITEMS))
+            NormalizeRandomizedMonForm(&party[i]);
+        EnsureEnemyStabMoves(&party[i], trainerId, i);
     }
     return TRUE;
 }

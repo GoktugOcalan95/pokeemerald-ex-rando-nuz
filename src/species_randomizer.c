@@ -234,6 +234,13 @@ void PrepareRandomizedEncounterMon(struct Pokemon *mon)
     if (!FlagGet(FLAG_RUN_RULE_ENCOUNTERS) || InBattlePike()
         || CurrentBattlePyramidLocation() != PYRAMID_LOCATION_NONE)
         return;
+    NormalizeRandomizedMonForm(mon);
+    TrySetDayLimitToFormChange(mon);
+}
+
+// A randomized species can end up with a held item or move that implies another form (e.g. a Plate on Arceus).
+void NormalizeRandomizedMonForm(struct Pokemon *mon)
+{
     u16 species = GetMonData(mon, MON_DATA_SPECIES);
     struct FormChangeContext context =
     {
@@ -253,7 +260,6 @@ void PrepareRandomizedEncounterMon(struct Pokemon *mon)
         SetMonData(mon, MON_DATA_SPECIES, &form);
         CalculateMonStats(mon);
     }
-    TrySetDayLimitToFormChange(mon);
 }
 
 void RandomizeSpeciesFromScript(struct ScriptContext *ctx)

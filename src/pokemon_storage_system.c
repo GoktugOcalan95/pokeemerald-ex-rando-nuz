@@ -365,6 +365,7 @@ enum {
     WIN_DISPLAY_INFO,
     WIN_MESSAGE,
     WIN_ITEM_DESC,
+    WIN_LEVEL_TO_CAP,
 };
 
 struct Wallpaper
@@ -1006,9 +1007,9 @@ static const struct WindowTemplate sWindowTemplates[] =
     [WIN_MESSAGE] = {
         .bg = 0,
         .tilemapLeft = 11,
-        .tilemapTop = 15,
+        .tilemapTop = 17,
         .width = 18,
-        .height = 4,
+        .height = 2,
         .paletteNum = 15,
         .baseBlock = 0x14,
     },
@@ -1018,6 +1019,16 @@ static const struct WindowTemplate sWindowTemplates[] =
         .tilemapTop = 13,
         .width = 21,
         .height = 7,
+        .paletteNum = 15,
+        .baseBlock = 0x14,
+    },
+    // Two-line messages for Level to cap; only shown while the action menu is closed
+    [WIN_LEVEL_TO_CAP] = {
+        .bg = 0,
+        .tilemapLeft = 11,
+        .tilemapTop = 15,
+        .width = 18,
+        .height = 4,
         .paletteNum = 15,
         .baseBlock = 0x14,
     },
@@ -1124,6 +1135,18 @@ static const struct WindowTemplate sYesNoWindowTemplate =
     .bg = 0,
     .tilemapLeft = 24,
     .tilemapTop = 11,
+    .width = 5,
+    .height = 4,
+    .paletteNum = 15,
+    .baseBlock = 0x5C,
+};
+
+// Raised above the frame of the taller Level to cap message window
+static const struct WindowTemplate sLevelToCapYesNoWindowTemplate =
+{
+    .bg = 0,
+    .tilemapLeft = 24,
+    .tilemapTop = 9,
     .width = 5,
     .height = 4,
     .paletteNum = 15,
@@ -3646,11 +3669,17 @@ static const u8 sText_LevelToCapLearned[] = _("{STR_VAR_1} learned\n{STR_VAR_2}!
 
 static void PrintLevelToCapMessage(const u8 *str)
 {
-    FillWindowPixelBuffer(WIN_MESSAGE, PIXEL_FILL(1));
-    AddTextPrinterParameterized(WIN_MESSAGE, FONT_NORMAL, str, 0, 1, TEXT_SKIP_DRAW, NULL);
-    DrawTextBorderOuter(WIN_MESSAGE, 2, 14);
-    PutWindowTilemap(WIN_MESSAGE);
-    CopyWindowToVram(WIN_MESSAGE, COPYWIN_GFX);
+    FillWindowPixelBuffer(WIN_LEVEL_TO_CAP, PIXEL_FILL(1));
+    AddTextPrinterParameterized(WIN_LEVEL_TO_CAP, FONT_NORMAL, str, 0, 1, TEXT_SKIP_DRAW, NULL);
+    DrawTextBorderOuter(WIN_LEVEL_TO_CAP, 2, 14);
+    PutWindowTilemap(WIN_LEVEL_TO_CAP);
+    CopyWindowToVram(WIN_LEVEL_TO_CAP, COPYWIN_GFX);
+    ScheduleBgCopyTilemapToVram(0);
+}
+
+static void ClearLevelToCapWindow(void)
+{
+    ClearStdWindowAndFrameToTransparent(WIN_LEVEL_TO_CAP, FALSE);
     ScheduleBgCopyTilemapToVram(0);
 }
 
@@ -3734,7 +3763,7 @@ static void Task_LevelMonToCap(u8 taskId)
             StringCopy(gStringVar2, GetMoveName(gMoveToLearn));
             StringExpandPlaceholders(gStringVar4, sText_LevelToCapForgetPrompt);
             PrintLevelToCapMessage(gStringVar4);
-            ShowYesNoWindow(0);
+            CreateYesNoMenu(&sLevelToCapYesNoWindowTemplate, 11, 14, 0);
             sStorage->state = LTC_REPLACE_YESNO;
         }
         else if (move != MON_ALREADY_KNOWS_MOVE)
@@ -3757,11 +3786,11 @@ static void Task_LevelMonToCap(u8 taskId)
         {
         case MENU_B_PRESSED:
         case 1:
-            ClearBottomWindow();
+            ClearLevelToCapWindow();
             sStorage->state = LTC_MOVE_LOOP;
             break;
         case 0:
-            ClearBottomWindow();
+            ClearLevelToCapWindow();
             LevelToCapChangeScreen(SCREEN_CHANGE_LEVEL_TO_CAP_MOVE, LTC_FORGOT_MSG);
             break;
         }
@@ -3792,7 +3821,7 @@ static void Task_LevelMonToCap(u8 taskId)
         if (sLevelToCap.evoSpecies != SPECIES_NONE)
         {
             GetEvolutionTargetSpecies(mon, EVO_MODE_NORMAL, ITEM_NONE, NULL, &sLevelToCap.evoCanStop, DO_EVO);
-            ClearBottomWindow();
+            ClearLevelToCapWindow();
             LevelToCapChangeScreen(SCREEN_CHANGE_LEVEL_TO_CAP_EVO, LTC_DONE);
             break;
         }
@@ -3802,13 +3831,13 @@ static void Task_LevelMonToCap(u8 taskId)
     case LTC_NO_EFFECT:
         if (!IsDma3ManagerBusyWithBgCopy() && JOY_NEW(A_BUTTON | B_BUTTON | DPAD_ANY))
         {
-            ClearBottomWindow();
+            ClearLevelToCapWindow();
             sStorage->state = LTC_DONE;
         }
         break;
 
     case LTC_DONE:
-        ClearBottomWindow();
+        ClearLevelToCapWindow();
         StorageLevelCap_Finish();
 
         for (u32 i = 0; i < IN_BOX_COUNT; i++)

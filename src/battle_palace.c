@@ -201,7 +201,7 @@ static void SetRandomPalacePrize(void)
 
 static void GivePalacePrize(void)
 {
-    u16 item = RandomizeItemReward(gSaveBlock2Ptr->frontier.palacePrize, ITEM_REWARD_PRIZE, ITEM_PRIZE_PALACE, 0);
+    u16 item = RandomizePrizeItem(gSaveBlock2Ptr->frontier.palacePrize, ITEM_PRIZE_PALACE);
 
     if (AddBagItem(item, 1) == TRUE)
     {

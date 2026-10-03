@@ -546,7 +546,7 @@ static void SetArenaPrize(void)
 
 static void GiveArenaPrize(void)
 {
-    u16 item = RandomizeItemReward(gSaveBlock2Ptr->frontier.arenaPrize, ITEM_REWARD_PRIZE, ITEM_PRIZE_ARENA, 0);
+    u16 item = RandomizePrizeItem(gSaveBlock2Ptr->frontier.arenaPrize, ITEM_PRIZE_ARENA);
 
     if (AddBagItem(item, 1) == TRUE)
     {

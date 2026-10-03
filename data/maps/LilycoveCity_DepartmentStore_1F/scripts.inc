@@ -34,7 +34,10 @@ LilycoveCity_DepartmentStore_1F_EventScript_LotteryClerk::
 	incrementgamestat GAME_STAT_WON_POKEMON_LOTTERY
 	call_if_eq VAR_0x8006, 0, LilycoveCity_DepartmentStore_1F_EventScript_TicketMatchPartyMon
 	call_if_eq VAR_0x8006, 1, LilycoveCity_DepartmentStore_1F_EventScript_TicketMatchPCMon
-	resolveitem_random VAR_0x8005, VAR_POKELOT_PRIZE_ITEM
+	call_if_eq VAR_0x8004, 1, LilycoveCity_DepartmentStore_1F_EventScript_ResolveTwoDigitPrize
+	call_if_eq VAR_0x8004, 2, LilycoveCity_DepartmentStore_1F_EventScript_ResolveThreeDigitPrize
+	call_if_eq VAR_0x8004, 3, LilycoveCity_DepartmentStore_1F_EventScript_ResolveFourDigitPrize
+	call_if_eq VAR_0x8004, 4, LilycoveCity_DepartmentStore_1F_EventScript_ResolveFullPrize
 	copyvar VAR_0x8005, VAR_0x8000
 	bufferitemname STR_VAR_1, VAR_0x8005
 	call_if_eq VAR_0x8004, 1, LilycoveCity_DepartmentStore_1F_EventScript_TwoDigitMatch
@@ -74,6 +77,23 @@ LilycoveCity_DepartmentStore_1F_EventScript_PleaseVisitAgain2::
 	msgbox LilycoveCity_DepartmentStore_1F_Text_PleaseVisitAgain2, MSGBOX_DEFAULT
 	release
 	end
+
+@ Each prize tier gets its own slot so the tiers stay distinct under Randomize items.
+LilycoveCity_DepartmentStore_1F_EventScript_ResolveTwoDigitPrize::
+	resolveitem_random VAR_0x8005, VAR_POKELOT_PRIZE_ITEM, 1, 1
+	return
+
+LilycoveCity_DepartmentStore_1F_EventScript_ResolveThreeDigitPrize::
+	resolveitem_random VAR_0x8005, VAR_POKELOT_PRIZE_ITEM, 1, 2
+	return
+
+LilycoveCity_DepartmentStore_1F_EventScript_ResolveFourDigitPrize::
+	resolveitem_random VAR_0x8005, VAR_POKELOT_PRIZE_ITEM, 1, 3
+	return
+
+LilycoveCity_DepartmentStore_1F_EventScript_ResolveFullPrize::
+	resolveitem_random VAR_0x8005, VAR_POKELOT_PRIZE_ITEM, 1, 4
+	return
 
 LilycoveCity_DepartmentStore_1F_EventScript_TwoDigitMatch::
 	msgbox LilycoveCity_DepartmentStore_1F_Text_TwoDigitsMatched, MSGBOX_DEFAULT

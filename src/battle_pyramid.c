@@ -957,7 +957,7 @@ static void SetBattlePyramidPrize(void)
 
 static void GiveBattlePyramidPrize(void)
 {
-    u16 item = RandomizeItemReward(gSaveBlock2Ptr->frontier.pyramidPrize, ITEM_REWARD_PRIZE, ITEM_PRIZE_PYRAMID, 0);
+    u16 item = RandomizePrizeItem(gSaveBlock2Ptr->frontier.pyramidPrize, ITEM_PRIZE_PYRAMID);
 
     if (AddBagItem(item, 1) == TRUE)
     {

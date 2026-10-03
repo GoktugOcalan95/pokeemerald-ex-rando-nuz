@@ -1333,7 +1333,7 @@ static bool32 TryGivePrize(void)
     {
     case 0:
         UnpackPrizeData(sPokemonJump->comm.data, &sPokemonJump->prizeItemId, &sPokemonJump->prizeItemQuantity);
-        sPokemonJump->prizeItemId = RandomizeItemReward(sPokemonJump->prizeItemId, ITEM_REWARD_PRIZE, ITEM_PRIZE_POKEMON_JUMP, 0);
+        sPokemonJump->prizeItemId = RandomizePrizeItem(sPokemonJump->prizeItemId, ITEM_PRIZE_POKEMON_JUMP);
         PrintPrizeMessage(sPokemonJump->prizeItemId, sPokemonJump->prizeItemQuantity);
         sPokemonJump->helperState++;
         break;

@@ -2696,7 +2696,7 @@ static void ResetPickState(void)
 
 static u16 GetPrizeItemId(void)
 {
-    return RandomizeItemReward(BerryTypeToItemId(sGame->berryResults[sGame->multiplayerId][BERRY_PRIZE]), ITEM_REWARD_PRIZE, ITEM_PRIZE_DODRIO, 0);
+    return RandomizePrizeItem(BerryTypeToItemId(sGame->berryResults[sGame->multiplayerId][BERRY_PRIZE]), ITEM_PRIZE_DODRIO);
 }
 
 static u8 GetNumPlayers(void)

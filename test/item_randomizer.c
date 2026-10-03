@@ -75,6 +75,23 @@ TEST("Item randomizer shares ability item exclusions and refreshes the No EVs po
     FlagClear(FLAG_RUN_RULE_ITEMS);
 }
 
+TEST("Item randomizer maps each distinct facility prize separately and stably")
+{
+    const u16 prizes[] = {ITEM_PROTEIN, ITEM_CALCIUM, ITEM_IRON, ITEM_ZINC, ITEM_CARBOS, ITEM_HP_UP};
+    u16 mapped[ARRAY_COUNT(prizes)];
+    bool32 differs = FALSE;
+    FlagSet(FLAG_RUN_RULE_ITEMS);
+    for (u32 i = 0; i < ARRAY_COUNT(prizes); i++)
+    {
+        mapped[i] = RandomizePrizeItem(prizes[i], ITEM_PRIZE_ARENA);
+        EXPECT_EQ(RandomizePrizeItem(prizes[i], ITEM_PRIZE_ARENA), mapped[i]);
+        if (mapped[i] != mapped[0])
+            differs = TRUE;
+    }
+    EXPECT(differs);
+    FlagClear(FLAG_RUN_RULE_ITEMS);
+}
+
 TEST("Item randomizer preserves mappings and gameplay RNG across save load")
 {
     u16 expected[8];

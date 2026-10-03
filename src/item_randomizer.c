@@ -97,6 +97,12 @@ u16 RandomizeItemReward(u16 original, u32 domain, u32 source, u32 slot)
     return sRewardPool[RunRandomizerHash(domain, source, slot) % sRewardPoolCount];
 }
 
+// Prize tables rotate, so each distinct prize keeps its own stable mapping instead of one item per facility.
+u16 RandomizePrizeItem(u16 original, u32 source)
+{
+    return RandomizeItemReward(original, ITEM_REWARD_PRIZE, source, original);
+}
+
 void RandomizePickupFromScript(void)
 {
     u32 source = (gSaveBlock1Ptr->location.mapGroup << 16) | (gSaveBlock1Ptr->location.mapNum << 8) | gSpecialVar_LastTalked;

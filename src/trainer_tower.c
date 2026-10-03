@@ -733,7 +733,7 @@ static void GetOwnerState(void)
 static void GiveChallengePrize(void)
 {
 #if FREE_TRAINER_TOWER == FALSE && IS_FRLG
-    enum Item itemId = RandomizeItemReward(sPrizeList[sTrainerTowerState->data.floors->prize], ITEM_REWARD_PRIZE, ITEM_PRIZE_TRAINER_TOWER, 0);
+    enum Item itemId = RandomizePrizeItem(sPrizeList[sTrainerTowerState->data.floors->prize], ITEM_PRIZE_TRAINER_TOWER);
 
     if (TRAINER_TOWER.receivedPrize)
     {

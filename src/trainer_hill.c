@@ -447,7 +447,7 @@ static void GetOwnerState(void)
 static void GiveChallengePrize(void)
 {
 #if FREE_TRAINER_HILL == FALSE
-    enum Item itemId = RandomizeItemReward(GetPrizeItemId(), ITEM_REWARD_PRIZE, ITEM_PRIZE_TRAINER_HILL, 0);
+    enum Item itemId = RandomizePrizeItem(GetPrizeItemId(), ITEM_PRIZE_TRAINER_HILL);
 
     if (sHillData->challenge.numFloors != NUM_TRAINER_HILL_FLOORS || gSaveBlock1Ptr->trainerHill.receivedPrize)
     {

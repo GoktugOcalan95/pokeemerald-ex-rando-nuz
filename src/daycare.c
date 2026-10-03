@@ -18,6 +18,7 @@
 #include "task.h"
 #include "window.h"
 #include "party_menu.h"
+#include "player_teachable_moves.h"
 #include "list_menu.h"
 #include "overworld.h"
 #include "ow_abilities.h"
@@ -784,7 +785,7 @@ static void GiveParentTmMoves(struct Pokemon *egg, enum Move *parentMoves, enum 
             enum Move moveId = GetTMHMMoveId(j + 1);
             if (parentMoves[i] == moveId)
             {
-                if (CanLearnTeachableMove(species, moveId))
+                if (CanPlayerLearnTeachableMove(species, moveId))
                     ADD_OR_REPLACE_MOVE(parentMoves[i])
                 break;
             }

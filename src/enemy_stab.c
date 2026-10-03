@@ -156,6 +156,9 @@ void EnsureEnemyStabMoves(struct Pokemon *mon, u16 trainerId, u32 partySlot)
             if (!keep[i] && IsEnemyStabMove(moves[i], types[t])
                 && (slot == MAX_MON_MOVES || GetRandomizerMovePower(moves[i]) < GetRandomizerMovePower(moves[slot])))
                 slot = i;
+        for (u32 i = 0; i < MAX_MON_MOVES && slot == MAX_MON_MOVES; i++)
+            if (!keep[i] && moves[i] == MOVE_NONE)
+                slot = i;
         if (slot == MAX_MON_MOVES)
             for (u32 i = 0; i < MAX_MON_MOVES; i++)
                 if (!keep[i] && (slot == MAX_MON_MOVES || GetRandomizerMovePower(moves[i]) < GetRandomizerMovePower(moves[slot])))

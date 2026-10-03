@@ -33,6 +33,23 @@ TEST("Enemy STAB upgrades weak single type coverage with minimal replacements an
     EXPECT_EQ(GetMonData(&mon, MON_DATA_MOVE1), move);
 }
 
+TEST("Enemy STAB fills an empty move slot before replacing a status move")
+{
+    struct Pokemon mon;
+    FlagSet(FLAG_RUN_RULE_TRAINERS);
+    FlagSet(FLAG_RUN_RULE_ENEMY_STAB);
+    CreateMon(&mon, SPECIES_ARCANINE, 5, 0, OTID_STRUCT_PLAYER_ID);
+    SetMonMoveSlot(&mon, MOVE_TACKLE, 0);
+    SetMonMoveSlot(&mon, MOVE_GROWL, 1);
+    SetMonMoveSlot(&mon, MOVE_NONE, 2);
+    SetMonMoveSlot(&mon, MOVE_NONE, 3);
+    EnsureEnemyStabMoves(&mon, TRAINER_ROXANNE_1, 0);
+    EXPECT_EQ(GetMonData(&mon, MON_DATA_MOVE1), MOVE_TACKLE);
+    EXPECT_EQ(GetMonData(&mon, MON_DATA_MOVE2), MOVE_GROWL);
+    EXPECT(IsEnemyStabMove(GetMonData(&mon, MON_DATA_MOVE3), TYPE_FIRE));
+    EXPECT_EQ(GetMonData(&mon, MON_DATA_MOVE4), MOVE_NONE);
+}
+
 TEST("Enemy STAB guarantees natural coverage and leaves disabled rules unchanged")
 {
     struct Pokemon mon;

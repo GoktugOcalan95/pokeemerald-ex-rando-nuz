@@ -96,7 +96,8 @@ RustboroCity_DevonCorp_2F_EventScript_FossilScientist::
 RustboroCity_DevonCorp_2F_EventScript_NoticeFossil::
 	msgbox RustboroCity_DevonCorp_2F_Text_WantToBringFossilBackToLife, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, RustboroCity_DevonCorp_2F_EventScript_DeclineGiveFossil
-	closemessage
+	message RustboroCity_DevonCorp_2F_Text_WhichFossil
+	waitmessage
 	call RustboroCity_DevonCorp_2F_EventScript_OfferHELIX_FOSSIL
 	call RustboroCity_DevonCorp_2F_EventScript_OfferDOME_FOSSIL
 	call RustboroCity_DevonCorp_2F_EventScript_OfferOLD_AMBER
@@ -415,7 +416,7 @@ RustboroCity_DevonCorp_2F_EventScript_GiveFOSSILIZED_DINO::
 
 RustboroCity_DevonCorp_2F_EventScript_ReceiveFossilParty::
 	call RustboroCity_DevonCorp_2F_EventScript_ReceivedFossilFanfare
-	msgbox gText_NicknameThisPokemon, MSGBOX_YESNO
+	nicknameprompt gText_NicknameThisPokemon
 	goto_if_eq VAR_RESULT, NO, RustboroCity_DevonCorp_2F_EventScript_FinishReceivingFossil
 	call Common_EventScript_GetGiftMonPartySlot
 	call Common_EventScript_NameReceivedPartyMon
@@ -424,7 +425,7 @@ RustboroCity_DevonCorp_2F_EventScript_ReceiveFossilParty::
 
 RustboroCity_DevonCorp_2F_EventScript_ReceiveFossilPC::
 	call RustboroCity_DevonCorp_2F_EventScript_ReceivedFossilFanfare
-	msgbox gText_NicknameThisPokemon, MSGBOX_YESNO
+	nicknameprompt gText_NicknameThisPokemon
 	call_if_eq VAR_RESULT, YES, Common_EventScript_NameReceivedBoxMon
 	call Common_EventScript_TransferredToPC
 	goto RustboroCity_DevonCorp_2F_EventScript_FinishReceivingFossil
@@ -446,6 +447,7 @@ RustboroCity_DevonCorp_2F_EventScript_FinishReceivingFossil::
 	end
 
 RustboroCity_DevonCorp_2F_EventScript_CancelFossilSelect::
+	closemessage
 	release
 	end
 
@@ -510,6 +512,10 @@ RustboroCity_DevonCorp_2F_Text_DevelopDeviceToResurrectFossils:
 	.string "I've been trying to develop a device\n"
 	.string "that resurrects POKéMON from fossils…\p"
 	.string "And, it's working!$"
+
+RustboroCity_DevonCorp_2F_Text_WhichFossil:
+	.string "Which fossil should I bring\n"
+	.string "back to life?$"
 
 RustboroCity_DevonCorp_2F_Text_WantToBringFossilBackToLife:
 	.string "Wait! That thing you have there…\n"

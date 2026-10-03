@@ -100,6 +100,13 @@ static const u8 sBerryPlotTreeIds[] = {
     BERRY_TREE_ROUTE_130_LIECHI,
 };
 
+// The Liechi plot sits on Mirage Island; on the normal Route 130 layout its tile is open sea.
+bool32 IsBerryPlotHidden(const struct ObjectEventTemplate *template)
+{
+    return template->flagId == FLAG_ITEM_BERRY_PLOT_ROUTE_130_LIECHI
+        && FlagGet(FLAG_TEMP_HIDE_MIRAGE_ISLAND_BERRY_TREE);
+}
+
 bool32 RestoreCollectedBerryPlot(struct ObjectEventTemplate *template)
 {
     u32 index = template->flagId - FLAG_ITEM_BERRY_PLOT_ROUTE_102_ORAN;

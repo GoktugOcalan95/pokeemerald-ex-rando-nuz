@@ -39,6 +39,19 @@ TEST("Berry plots keep uncollected balls and restore all 88 collected plots with
     }
 }
 
+TEST("Route 130 Liechi plot is hidden while Mirage Island is absent")
+{
+    struct ObjectEventTemplate liechi = {.flagId = FLAG_ITEM_BERRY_PLOT_ROUTE_130_LIECHI};
+    struct ObjectEventTemplate oran = {.flagId = FLAG_ITEM_BERRY_PLOT_ROUTE_102_ORAN};
+
+    FlagClear(FLAG_TEMP_HIDE_MIRAGE_ISLAND_BERRY_TREE);
+    EXPECT(!IsBerryPlotHidden(&liechi));
+    FlagSet(FLAG_TEMP_HIDE_MIRAGE_ISLAND_BERRY_TREE);
+    EXPECT(IsBerryPlotHidden(&liechi));
+    EXPECT(!IsBerryPlotHidden(&oran));
+    FlagClear(FLAG_TEMP_HIDE_MIRAGE_ISLAND_BERRY_TREE);
+}
+
 TEST("Berry plots preserve collection and gardening through growth harvest replanting and save load")
 {
     struct ObjectEventTemplate template = {.flagId = FLAG_ITEM_BERRY_PLOT_ROUTE_102_ORAN};

@@ -2907,6 +2907,7 @@ void TrySpawnObjectEvents(s16 cameraX, s16 cameraY)
             s16 npcY = template->y + MAP_OFFSET;
 
             if (top <= npcY && bottom >= npcY && left <= npcX && right >= npcX
+             && !IsBerryPlotHidden(template)
              && (!FlagGet(template->flagId) || RestoreCollectedBerryPlot(template)))
             {
                 if (template->graphicsId == OBJ_EVENT_GFX_LIGHT_SPRITE)

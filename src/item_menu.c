@@ -2809,7 +2809,8 @@ static void DrawBagPocketChoices(void)
     for (u32 i = 0; i < BAG_POCKETS_COUNT; i++)
     {
         u32 x = (i % 2) * 112;
-        u32 y = 22 + (i / 2) * 16;
+        // The last row must end above the footer at y=116.
+        u32 y = 20 + (i / 2) * 16;
         if (i == gBagMenu->pocketChoice)
             FillWindowPixelRect(window, PIXEL_FILL(2), x, y, 112, 16);
         const u8 normal[] = {TEXT_COLOR_WHITE, TEXT_COLOR_DARK_GRAY, TEXT_COLOR_LIGHT_GRAY};

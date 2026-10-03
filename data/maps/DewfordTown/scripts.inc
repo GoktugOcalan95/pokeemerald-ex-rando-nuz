@@ -74,7 +74,9 @@ DewfordTown_EventScript_HallSign::
 DewfordTown_EventScript_OldRodFisherman::
 	lock
 	faceplayer
-	goto DewfordTown_EventScript_HowsFishing
+	goto_if_set FLAG_RECEIVED_OLD_ROD, DewfordTown_EventScript_HowsFishing
+	msgbox DewfordTown_Text_RenownedFishingSpot, MSGBOX_DEFAULT
+	release
 	end
 
 DewfordTown_EventScript_HowsFishing::
@@ -700,6 +702,10 @@ DewfordTown_Text_ThrowInFishingAdvice:
 DewfordTown_Text_ThatsTooBadThen:
 	.string "Oh, is that so?\n"
 	.string "That's too bad, then.$"
+
+DewfordTown_Text_RenownedFishingSpot:
+	.string "This is a renowned fishing spot.\n"
+	.string "Come back once you have a ROD!$"
 
 DewfordTown_Text_HowsYourFishing:
 	.string "Yo!\n"

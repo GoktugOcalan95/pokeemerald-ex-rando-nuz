@@ -658,7 +658,8 @@ static bool8 HandleStartMenuInput(void)
          && !SetUpFieldMove_Fly())
         {
             RemoveExtraStartMenuWindows();
-            HideStartMenu();
+            // SE_SELECT already played for this A press.
+            HideStartMenuWindow();
             ScriptContext_SetupScript(EventScript_CannotFlyHere);
             return TRUE;
         }

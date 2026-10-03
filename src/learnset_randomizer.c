@@ -40,7 +40,10 @@ static void GenerateLearnset(struct LevelUpMove *moves, const struct LevelUpMove
         }
         for (u32 i = 0; i < entries; i++)
         {
-            assertf(count < LEARNSET_CAPACITY - 1, "Randomized learnset too long: %d", species);
+            assertf(count < LEARNSET_CAPACITY - 1, "Randomized learnset too long: %d", species)
+            {
+                break;
+            }
             if (level == 1 && i == 0)
                 for (u32 move = 1; move < MOVES_COUNT; move++)
                     used[move] |= !IsRandomizerDirectAttack(move);

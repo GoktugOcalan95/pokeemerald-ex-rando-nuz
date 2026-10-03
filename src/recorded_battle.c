@@ -527,7 +527,11 @@ void SetVariablesForRecordedBattle(struct RecordedBattleSave *src)
     sFrontierFacility = src->frontierFacility;
     sFrontierBrainSymbol = src->frontierBrainSymbol;
     sBattleScene = src->battleScene;
-    sTextSpeed = src->textSpeed;
+    // Records from other games may carry speeds this ROM doesn't have.
+    if (src->textSpeed >= OPTIONS_TEXT_SPEED_MID && src->textSpeed <= OPTIONS_TEXT_SPEED_AUTO)
+        sTextSpeed = src->textSpeed;
+    else
+        sTextSpeed = OPTIONS_TEXT_SPEED_MID;
 
     for (i = 0; i < PLAYER_NAME_LENGTH + 1; i++)
         sRecordMixFriendName[i] = src->recordMixFriendName[i];

@@ -5,6 +5,7 @@
 #include "move.h"
 #include "move_randomizer.h"
 #include "player_teachable_moves.h"
+#include "run_companion.h"
 #include "run_randomizer.h"
 #include "script.h"
 #include "string_util.h"
@@ -17,6 +18,8 @@
 #include "data/tutor_moves.h"
 
 #define TUTOR_MOVE_COUNT (ARRAY_COUNT(gTutorMoves) - 1)
+// The companion reads one tutorsSeen bit per tutor.
+STATIC_ASSERT(TUTOR_MOVE_COUNT <= RUN_DISCOVERY_TUTOR_COUNT, TutorDiscoveryBitsTooFew);
 
 static EWRAM_DATA u16 sTeachingMoves[NUM_TECHNICAL_MACHINES + TUTOR_MOVE_COUNT] = {0};
 static EWRAM_DATA u32 sTeachingSeed = 0;
@@ -186,12 +189,15 @@ const u8 *GetRandomizedMoveDescription(u16 move, u32 width)
 {
     const u8 *source = GetMoveDescription(move);
     u8 *out = sMoveDescription;
+    // Leave room for the closing font switch and EOS.
+    u8 *end = sMoveDescription + sizeof(sMoveDescription) - 4;
     u32 lineWidth = 0;
     u32 spaceWidth = GetStringWidth(FONT_SMALL, COMPOUND_STRING(" "), 0);
     *out++ = EXT_CTRL_CODE_BEGIN;
     *out++ = EXT_CTRL_CODE_FONT;
     *out++ = FONT_SMALL;
-    while (*source != EOS)
+    // Each step writes at most a separator plus a line break and glyph.
+    while (*source != EOS && out + 3 <= end)
     {
         u8 word[128];
         u32 length = 0;
@@ -216,7 +222,7 @@ const u8 *GetRandomizedMoveDescription(u16 move, u32 width)
                 lineWidth += spaceWidth;
             }
         }
-        for (u32 i = 0; i < length; i++)
+        for (u32 i = 0; i < length && out + 2 <= end; i++)
         {
             u8 glyph[] = {word[i], EOS};
             u32 glyphWidth = GetStringWidth(FONT_SMALL, glyph, 0);

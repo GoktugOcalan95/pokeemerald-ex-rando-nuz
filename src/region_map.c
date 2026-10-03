@@ -2399,7 +2399,7 @@ static void CreateRouteFlyDestIcons(void)
     for (u32 mapsec = MAPSEC_ROUTE_101; mapsec <= MAPSEC_ROUTE_134; mapsec++)
     {
         u8 choices[ROUTE_FLY_MAX_CHOICES];
-        u32 count = GetVisitedRouteFlyChoices(mapsec, choices);
+        u32 count = min(GetVisitedRouteFlyChoices(mapsec, choices), ROUTE_FLY_MAX_CHOICES);
         if (count == 0)
             continue;
         bool32 available = FALSE;
@@ -2530,7 +2530,7 @@ static void OpenRouteFlyChoices(void)
         .bg = 0, .tilemapLeft = 3, .tilemapTop = 4, .width = 24,
         .paletteNum = 15, .baseBlock = 0x80,
     };
-    sFlyMap->routeChoiceCount = GetVisitedRouteFlyChoices(sFlyMap->regionMap.mapSecId, sFlyMap->routeChoices);
+    sFlyMap->routeChoiceCount = min(GetVisitedRouteFlyChoices(sFlyMap->regionMap.mapSecId, sFlyMap->routeChoices), ROUTE_FLY_MAX_CHOICES);
     window.height = (sFlyMap->routeChoiceCount + 1) * 2;
     sFlyMap->routeWindow = AddWindow(&window);
     if (sFlyMap->routeWindow == WINDOW_NONE)

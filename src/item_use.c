@@ -1160,7 +1160,7 @@ static void ItemUseInBattle_ShowPartyMenu(u8 taskId)
     }
 }
 
-static const u8 sText_NoBattleItems[] = _("The No Battle Items rule\nprevents using this item.");
+static const u8 sText_NoBattleItems[] = _("The No Battle Items rule\nprevents using this item.{PAUSE_UNTIL_PRESS}");
 
 bool32 IsBattleItemBlockedByRunRule(enum Item itemId)
 {

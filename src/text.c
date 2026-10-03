@@ -3016,6 +3016,7 @@ void DeactivateSingleTextPrinter(u32 id, enum TextPrinterType type)
         case WINDOW_TEXT_PRINTER:
             if (currentPrinter->printerTemplate.type == WINDOW_TEXT_PRINTER && currentPrinter->printerTemplate.windowId == id)
             {
+                currentPrinter->active = FALSE;
                 currentPrinter->isInUse = FALSE;
                 currentPrinter = currentPrinter->nextPrinter;
                 foundPrinter = TRUE;
@@ -3028,6 +3029,7 @@ void DeactivateSingleTextPrinter(u32 id, enum TextPrinterType type)
         case SPRITE_TEXT_PRINTER:
             if (currentPrinter->printerTemplate.type == SPRITE_TEXT_PRINTER && currentPrinter->printerTemplate.firstSprite == id)
             {
+                currentPrinter->active = FALSE;
                 currentPrinter->isInUse = FALSE;
                 currentPrinter = NULL;
                 foundPrinter = TRUE;

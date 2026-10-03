@@ -3,6 +3,7 @@
 #include "bike.h"
 #include "event_data.h"
 #include "event_object_movement.h"
+#include "field_control_avatar.h"
 #include "field_player_avatar.h"
 #include "fieldmap.h"
 #include "item.h"
@@ -78,6 +79,29 @@ TEST("Machro switches only with a new B press while L is held and preserves its 
     EXPECT_EQ(GetBikeItemMode(ITEM_BICYCLE), PLAYER_AVATAR_FLAG_ACRO_BIKE);
     EXPECT_EQ(GetBikeItemMode(ITEM_MACH_BIKE), PLAYER_AVATAR_FLAG_MACH_BIKE);
     EXPECT_EQ(GetBikeItemMode(ITEM_ACRO_BIKE), PLAYER_AVATAR_FLAG_ACRO_BIKE);
+    ClearBag();
+    gMapHeader = savedMap;
+}
+
+TEST("Machro L press under L=A mode does not interact unless A itself was pressed")
+{
+    struct MapHeader savedMap = gMapHeader;
+    u8 savedButtonMode = gSaveBlock2Ptr->optionsButtonMode;
+    u16 savedNewKeysRaw = gMain.newKeysRaw;
+    struct FieldInput input;
+    InitMachroField();
+    gPlayerAvatar.tileTransitionState = T_NOT_MOVING;
+    gSaveBlock2Ptr->optionsButtonMode = OPTIONS_BUTTON_MODE_L_EQUALS_A;
+    gMain.newKeysRaw = L_BUTTON;
+    FieldClearPlayerInput(&input);
+    FieldGetPlayerInput(&input, L_BUTTON | A_BUTTON, L_BUTTON | A_BUTTON);
+    EXPECT(!input.pressedAButton);
+    gMain.newKeysRaw = L_BUTTON | A_BUTTON;
+    FieldClearPlayerInput(&input);
+    FieldGetPlayerInput(&input, L_BUTTON | A_BUTTON, L_BUTTON | A_BUTTON);
+    EXPECT(input.pressedAButton);
+    gMain.newKeysRaw = savedNewKeysRaw;
+    gSaveBlock2Ptr->optionsButtonMode = savedButtonMode;
     ClearBag();
     gMapHeader = savedMap;
 }

@@ -4684,7 +4684,7 @@ static void DoTVShowPokemonNewsMassOutbreak(void)
     show = &gSaveBlock1Ptr->tvShows[gSpecialVar_0x8004];
     StartMassOutbreakFromShow(show);
     GetMapName(gStringVar1, show->massOutbreak.locationMapNum, show->massOutbreak.locationMapGroup);
-    StringCopy(gStringVar2, GetSpeciesName(show->massOutbreak.species));
+    StringCopy(gStringVar2, GetSpeciesName(GetMassOutbreakSpecies()));
     TVShowDone();
     ShowFieldMessage(sTVMassOutbreakTextGroup[sTVShowState]);
 }

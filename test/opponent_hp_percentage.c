@@ -18,6 +18,7 @@ TEST("Opponent HP percentage run rule survives saving and loading")
     RunSetup_SetOpponentHPPercentage(enabled);
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
 

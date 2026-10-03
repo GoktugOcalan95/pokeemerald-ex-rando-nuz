@@ -138,6 +138,7 @@ TEST("Remove Story opens Briney and retains the Rustboro rival only after Roxann
     EXPECT(!FlagGet(FLAG_HIDE_RUSTBORO_CITY_RIVAL));
     EXPECT_EQ(VarGet(VAR_RUSTBORO_CITY_STATE), 7);
     EXPECT(!FlagGet(FLAG_DELIVERED_STEVEN_LETTER));
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     StartStoryMode(FALSE);

@@ -103,6 +103,7 @@ TEST("Automatic HMs inventory and badge gates survive saving and loading")
     EXPECT(AddBagItem(ITEM_HM08, 1));
     FlagSet(FLAG_BADGE02_GET);
     FlagSet(FLAG_BADGE06_GET);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     ResetHMProgress();

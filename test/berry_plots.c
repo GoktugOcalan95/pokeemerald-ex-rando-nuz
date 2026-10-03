@@ -58,6 +58,7 @@ TEST("Berry plots preserve collection and gardening through growth harvest repla
         EXPECT(BerryTreeGrow(tree));
     EXPECT_EQ((u32)tree->stage, BERRY_STAGE_BERRIES);
     EXPECT(tree->berryYield > 0);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     ClearBerryTrees();

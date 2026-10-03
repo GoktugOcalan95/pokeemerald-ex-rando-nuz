@@ -65,6 +65,7 @@ TEST("Visible pickups: all object slots and collection flags survive saving and 
     }
     FlagSet(FLAG_HIDDEN_ITEM_ABANDONED_SHIP_RM_6_KEY);
     FlagClear(FLAG_HIDDEN_ITEM_TRICK_HOUSE_NUGGET);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     memset(gObjectEvents, 0, sizeof(gObjectEvents));

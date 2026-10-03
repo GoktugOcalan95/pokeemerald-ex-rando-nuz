@@ -36,6 +36,7 @@ TEST("Expanded TMs work independently of randomized teaching and retain their sa
     RunSetup_ApplyToNewGame();
     u16 move = GetItemTMHMMoveId(ITEM_TM100);
     EXPECT_NE(move, MOVE_NONE);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     FlagClear(FLAG_RUN_RULE_EXPANDED_TMS);

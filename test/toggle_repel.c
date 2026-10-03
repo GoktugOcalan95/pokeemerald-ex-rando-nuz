@@ -20,6 +20,7 @@ TEST("Toggle Repel starts enabled is registrable and shares the saved debug flag
     EXPECT_EQ(GetItemFieldFunc(ITEM_TOGGLE_REPEL), ItemUseOutOfBattle_ToggleRepel);
     ToggleRepelEncounters();
     EXPECT(FlagGet(FLAG_DEBUG_NO_ENCOUNTER));
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     FlagClear(FLAG_DEBUG_NO_ENCOUNTER);

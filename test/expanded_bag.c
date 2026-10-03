@@ -168,6 +168,7 @@ TEST("Expanded Bag detects damaged extension bytes and rejects invalid sector ID
     gTestRunnerState.timeoutSeconds = 120;
     for (u32 corruptId = 0; corruptId < 2; corruptId++)
     {
+        ClearSaveData();
         Save_ResetSaveCounters();
         FillExpandedBag(212);
         EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);

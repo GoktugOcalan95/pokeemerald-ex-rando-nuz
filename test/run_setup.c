@@ -235,6 +235,7 @@ TEST("Run setup saves and reloads every setting and numeric choice")
     RunSetup_SetValue(RUN_SETUP_DIFFICULTY, difficulty);
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     InitEventData();
@@ -396,6 +397,7 @@ TEST("Run setup Slateport limit is independent and saves both choices")
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
     EXPECT_EQ(FlagGet(FLAG_RUN_RULE_LIMIT_SLATEPORT_SHOP), enabled);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     if (enabled)
@@ -417,6 +419,7 @@ TEST("Catch bonus tiers survive save and load and reject invalid values")
     RunSetup_SetCatchBonus(tier);
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     InitEventData();

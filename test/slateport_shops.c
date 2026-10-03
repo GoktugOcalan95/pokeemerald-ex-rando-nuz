@@ -167,6 +167,7 @@ TEST("Slateport shops grant activation keys separately once and persist charged 
         EXPECT_EQ(CountTotalItemQuantityInBag(keys[i]), 1);
         EXPECT_EQ(FlagGet(FLAG_TERA_ORB_CHARGED), keys[i] == ITEM_TERA_ORB);
     }
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     ClearBag();
@@ -208,7 +209,7 @@ TEST("Slateport shops limit all five special categories independently of item ra
 {
     const u16 examples[] = {ITEM_VENUSAURITE, ITEM_PIKANIUM_Z, ITEM_FIRE_TERA_SHARD, ITEM_ADAMANT_MINT, ITEM_FIRE_GEM};
     const u16 counts[] = {92, 35, 19, 21, 18};
-    u16 stock[ITEMS_COUNT];
+    static EWRAM_DATA u16 stock[ITEMS_COUNT];
 
     for (u32 mask = 0; mask < 8; mask++)
     {

@@ -81,6 +81,7 @@ TEST("Trainer randomizer follows all rival starter branches and keeps retries st
     u16 species[PARTY_SIZE];
     for (u32 i = 0; i < PARTY_SIZE; i++)
         species[i] = GetMonData(&gParties[B_TRAINER_OPPONENT_A][i], MON_DATA_SPECIES);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     gSaveBlock2Ptr->playerTrainerId[0] ^= 1;

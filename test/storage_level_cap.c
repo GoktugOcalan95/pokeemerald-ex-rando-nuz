@@ -53,6 +53,7 @@ TEST("PC level to cap restores a full or partial party and writes back to the or
     EXPECT_EQ(memcmp(original, gParties[B_TRAINER_PLAYER], sizeof(original)), 0);
     EXPECT_EQ(gPartiesCount[B_TRAINER_PLAYER], partySize);
     EXPECT_EQ(GetBoxMonDataAt(3, 17, MON_DATA_EXP), gExperienceTables[gSpeciesInfo[SPECIES_TREECKO].growthRate][24]);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     ZeroBoxMonAt(3, 17);

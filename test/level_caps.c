@@ -49,6 +49,7 @@ TEST("Level caps run rule and progression survive saving and loading")
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
     FlagSet(FLAG_BADGE01_GET);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     FlagClear(FLAG_BADGE01_GET);

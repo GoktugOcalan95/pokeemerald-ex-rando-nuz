@@ -70,6 +70,7 @@ TEST("Boss rewards preserve pending and delivered awards across save load and a 
         ;
     BossRewards_RecordVictory(TRAINER_ROXANNE_1);
     EXPECT_EQ(BossRewards_TryDeliver(), ITEM_NONE);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     ResetRewards();

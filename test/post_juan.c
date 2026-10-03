@@ -38,6 +38,7 @@ TEST("Post-Juan unlocks require Juan and open every puzzle with either story set
     EXPECT(FlagGet(FLAG_DEFEATED_RAYQUAZA));
     EXPECT(FlagGet(FLAG_DEFEATED_REGIROCK));
     EXPECT(!TryUnlockPostJuanLegendaries());
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     FlagClear(FLAG_POST_JUAN_LEGENDARIES_UNLOCKED);

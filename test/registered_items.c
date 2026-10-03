@@ -28,6 +28,7 @@ TEST("Registered items move between slots replace assignments and survive save l
     EXPECT_EQ(GetRegisteredItemSlot(ITEM_OLD_ROD), -1);
     EXPECT_EQ(GetRegisteredItemSlot(ITEM_MACH_BIKE), 2);
     EXPECT_EQ(ValidateRegisteredItems(), 3);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     memset(gSaveBlock1Ptr->registeredItems, 0, sizeof(gSaveBlock1Ptr->registeredItems));

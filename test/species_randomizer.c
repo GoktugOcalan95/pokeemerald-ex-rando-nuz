@@ -124,6 +124,7 @@ TEST("Species randomizer assignments respect source pools and survive save load 
     for (u32 domain = SPECIES_REWARD_WILD; domain <= SPECIES_REWARD_STARTER; domain++)
         EXPECT_EQ(RandomizeEncounterSpecies(SPECIES_MEW, domain, 123, 0), expected[domain - SPECIES_REWARD_WILD]);
     EXPECT_EQ(Random(), next);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     gSaveBlock2Ptr->playerTrainerId[3] ^= 0x80;
@@ -318,6 +319,7 @@ TEST("Species randomizer roamers keep their selected species after reconstructio
     u32 species = gSaveBlock1Ptr->roamer[0].species;
     EXPECT(IsRandomizerSpeciesLegendary(species));
     EXPECT_EQ(species, RandomizeEncounterSpecies(SPECIES_LATIAS, SPECIES_REWARD_ROAMER, SPECIES_LATIAS, 0));
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     gSaveBlock1Ptr->roamer[0].species = SPECIES_NONE;

@@ -157,6 +157,7 @@ TEST("Teaching randomizer saves stable assignments without advancing gameplay RN
         compatible[i] = CanPlayerLearnTeachableMove(SPECIES_BULBASAUR, moves[i]);
     }
     EXPECT_EQ(Random(), next);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     gSaveBlock2Ptr->playerTrainerId[3] ^= 0x80;

@@ -18,6 +18,7 @@ TEST("Companion metadata and tutor discovery survive a full save and load")
     EXPECT(gSaveBlock1Ptr->runDiscovery.tutorsSeen != 0);
     expected = gPokemonStoragePtr->companion;
     discovery = gSaveBlock1Ptr->runDiscovery;
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     memset(&gPokemonStoragePtr->companion, 0, sizeof(expected));

@@ -79,6 +79,7 @@ TEST("Level to cap EXP and stats persist through saving and loading")
     gPartiesCount[B_TRAINER_PLAYER] = 1;
     EXPECT(RaiseMonToLevelCap(mon));
     expected = *mon;
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     ZeroMonData(mon);

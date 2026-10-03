@@ -257,6 +257,7 @@ TEST("Enemy STAB retains natural secondary coverage on failed rolls and preserve
         if (RunRandomizerHash(0x521, trainer, 0) % 2 == 0 && RunRandomizerHash(0x522, trainer, 0) % 2 == 0)
             break;
     EXPECT(trainer < 1000);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     u16 moves[MAX_MON_MOVES];

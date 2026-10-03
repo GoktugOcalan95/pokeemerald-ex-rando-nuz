@@ -42,6 +42,7 @@ TEST("Auto heal restores survivors and Orb charge without changing fainted Pokem
     FlagClear(FLAG_TERA_ORB_CHARGED);
     AutoHealAfterBattle();
     EXPECT(FlagGet(FLAG_TERA_ORB_CHARGED));
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     FlagClear(FLAG_TERA_ORB_CHARGED);

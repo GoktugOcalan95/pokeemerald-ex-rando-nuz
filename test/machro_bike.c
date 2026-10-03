@@ -62,6 +62,7 @@ TEST("Machro switches only with a new B press while L is held and preserves its 
     EXPECT_EQ(VarGet(VAR_MOUNTED_BIKE), ITEM_BICYCLE);
     EXPECT(FlagGet(FLAG_MACHRO_ACRO_MODE));
     EXPECT(!TrySwitchMachroBike(0, L_BUTTON | B_BUTTON));
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     FlagClear(FLAG_MACHRO_ACRO_MODE);
@@ -245,6 +246,7 @@ TEST("Machro frame colors follow both riders through switching remounting and sa
     }
 
     SaveObjectEvents();
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     memset(gObjectEvents, 0, sizeof(gObjectEvents));

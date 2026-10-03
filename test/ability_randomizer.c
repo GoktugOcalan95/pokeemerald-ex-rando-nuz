@@ -100,6 +100,7 @@ TEST("Ability randomizer assignments survive seed changes and save load without 
     SeedRng(123);
     u32 next = Random();
     SeedRng(123);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     gSaveBlock2Ptr->playerTrainerId[3] ^= 0x80;

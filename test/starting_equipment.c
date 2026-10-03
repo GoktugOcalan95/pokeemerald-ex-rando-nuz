@@ -37,6 +37,7 @@ TEST("Starting equipment grants shoes and registered Machro independently of pre
         EXPECT_EQ(RegisteredItemWheelInput(DPAD_UP), ITEM_NONE);
         EXPECT_EQ(RegisteredItemWheelInput(DPAD_LEFT), ITEM_NONE);
     }
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     ClearBag();

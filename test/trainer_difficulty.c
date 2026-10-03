@@ -172,6 +172,7 @@ TEST("Trainer difficulty reproduces expanded teams and equipment across save loa
         for (u32 j = 0; j < 4; j++)
             values[i][3 + j] = GetMonData(mon, MON_DATA_MOVE1 + j);
     }
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     gSaveBlock2Ptr->playerTrainerId[0] ^= 1;
@@ -222,6 +223,7 @@ TEST("Trainer difficulty Unfair follows the highest completed progression milest
             EXPECT_EQ(GetRunTrainerLevel(trainers[i], 10), 11 + tier);
             EXPECT_EQ(GetRunTrainerLevel(trainers[i], 99), 100);
         }
+        ClearSaveData();
         Save_ResetSaveCounters();
         EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
         if (tier)

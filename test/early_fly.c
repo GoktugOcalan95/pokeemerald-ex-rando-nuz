@@ -21,6 +21,7 @@ TEST("Early Fly requires HM02 without a badge and updates the Start menu after s
     EXPECT(AddBagItem(ITEM_HM_FLY, 1));
     EXPECT(IsFieldMoveUnlocked(FIELD_MOVE_FLY));
     EXPECT(Test_StartMenuHasFly(&count));
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     FlagClear(FLAG_RUN_RULE_EARLY_FLY);

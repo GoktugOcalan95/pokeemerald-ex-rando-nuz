@@ -26,6 +26,7 @@ TEST("No Battle Items permits only balls and escape items while preserving the B
         EXPECT(!IsBattleItemBlockedByRunRule(allowed[i]));
     if (enabled)
         EXPECT(!ShouldUseItem((enum BattlerId)1));
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     FlagClear(FLAG_RUN_RULE_NO_BATTLE_ITEMS);

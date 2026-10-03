@@ -132,6 +132,7 @@ TEST("Tera shards preserve an individual unlock through species personality copi
     EXPECT(GetMonData(&copy, MON_DATA_TERA_UNLOCKED));
     CopyMon(boxed, &copy.box, sizeof(*boxed));
     EXPECT(GetBoxMonData(boxed, MON_DATA_TERA_UNLOCKED));
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     ZeroBoxMonData(boxed);

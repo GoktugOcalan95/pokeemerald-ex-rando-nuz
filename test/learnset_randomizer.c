@@ -87,6 +87,7 @@ TEST("Randomized learnsets agree with creation and learning and survive cache ev
     }
     for (u32 i = 0; i < 4; i++)
         EXPECT_EQ(GetMonData(&mon, MON_DATA_MOVE1 + i), latest[i]);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     gSaveBlock2Ptr->playerTrainerId[0] ^= 1;

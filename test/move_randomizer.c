@@ -50,6 +50,7 @@ TEST("Good move chance biases unique teaching moves and restores across save loa
         used[moves[i]] = TRUE;
     }
     EXPECT_EQ(Random(), next);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     VarSet(VAR_RUN_RULE_GOOD_MOVE_CHANCE, 0);

@@ -8,6 +8,7 @@
 #include "run_randomizer.h"
 #include "save.h"
 #include "slateport_shops.h"
+#include "teaching_randomizer.h"
 #include "test/overworld_script.h"
 #include "test/test.h"
 
@@ -87,6 +88,7 @@ TEST("Item randomizer preserves mappings and gameplay RNG across save load")
         EXPECT_EQ(RandomizeItemReward(ITEM_ORAN_BERRY, ITEM_REWARD_GIFT, 777, i), expected[i]);
     EXPECT_EQ(Random(), next);
     u32 hash = RunRandomizerHash(1, 2, 3);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     gSaveBlock2Ptr->playerTrainerId[3] ^= 0x80;
@@ -224,6 +226,8 @@ TEST("Ban Slateport items uses pre-Champion stock and leaves shops and mints int
 {
     FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
     FlagClear(FLAG_RUN_RULE_ITEMS);
+    // Without reusable TMs the loot pool adds TMs, which the ban must also cover.
+    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
     FlagSet(FLAG_RUN_RULE_BAN_SLATEPORT);
     EXPECT(IsRandomizedRewardItemAllowed(ITEM_THUNDER_STONE));
     FlagSet(FLAG_RUN_RULE_ITEMS);
@@ -255,12 +259,14 @@ TEST("Ban gimmick categories filter independently and refresh every reward domai
     const u16 counts[] = {92, 35, 19, 18};
     static EWRAM_DATA bool8 baseline[ITEMS_COUNT];
     static EWRAM_DATA u16 pool[ITEMS_COUNT];
+    static EWRAM_DATA u16 lootPool[ITEMS_COUNT];
     u32 baselineCount = 0;
 
     FlagSet(FLAG_RUN_RULE_ITEMS);
     FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
     FlagClear(FLAG_RUN_RULE_BAN_SLATEPORT);
     FlagClear(FLAG_RUN_RULE_BAN_BATTLE_ITEMS);
+    FlagClear(FLAG_RUN_RULE_REUSABLE_TMS);
     for (u32 bit = 0; bit < ARRAY_COUNT(flags); bit++)
         FlagClear(flags[bit]);
     for (u32 item = 1; item < ITEMS_COUNT; item++)
@@ -272,6 +278,7 @@ TEST("Ban gimmick categories filter independently and refresh every reward domai
     {
         u32 removed = 0;
         u32 count = 0;
+        u32 lootCount = 0;
         for (u32 bit = 0; bit < ARRAY_COUNT(flags); bit++)
         {
             if (mask & (1 << bit))
@@ -291,15 +298,22 @@ TEST("Ban gimmick categories filter independently and refresh every reward domai
             EXPECT_EQ(IsRandomizedRewardItemAllowed(item), expected);
             if (expected)
                 pool[count++] = item;
+            // Non-held domains also roll single-use TMs.
+            if (expected || (item >= ITEM_TM01 && item < ITEM_TM01 + GetActiveTMCount()))
+                lootPool[lootCount++] = item;
         }
         EXPECT_EQ(count, baselineCount - removed);
         EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_MINT));
         EXPECT(IsRandomizedRewardItemAllowed(ITEM_THUNDER_STONE));
         EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_CRYSTAL));
         for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_PRIZE; domain++)
+        {
+            bool32 held = domain >= ITEM_REWARD_WILD_HELD && domain <= ITEM_REWARD_FACILITY_HELD;
             for (u32 source = 0; source < 64; source++)
-                EXPECT_EQ(RandomizeItemReward(ITEM_POTION, domain, source, 0),
-                    pool[RunRandomizerHash(domain, source, 0) % count]);
+                EXPECT_EQ(RandomizeItemReward(ITEM_POTION, domain, source, 0), held
+                    ? pool[RunRandomizerHash(domain, source, 0) % count]
+                    : lootPool[RunRandomizerHash(domain, source, 0) % lootCount]);
+        }
         FlagClear(FLAG_RUN_RULE_ITEMS);
         for (u32 item = 1; item < ITEMS_COUNT; item++)
             EXPECT_EQ(IsRandomizedRewardItemAllowed(item), baseline[item]);

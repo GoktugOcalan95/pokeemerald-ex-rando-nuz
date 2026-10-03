@@ -149,6 +149,7 @@ TEST("No EVs keeps party PC fusion and daycare EVs zero after save load")
     gSaveBlock1Ptr->daycare.mons[0].mon = mon.box;
     FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
     NormalizeStoredMonEVs();
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
@@ -215,6 +216,7 @@ TEST("No EVs run rule survives saving and loading")
     RunSetup_SetNoEVGain(enabled);
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     if (enabled)

@@ -35,6 +35,8 @@ static void InitDisplay(u32 speed)
     SetDefaultFontsPointer();
     gSaveBlock2Ptr->optionsTextSpeed = speed;
     gTextFlags = (TextFlags){0};
+    gDisableTextPrinters = FALSE;
+    ResetPaletteFade();
     gMain.newKeys = 0;
     gMain.heldKeys = 0;
     gBattleTypeFlags = 0;

@@ -96,6 +96,7 @@ TEST("Mandatory rival victories and pending retries survive saving and loading")
     VarSet(VAR_ROUTE110_STATE, 1);
     VarSet(VAR_ROUTE119_STATE, 0);
     FlagClear(FLAG_MET_RIVAL_LILYCOVE);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     InitEventData();

@@ -19,6 +19,7 @@ TEST("Early Surf replaces only Surf's badge requirement and persists")
     EXPECT(IsFieldMoveUnlocked(FIELD_MOVE_SURF));
     EXPECT(AddBagItem(ITEM_HM_DIVE, 1));
     EXPECT(!IsFieldMoveUnlocked(FIELD_MOVE_DIVE));
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     FlagClear(FLAG_RUN_RULE_EARLY_SURF);

@@ -109,6 +109,7 @@ TEST("Route Fly preserves independent destination visits through saving and load
         const struct RouteFlyDestination *dest = GetRouteFlyDestination(i);
         RecordRouteFlyVisit(dest->mapGroup, dest->mapNum, dest->x, dest->y, dest->requiresSurf);
     }
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     ClearRouteVisits();

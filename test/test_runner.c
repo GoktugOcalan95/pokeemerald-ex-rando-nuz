@@ -1,5 +1,6 @@
 #include <stdarg.h>
 #include "global.h"
+#include "agb_flash.h"
 #include "fake_rtc.h"
 #include "gpu_regs.h"
 #include "load_save.h"
@@ -7,6 +8,7 @@
 #include "malloc.h"
 #include "random.h"
 #include "task.h"
+#include "text.h"
 #include "union_room_chat.h"
 #include "constants/characters.h"
 #include "test_runner.h"
@@ -217,6 +219,8 @@ top:
 
         MoveSaveBlocks_ResetHeap();
 
+        // Flash save/erase reprograms and then stops its timer, so keep it off the timeout timer (Timer 2).
+        SetFlashTimerIntr(1, gIntrTable + 6);
         gIntrTable[7] = Intr_Timer2;
 
         // The current test restarted the ROM (e.g. by jumping to NULL).
@@ -311,6 +315,8 @@ top:
             gTestRunnerState.timeoutSeconds = TIMEOUT_SECONDS;
         else
             gTestRunnerState.timeoutSeconds = UINT_MAX;
+        // Queued text printers live in gHeap; free them before InitHeap so the list can't dangle into the next test.
+        DeactivateAllTextPrinters();
         InitHeap(gHeap, HEAP_SIZE);
         ResetTasks();
         EnableInterrupts(INTR_FLAG_TIMER2);

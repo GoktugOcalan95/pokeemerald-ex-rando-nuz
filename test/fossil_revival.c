@@ -30,6 +30,7 @@ TEST("Devon fossils consume one item and revive the matching or seeded species")
     EXPECT_EQ(CountTotalItemQuantityInBag(items[index]), 1);
     EXPECT_EQ(VarGet(VAR_FOSSIL_RESURRECTION_STATE), 1);
     EXPECT_EQ(VarGet(VAR_WHICH_FOSSIL_REVIVED), items[index]);
+    ClearSaveData();
     Save_ResetSaveCounters();
     EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     InitEventData();

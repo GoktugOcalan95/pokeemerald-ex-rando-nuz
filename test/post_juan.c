@@ -12,8 +12,11 @@ TEST("Post-Juan unlocks require Juan and open every puzzle with either story set
         FLAG_SYS_REGIROCK_PUZZLE_COMPLETED, FLAG_SYS_BRAILLE_REGICE_COMPLETED,
         FLAG_SYS_REGISTEEL_PUZZLE_COMPLETED, FLAG_WALLACE_GOES_TO_SKY_PILLAR};
     bool32 removeStory;
-    PARAMETRIZE { removeStory = FALSE; }
-    PARAMETRIZE { removeStory = TRUE; }
+    u16 skyPillarState;
+    // A story run resolves Sootopolis (state 3) before Juan.
+    PARAMETRIZE { removeStory = FALSE; skyPillarState = 0; }
+    PARAMETRIZE { removeStory = FALSE; skyPillarState = 3; }
+    PARAMETRIZE { removeStory = TRUE; skyPillarState = 0; }
 
     FlagClear(FLAG_POST_JUAN_LEGENDARIES_UNLOCKED);
     FlagClear(FLAG_BADGE08_GET);
@@ -23,17 +26,17 @@ TEST("Post-Juan unlocks require Juan and open every puzzle with either story set
         FlagClear(FLAG_RUN_RULE_REMOVE_STORY);
     for (u32 i = 0; i < ARRAY_COUNT(flags); i++)
         FlagClear(flags[i]);
-    VarSet(VAR_SKY_PILLAR_STATE, 0);
+    VarSet(VAR_SKY_PILLAR_STATE, skyPillarState);
     VarSet(VAR_SKY_PILLAR_RAYQUAZA_CRY_DONE, 0);
     EXPECT(!TryUnlockPostJuanLegendaries());
-    EXPECT_EQ(VarGet(VAR_SKY_PILLAR_STATE), 0);
+    EXPECT_EQ(VarGet(VAR_SKY_PILLAR_STATE), skyPillarState);
     FlagSet(FLAG_BADGE08_GET);
     FlagSet(FLAG_DEFEATED_RAYQUAZA);
     FlagSet(FLAG_DEFEATED_REGIROCK);
     EXPECT(TryUnlockPostJuanLegendaries());
     for (u32 i = 0; i < ARRAY_COUNT(flags); i++)
         EXPECT(FlagGet(flags[i]));
-    EXPECT_EQ(VarGet(VAR_SKY_PILLAR_STATE), 2);
+    EXPECT_EQ(VarGet(VAR_SKY_PILLAR_STATE), skyPillarState ? skyPillarState : 2);
     EXPECT_EQ(VarGet(VAR_SKY_PILLAR_RAYQUAZA_CRY_DONE), 1);
     EXPECT(FlagGet(FLAG_DEFEATED_RAYQUAZA));
     EXPECT(FlagGet(FLAG_DEFEATED_REGIROCK));

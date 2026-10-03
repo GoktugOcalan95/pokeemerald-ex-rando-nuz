@@ -1566,6 +1566,11 @@ EventScript_SelectWithoutRegisteredItem::
 Common_EventScript_NopReturn::
 	return
 
+@ Legendary encounters before badge 8; callers enter with lock or lockall.
+EventScript_LegendaryNotUnlocked::
+	release
+	end
+
 EventScript_SetResultTrue::
 	setvar VAR_RESULT, TRUE
 	return

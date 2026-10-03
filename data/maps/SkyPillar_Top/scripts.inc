@@ -188,7 +188,3 @@ SkyPillar_Top_Text_RayquazaFlewOff:
 SkyPillar_Top_EventScript_HideCatchableRayquaza::
 	setflag FLAG_HIDE_SKY_PILLAR_TOP_RAYQUAZA_STILL
 	return
-
-EventScript_LegendaryNotUnlocked::
-	releaseall
-	end

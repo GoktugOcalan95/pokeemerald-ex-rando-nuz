@@ -336,7 +336,6 @@ LittlerootTown_ProfessorBirchsLab_EventScript_TakeYourTime::
 LittlerootTown_ProfessorBirchsLab_EventScript_GiveCyndaquil::
 	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_CYNDAQUIL, LittlerootTown_ProfessorBirchsLab_RandomizedGift_0 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
 	bufferspeciesname STR_VAR_1, VAR_TEMP_TRANSFERRED_SPECIES
-	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_CYNDAQUIL, LittlerootTown_ProfessorBirchsLab_RandomizedGift_0 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
 LittlerootTown_ProfessorBirchsLab_RandomizedGift_0::
 	givemon SPECIES_CYNDAQUIL, 5
 	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PARTY, LittlerootTown_ProfessorBirchsLab_EventScript_SendCyndaquilToParty
@@ -379,7 +378,6 @@ LittlerootTown_ProfessorBirchsLab_EventScript_ReceivedCyndaquil::
 LittlerootTown_ProfessorBirchsLab_EventScript_GiveTotodile::
 	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_TOTODILE, LittlerootTown_ProfessorBirchsLab_RandomizedGift_1 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
 	bufferspeciesname STR_VAR_1, VAR_TEMP_TRANSFERRED_SPECIES
-	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_TOTODILE, LittlerootTown_ProfessorBirchsLab_RandomizedGift_1 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
 LittlerootTown_ProfessorBirchsLab_RandomizedGift_1::
 	givemon SPECIES_TOTODILE, 5
 	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PARTY, LittlerootTown_ProfessorBirchsLab_EventScript_SendTotodileToParty
@@ -422,7 +420,6 @@ LittlerootTown_ProfessorBirchsLab_EventScript_ReceivedTotodile::
 LittlerootTown_ProfessorBirchsLab_EventScript_GiveChikorita::
 	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_CHIKORITA, LittlerootTown_ProfessorBirchsLab_RandomizedGift_2 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
 	bufferspeciesname STR_VAR_1, VAR_TEMP_TRANSFERRED_SPECIES
-	randomizespecies VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_CHIKORITA, LittlerootTown_ProfessorBirchsLab_RandomizedGift_2 + 5, SPECIES_REWARD_GIFT, PARTY_SIZE
 LittlerootTown_ProfessorBirchsLab_RandomizedGift_2::
 	givemon SPECIES_CHIKORITA, 5
 	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PARTY, LittlerootTown_ProfessorBirchsLab_EventScript_SendChikoritaToParty

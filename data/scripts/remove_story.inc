@@ -8,6 +8,10 @@ RemoveStory_Release::
 	releaseall
 	end
 
+RemoveStory_ReleaseTalked::
+	release
+	end
+
 RemoveStory_SkipPetalburgScott::
 	setvar VAR_SCOTT_STATE, 1
 	setvar VAR_SCOTT_PETALBURG_ENCOUNTER, 1
@@ -86,7 +90,7 @@ RemoveStory_StevenLetter::
 	call Common_EventScript_PlayerHandedOverTheItem
 	setflag FLAG_DELIVERED_STEVEN_LETTER
 RemoveStory_SteelWing:
-	goto_if_set FLAG_REMOVE_STORY_STEEL_WING, RemoveStory_Release
+	goto_if_set FLAG_REMOVE_STORY_STEEL_WING, RemoveStory_ReleaseTalked
 	msgbox_tm GraniteCave_StevensRoom_Text_ThankYouTakeThis, ITEM_TM_STEEL_WING, MSGBOX_DEFAULT
 	giveitem ITEM_TM_STEEL_WING
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull

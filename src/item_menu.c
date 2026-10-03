@@ -766,6 +766,8 @@ static bool8 SetupBagMenu(void)
     case 11:
         if (!AllocateBagItemListBuffers())
         {
+            // Battle reads this as the chosen item after the bag closes.
+            gSpecialVar_ItemId = ITEM_NONE;
             SetMainCallback2(gBagPosition.exitCallback);
             FreeBagMenu();
             return TRUE;

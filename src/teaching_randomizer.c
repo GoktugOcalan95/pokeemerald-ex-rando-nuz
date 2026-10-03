@@ -185,19 +185,40 @@ bool8 ScriptRandomizeTutorMove(struct ScriptContext *ctx)
     return FALSE;
 }
 
-const u8 *GetRandomizedMoveDescription(u16 move, u32 width)
+// Both description windows are 48 px tall, so only three 12 px FONT_SMALL lines fit.
+#define MOVE_DESCRIPTION_MAX_LINES 3
+
+// Line breaks switch back to FONT_SMALL, because the narrow small fonts advance only 8 px per line.
+static u8 *BreakMoveDescriptionLine(u8 *out, u32 fontId)
 {
-    const u8 *source = GetMoveDescription(move);
+    if (fontId != FONT_SMALL)
+    {
+        *out++ = EXT_CTRL_CODE_BEGIN;
+        *out++ = EXT_CTRL_CODE_FONT;
+        *out++ = FONT_SMALL;
+    }
+    *out++ = CHAR_NEWLINE;
+    if (fontId != FONT_SMALL)
+    {
+        *out++ = EXT_CTRL_CODE_BEGIN;
+        *out++ = EXT_CTRL_CODE_FONT;
+        *out++ = fontId;
+    }
+    return out;
+}
+
+static u32 WrapMoveDescription(const u8 *source, u32 width, u32 fontId)
+{
     u8 *out = sMoveDescription;
     // Leave room for the closing font switch and EOS.
     u8 *end = sMoveDescription + sizeof(sMoveDescription) - 4;
-    u32 lineWidth = 0;
-    u32 spaceWidth = GetStringWidth(FONT_SMALL, COMPOUND_STRING(" "), 0);
+    u32 lineWidth = 0, lines = 1;
+    u32 spaceWidth = GetStringWidth(fontId, COMPOUND_STRING(" "), 0);
     *out++ = EXT_CTRL_CODE_BEGIN;
     *out++ = EXT_CTRL_CODE_FONT;
-    *out++ = FONT_SMALL;
-    // Each step writes at most a separator plus a line break and glyph.
-    while (*source != EOS && out + 3 <= end)
+    *out++ = fontId;
+    // Each step writes a separator or a line break (up to 7 bytes), then a glyph.
+    while (*source != EOS && out + 8 <= end)
     {
         u8 word[128];
         u32 length = 0;
@@ -208,13 +229,14 @@ const u8 *GetRandomizedMoveDescription(u16 move, u32 width)
         if (!length)
             break;
         word[length] = EOS;
-        u32 wordWidth = GetStringWidth(FONT_SMALL, word, 0);
+        u32 wordWidth = GetStringWidth(fontId, word, 0);
         if (lineWidth)
         {
             if (lineWidth + spaceWidth + wordWidth > width)
             {
-                *out++ = CHAR_NEWLINE;
+                out = BreakMoveDescriptionLine(out, fontId);
                 lineWidth = 0;
+                lines++;
             }
             else
             {
@@ -222,14 +244,15 @@ const u8 *GetRandomizedMoveDescription(u16 move, u32 width)
                 lineWidth += spaceWidth;
             }
         }
-        for (u32 i = 0; i < length && out + 2 <= end; i++)
+        for (u32 i = 0; i < length && out + 8 <= end; i++)
         {
             u8 glyph[] = {word[i], EOS};
-            u32 glyphWidth = GetStringWidth(FONT_SMALL, glyph, 0);
+            u32 glyphWidth = GetStringWidth(fontId, glyph, 0);
             if (lineWidth + glyphWidth > width)
             {
-                *out++ = CHAR_NEWLINE;
+                out = BreakMoveDescriptionLine(out, fontId);
                 lineWidth = 0;
+                lines++;
             }
             *out++ = word[i];
             lineWidth += glyphWidth;
@@ -239,6 +262,17 @@ const u8 *GetRandomizedMoveDescription(u16 move, u32 width)
     *out++ = EXT_CTRL_CODE_FONT;
     *out++ = FONT_NORMAL;
     *out = EOS;
+    return lines;
+}
+
+const u8 *GetRandomizedMoveDescription(u16 move, u32 width)
+{
+    static const u8 fonts[] = {FONT_SMALL, FONT_SMALL_NARROW, FONT_SMALL_NARROWER};
+    for (u32 i = 0; i < ARRAY_COUNT(fonts); i++)
+    {
+        if (WrapMoveDescription(GetMoveDescription(move), width, fonts[i]) <= MOVE_DESCRIPTION_MAX_LINES)
+            break;
+    }
     return sMoveDescription;
 }
 

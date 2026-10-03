@@ -199,6 +199,12 @@ TEST("Teaching randomizer script and Frontier tutors resolve matching assigned m
 
 TEST("Teaching randomizer move descriptions and Frontier labels fit their windows")
 {
+    // Wrap width, print x/y, and window size in pixels, as used by the callers.
+    static const struct { u8 wrap, x, y, width, height; } windows[] =
+    {
+        { 96, 0, 1, 96, 48 },  // Frontier tutor window (field_specials.c ShowBattleFrontierTutorMoveDescription)
+        { 106, 3, 1, 112, 48 }, // Bag WIN_DESCRIPTION (item.c GetItemDescription, item_menu.c PrintItemDescription)
+    };
     struct ListMenuItem items[11];
     SetDefaultFontsPointer();
     FlagSet(FLAG_RUN_RULE_TMS_TUTORS);
@@ -207,15 +213,20 @@ TEST("Teaching randomizer move descriptions and Frontier labels fit their window
     {
         if (!IsRandomizerMoveAllowed(move))
             continue;
-        const u8 *description = GetRandomizedMoveDescription(move, 96);
-        if (GetStringWidth(FONT_NORMAL, description, 0) > 96)
-            Test_MgbaPrintf("Description for %S: width %d", GetMoveName(move), GetStringWidth(FONT_NORMAL, description, 0));
-        EXPECT_LE(GetStringWidth(FONT_NORMAL, description, 0), 96);
-        u32 lines = 1;
-        for (u32 i = 0; description[i] != EOS; i++)
-            if (description[i] == CHAR_NEWLINE)
-                lines++;
-        EXPECT_LE(lines, 4);
+        for (u32 w = 0; w < ARRAY_COUNT(windows); w++)
+        {
+            const u8 *description = GetRandomizedMoveDescription(move, windows[w].wrap);
+            u32 width = GetStringWidth(FONT_NORMAL, description, 0);
+            u32 lines = 1;
+            for (u32 i = 0; description[i] != EOS; i++)
+                if (description[i] == CHAR_NEWLINE)
+                    lines++;
+            u32 height = lines * GetFontAttribute(FONT_SMALL, FONTATTR_MAX_LETTER_HEIGHT);
+            if (windows[w].x + width > windows[w].width || windows[w].y + height > windows[w].height)
+                Test_MgbaPrintf("Description for %S at %d: width %d, %d lines", GetMoveName(move), windows[w].wrap, width, lines);
+            EXPECT_LE(windows[w].x + width, windows[w].width);
+            EXPECT_LE(windows[w].y + height, windows[w].height);
+        }
         EXPECT_LE(GetStringWidth(FONT_SMALL, GetMoveName(move), 0), 86);
     }
     for (u32 tutor = 0; tutor < 2; tutor++)

@@ -987,7 +987,9 @@ static void MatchCall_BufferCallMessageText(const match_call_text_data_t *textDa
         i--;
     while (i)
     {
-        if (textData[i].availabilityFlag != ALWAYS_AVAILABLE && FlagGet(textData[i].availabilityFlag) == TRUE)
+        // Remove Story presets the Kyogre flag at run start; the crisis these calls describe never happens.
+        if (textData[i].availabilityFlag != ALWAYS_AVAILABLE && FlagGet(textData[i].availabilityFlag) == TRUE
+         && !(textData[i].availabilityFlag == FLAG_KYOGRE_ESCAPED_SEAFLOOR_CAVERN && FlagGet(FLAG_RUN_RULE_REMOVE_STORY)))
             break;
         i--;
     }

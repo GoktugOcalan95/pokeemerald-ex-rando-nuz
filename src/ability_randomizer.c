@@ -12,7 +12,8 @@
 #define EXTRA_SLOT_KEY(slot) (ABILITIES_COUNT + (slot))
 #define ABILITY_MAPPING_KEYS (ABILITIES_COUNT + NUM_ABILITY_SLOTS)
 
-#define FAMILY_CACHE_COUNT 4
+// Misses only walk the family chain, so a small cache is enough and leaves EWRAM for the chain.
+#define FAMILY_CACHE_COUNT 2
 
 struct FamilyAbilityCache
 {
@@ -24,11 +25,14 @@ static EWRAM_DATA struct FamilyAbilityCache sFamilyCaches[FAMILY_CACHE_COUNT] = 
 static EWRAM_DATA u16 sAbilityPool[ABILITIES_COUNT] = {0};
 static EWRAM_DATA u8 sNativeSlots[(NUM_SPECIES + 1) / 2] = {0};
 static EWRAM_DATA u8 sNativeOnlyAbilities[(ABILITIES_COUNT + 7) / 8] = {0};
+// Next higher species in the same family (SPECIES_NONE ends it); a family's ID is its lowest species.
+static EWRAM_DATA u16 sNextFamilyMember[NUM_SPECIES] = {0};
 static EWRAM_DATA u16 sAbilityPoolCount = 0;
 static EWRAM_DATA u32 sCachedSeed = 0;
 static EWRAM_DATA u8 sNextFamilyCache = 0;
 static EWRAM_DATA bool8 sCacheReady = FALSE;
 static EWRAM_DATA bool8 sNativeSlotsReady = FALSE;
+static EWRAM_DATA bool8 sFamilyMembersReady = FALSE;
 
 static u32 ReadNativeSlots(u32 species)
 {
@@ -177,15 +181,28 @@ static u32 PickAbility(u32 family, u32 key, bool8 *used)
     return ABILITY_NONE;
 }
 
+static void InitFamilyMembers(void)
+{
+    // Descending inserts right after the family head leave each chain in ascending order.
+    for (u32 species = NUM_SPECIES - 1; species > SPECIES_NONE; species--)
+    {
+        u32 family = GetRandomizerSpeciesFamily(species);
+        if (family == SPECIES_NONE || family == species)
+            continue;
+        sNextFamilyMember[species] = sNextFamilyMember[family];
+        sNextFamilyMember[family] = species;
+    }
+    sFamilyMembersReady = TRUE;
+}
+
 static void InitFamilyAbilities(struct FamilyAbilityCache *cache, u32 family)
 {
     u16 *mapping = cache->mapping;
     memset(mapping, 0, sizeof(cache->mapping));
     bool8 used[ABILITIES_COUNT] = {0};
-    for (u32 species = 1; species < NUM_SPECIES; species++)
-        if (GetRandomizerSpeciesFamily(species) == family)
-            for (u32 slot = 0; slot < NUM_ABILITY_SLOTS; slot++)
-                mapping[gSpeciesInfo[species].abilities[slot]] = TRUE;
+    for (u32 species = family; species != SPECIES_NONE; species = sNextFamilyMember[species])
+        for (u32 slot = 0; slot < NUM_ABILITY_SLOTS; slot++)
+            mapping[gSpeciesInfo[species].abilities[slot]] = TRUE;
     for (u32 ability = 1; ability < ABILITIES_COUNT; ability++)
         if (mapping[ability])
             mapping[ability] = PickAbility(family, ability, used);
@@ -232,6 +249,8 @@ u16 GetRandomizedSpeciesAbility(u16 species, u32 slot)
         sCachedSeed = seed;
         sCacheReady = TRUE;
     }
+    if (!sFamilyMembersReady)
+        InitFamilyMembers();
     u32 family = GetRandomizerSpeciesFamily(species);
     for (u32 i = 0; i < FAMILY_CACHE_COUNT; i++)
         if (sFamilyCaches[i].family == family)

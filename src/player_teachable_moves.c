@@ -35,28 +35,6 @@ static bool32 IsTutorMove(enum Move move)
     return FALSE;
 }
 
-static bool32 IsDuplicateMachineMove(enum Move move, u32 index)
-{
-    for (u32 i = 0; i < index; i++)
-    {
-        if (GetTMHMMoveId(i + 1) == move)
-            return TRUE;
-    }
-
-    return FALSE;
-}
-
-static bool32 IsDuplicateTutorMove(enum Move move, u32 index)
-{
-    for (u32 i = 0; i < index; i++)
-    {
-        if (GetTutorMove(i) == move)
-            return TRUE;
-    }
-
-    return FALSE;
-}
-
 static bool32 IsMoveInLevelUpLearnset(const struct LevelUpMove *learnset, enum Move move)
 {
     if (learnset == NULL)
@@ -84,15 +62,26 @@ bool32 CanPlayerLearnTeachableMove(enum Species species, enum Move move)
     return CanPlayerLearnOfferedMove(species, move);
 }
 
+static bool32 MarkSeenMove(u8 *seen, enum Move move)
+{
+    if (move >= MOVES_COUNT)
+        return FALSE;
+    bool32 wasSeen = seen[move / 8] & (1 << (move % 8));
+    seen[move / 8] |= 1 << (move % 8);
+    return wasSeen;
+}
+
+// One pass with a seen-move set: the Pokédex enumerates this several times per cursor move.
 static enum Move GetPlayerTeachableMoveInternal(enum Species species, u32 index, u32 *count)
 {
+    u8 seen[(MOVES_COUNT + 7) / 8] = {0};
     *count = 0;
 
     for (u32 i = 0; i < NUM_ALL_MACHINES; i++)
     {
         enum Move move = GetTMHMMoveId(i + 1);
 
-        if (move == MOVE_NONE || IsDuplicateMachineMove(move, i)
+        if (MarkSeenMove(seen, move) || move == MOVE_NONE
             || !CanPlayerLearnOfferedMove(species, move))
             continue;
         if ((*count)++ == index)
@@ -103,8 +92,7 @@ static enum Move GetPlayerTeachableMoveInternal(enum Species species, u32 index,
     {
         enum Move move = GetTutorMove(i);
 
-        if (IsMachineMove(move) || IsDuplicateTutorMove(move, i)
-            || !CanPlayerLearnOfferedMove(species, move))
+        if (MarkSeenMove(seen, move) || !CanPlayerLearnOfferedMove(species, move))
             continue;
         if ((*count)++ == index)
             return move;

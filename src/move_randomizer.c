@@ -6,7 +6,15 @@
 #include "run_randomizer.h"
 #include "constants/characters.h"
 
-bool32 IsRandomizerMoveAllowed(u16 move)
+#define MOVE_CLASS_ALLOWED (1 << 0)
+#define MOVE_CLASS_DIRECT  (1 << 1)
+#define MOVE_CLASS_GOOD    (1 << 2)
+
+// Classification depends only on ROM move data; learnset generation queries it thousands of times per species.
+static EWRAM_DATA u8 sMoveClasses[MOVES_COUNT] = {0};
+static EWRAM_DATA bool8 sMoveClassesReady = FALSE;
+
+static bool32 ComputeMoveAllowed(u16 move)
 {
     return move > MOVE_NONE && move < MOVES_COUNT && move != MOVE_STRUGGLE
         && gMovesInfo[move].effect != EFFECT_PLACEHOLDER && gMovesInfo[move].pp != 0
@@ -23,9 +31,9 @@ static bool32 RequiresExtraTurn(u16 move)
     return FALSE;
 }
 
-bool32 IsRandomizerDirectAttack(u16 move)
+static bool32 ComputeDirectAttack(u16 move)
 {
-    if (!IsRandomizerMoveAllowed(move) || gMovesInfo[move].category == DAMAGE_CATEGORY_STATUS
+    if (!ComputeMoveAllowed(move) || gMovesInfo[move].category == DAMAGE_CATEGORY_STATUS
         || gMovesInfo[move].explosion || RequiresExtraTurn(move))
         return FALSE;
     switch (gMovesInfo[move].effect)
@@ -132,9 +140,9 @@ u32 GetRandomizerMovePower(u16 move)
     return RequiresExtraTurn(move) ? power * 3 / 400 : power / 100;
 }
 
-bool32 IsRandomizerGoodAttack(u16 move)
+static bool32 ComputeGoodAttack(u16 move)
 {
-    if (!IsRandomizerDirectAttack(move) || (gMovesInfo[move].accuracy != 0 && gMovesInfo[move].accuracy < 90))
+    if (!ComputeDirectAttack(move) || (gMovesInfo[move].accuracy != 0 && gMovesInfo[move].accuracy < 90))
         return FALSE;
     switch (gMovesInfo[move].effect)
     {
@@ -150,6 +158,40 @@ bool32 IsRandomizerGoodAttack(u16 move)
     }
 }
 
+static void InitMoveClasses(void)
+{
+    if (sMoveClassesReady)
+        return;
+    for (u32 move = 1; move < MOVES_COUNT; move++)
+        sMoveClasses[move] = (ComputeMoveAllowed(move) ? MOVE_CLASS_ALLOWED : 0)
+                           | (ComputeDirectAttack(move) ? MOVE_CLASS_DIRECT : 0)
+                           | (ComputeGoodAttack(move) ? MOVE_CLASS_GOOD : 0);
+    sMoveClassesReady = TRUE;
+}
+
+static bool32 HasMoveClass(u16 move, u32 class)
+{
+    if (move >= MOVES_COUNT)
+        return FALSE;
+    InitMoveClasses();
+    return (sMoveClasses[move] & class) != 0;
+}
+
+bool32 IsRandomizerMoveAllowed(u16 move)
+{
+    return HasMoveClass(move, MOVE_CLASS_ALLOWED);
+}
+
+bool32 IsRandomizerDirectAttack(u16 move)
+{
+    return HasMoveClass(move, MOVE_CLASS_DIRECT);
+}
+
+bool32 IsRandomizerGoodAttack(u16 move)
+{
+    return HasMoveClass(move, MOVE_CLASS_GOOD);
+}
+
 u32 GetRandomizerGoodMoveChance(void)
 {
     return min(100, VarGet(VAR_RUN_RULE_GOOD_MOVE_CHANCE));
@@ -158,17 +200,20 @@ u32 GetRandomizerGoodMoveChance(void)
 u16 ChooseRandomizerMove(u32 domain, u32 source, u32 slot, const bool8 *used)
 {
     bool32 good = RunRandomizerHash(domain ^ 0x80000000, source, slot) % 100 < GetRandomizerGoodMoveChance();
+    InitMoveClasses();
+    // Good attacks are a subset of allowed moves, so one mask selects either pool.
     for (u32 attempt = 0; attempt < 2; attempt++, good = FALSE)
     {
+        u32 mask = good ? MOVE_CLASS_GOOD : MOVE_CLASS_ALLOWED;
         u32 count = 0;
         for (u32 move = 1; move < MOVES_COUNT; move++)
-            if (IsRandomizerMoveAllowed(move) && (used == NULL || !used[move]) && (!good || IsRandomizerGoodAttack(move)))
+            if ((sMoveClasses[move] & mask) && (used == NULL || !used[move]))
                 count++;
         if (count == 0)
             continue;
         u32 choice = RunRandomizerHash(domain, source, slot) % count;
         for (u32 move = 1; move < MOVES_COUNT; move++)
-            if (IsRandomizerMoveAllowed(move) && (used == NULL || !used[move]) && (!good || IsRandomizerGoodAttack(move)) && choice-- == 0)
+            if ((sMoveClasses[move] & mask) && (used == NULL || !used[move]) && choice-- == 0)
                 return move;
     }
     return MOVE_NONE;

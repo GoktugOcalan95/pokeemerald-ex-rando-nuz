@@ -63,7 +63,9 @@ bool32 IsRandomizedLootItemAllowed(u16 item)
 {
     return IsRandomizedRewardItemAllowed(item)
         || (FlagGet(FLAG_RUN_RULE_ITEMS) && !GetItemImportance(ITEM_TM01)
-         && item >= ITEM_TM01 && item < ITEM_TM01 + GetActiveTMCount());
+         && item >= ITEM_TM01 && item < ITEM_TM01 + GetActiveTMCount()
+         // TM51+ are the expanded-list partners of TM01-TM50 and are sold alongside them.
+         && !(FlagGet(FLAG_RUN_RULE_BAN_SLATEPORT) && IsSlateportPreChampionItem(item >= ITEM_TM51 ? item - 50 : item)));
 }
 
 static void PrepareRewardPool(bool32 heldItems)

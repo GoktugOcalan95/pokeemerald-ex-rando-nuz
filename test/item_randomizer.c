@@ -244,6 +244,10 @@ TEST("Ban Slateport items uses pre-Champion stock and leaves shops and mints int
     for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_PRIZE; domain++)
         for (u32 source = 0; source < 100; source++)
             EXPECT(!IsSlateportPreChampionItem(RandomizeItemReward(ITEM_POTION, domain, source, 0)));
+    FlagSet(FLAG_RUN_RULE_EXPANDED_TMS);
+    EXPECT(!IsRandomizedLootItemAllowed(ITEM_TM_HIDDEN_POWER + 50));
+    EXPECT(!IsRandomizedLootItemAllowed(ITEM_TM_SECRET_POWER + 50));
+    FlagClear(FLAG_RUN_RULE_EXPANDED_TMS);
     FlagClear(FLAG_RUN_RULE_BAN_SLATEPORT);
     EXPECT(IsRandomizedRewardItemAllowed(ITEM_THUNDER_STONE));
     FlagClear(FLAG_RUN_RULE_ITEMS);

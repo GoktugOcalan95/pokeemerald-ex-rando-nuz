@@ -5,13 +5,13 @@
 #include "run_setup.h"
 #include "save.h"
 #include "text.h"
+#include "window.h"
 #include "constants/vars.h"
 #include "test/test.h"
 #include "constants/flags.h"
 
-TEST("Run setup detaches the main menu tilemap and clears its highlight mask")
+TEST("Run setup frees the main menu windows and clears its highlight mask")
 {
-    static EWRAM_DATA u16 mainMenuTilemap[BG_SCREEN_SIZE / sizeof(u16)];
     static const struct BgTemplate bgTemplate =
     {
         .bg = 0,
@@ -22,17 +22,31 @@ TEST("Run setup detaches the main menu tilemap and clears its highlight mask")
         .priority = 0,
         .baseTile = 0,
     };
+    static const struct WindowTemplate mainMenuWindows[] =
+    {
+        { .bg = 0, .tilemapLeft = 3, .tilemapTop = 1, .width = 24, .height = 4, .baseBlock = 1 },
+        { .bg = 0, .tilemapLeft = 3, .tilemapTop = 7, .width = 24, .height = 2, .baseBlock = 0x61 },
+        DUMMY_WIN_TEMPLATE,
+    };
+    static const struct WindowTemplate runSetupWindows[] =
+    {
+        { .bg = 0, .tilemapLeft = 1, .tilemapTop = 1, .width = 28, .height = 18, .baseBlock = 1 },
+        DUMMY_WIN_TEMPLATE,
+    };
     u16 previousDisplayControl = GetGpuReg(REG_OFFSET_DISPCNT);
     u16 displayControl = DISPCNT_BG0_ON | DISPCNT_OBJ_ON | DISPCNT_WIN0_ON;
 
     ResetBgsAndClearDma3BusyFlags(FALSE);
     InitBgFromTemplate(&bgTemplate);
-    SetBgTilemapBuffer(0, mainMenuTilemap);
+    InitWindows(mainMenuWindows);
     SetGpuReg(REG_OFFSET_DISPCNT, displayControl);
     RunSetup_PrepareDisplay();
 
     EXPECT_EQ(GetBgTilemapBuffer(0), NULL);
     EXPECT_EQ(GetGpuReg(REG_OFFSET_DISPCNT), displayControl & ~DISPCNT_WIN0_ON);
+    // The runner's leak check fails this test if the main menu windows were not freed.
+    InitWindows(runSetupWindows);
+    FreeAllWindowBuffers();
     ResetBgsAndClearDma3BusyFlags(FALSE);
     SetGpuReg(REG_OFFSET_DISPCNT, previousDisplayControl);
 }

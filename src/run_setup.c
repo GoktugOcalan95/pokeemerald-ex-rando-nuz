@@ -3,6 +3,7 @@
 #include "event_data.h"
 #include "gpu_regs.h"
 #include "run_setup.h"
+#include "window.h"
 #include "constants/flags.h"
 #include "constants/vars.h"
 
@@ -310,6 +311,8 @@ void RunSetup_SwitchCategory(struct RunSetupNavigation *navigation, bool32 backw
 
 void RunSetup_PrepareDisplay(void)
 {
+    // Free the main menu's windows first; unsetting alone would leak them on every New Game -> B round trip.
+    FreeAllWindowBuffers();
     UnsetBgTilemapBuffer(0);
     ClearGpuRegBits(REG_OFFSET_DISPCNT, DISPCNT_WIN0_ON | DISPCNT_WIN1_ON | DISPCNT_OBJWIN_ON);
     SetGpuReg(REG_OFFSET_WIN0H, 0);

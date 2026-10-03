@@ -268,7 +268,7 @@ Route104_EventScript_WhiteHerbFlorist::
 	lock
 	faceplayer
 	goto_if_set FLAG_RECEIVED_WHITE_HERB, Route104_EventScript_ReceivedWhiteHerb
-	msgbox Route104_Text_DontNeedThisTakeIt, MSGBOX_DEFAULT
+	msgbox_randomgift Route104_Text_DontNeedThisTakeIt, MSGBOX_DEFAULT
 	giveitem_random ITEM_WHITE_HERB, FLAG_RECEIVED_WHITE_HERB
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_WHITE_HERB

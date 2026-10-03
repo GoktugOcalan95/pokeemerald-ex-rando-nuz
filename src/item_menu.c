@@ -876,7 +876,6 @@ static bool8 LoadBagMenu_Graphics(void)
         gBagMenu->graphicsLoadState++;
         break;
     default:
-        LoadListMenuSwapLineGfx();
         gBagMenu->graphicsLoadState = 0;
         return TRUE;
     }
@@ -2711,7 +2710,7 @@ static const u8 *const sBagCategoryNames[] =
 
 static void SetBagQuickSpritesHidden(bool32 hidden)
 {
-    for (u32 i = 0; i < ITEMMENUSPRITE_SWAP_LINE; i++)
+    for (u32 i = 0; i < ITEMMENUSPRITE_COUNT; i++)
     {
         u32 sprite = gBagMenu->spriteIds[i];
         if (sprite != SPRITE_NONE)

@@ -14,9 +14,6 @@ void ShakeBagSprite(void);
 void AddSwitchPocketRotatingBallSprite(s16 rotationDirection);
 void AddBagItemIconSprite(enum Item itemId, u8 id);
 void RemoveBagItemIconSprite(u8 id);
-void CreateItemMenuSwapLine(void);
-void SetItemMenuSwapLineInvisibility(bool8 invisible);
-void UpdateItemMenuSwapLinePos(u8 y);
 
 // Note: Because of removing gDecompressionBuffer and allowing to create more than one berry sprite at a time, the memory for gfx is allocated dynamically.
 // For CreateBerryTagSprite and CreateSpinningBerrySprite, the allocated ptr is stored in two last data fields(data[6], data[7]), so make sure to NOT put anything in there!

@@ -48,14 +48,12 @@ enum BagSortOptions
     SORT_BY_ACQUIRED,
 };
 
-#define ITEMMENU_SWAP_LINE_LENGTH 8  // Swap line is 8 sprites long
 enum {
     ITEMMENUSPRITE_BAG,
     ITEMMENUSPRITE_BALL,
     ITEMMENUSPRITE_ITEM,
     ITEMMENUSPRITE_ITEM_ALT, // Need two when selecting new item
-    ITEMMENUSPRITE_SWAP_LINE,
-    ITEMMENUSPRITE_COUNT = ITEMMENUSPRITE_SWAP_LINE + ITEMMENU_SWAP_LINE_LENGTH,
+    ITEMMENUSPRITE_COUNT,
 };
 
 struct BagPosition
@@ -83,7 +81,7 @@ struct BagMenu
     u8 quickMenuWindow;
     u8 pocketChoice;
     u8 quickChoice;
-    bool8 quickSpriteVisibility[ITEMMENUSPRITE_SWAP_LINE];
+    bool8 quickSpriteVisibility[ITEMMENUSPRITE_COUNT];
     u8 pocketScrollArrowsTask;
     u8 pocketSwitchArrowsTask;
     const u8 *contextMenuItemsPtr;

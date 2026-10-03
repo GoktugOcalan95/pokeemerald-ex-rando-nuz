@@ -512,21 +512,6 @@ void RemoveBagItemIconSprite(u8 id)
 #endif
 }
 
-void CreateItemMenuSwapLine(void)
-{
-    CreateSwapLineSprites(&gBagMenu->spriteIds[ITEMMENUSPRITE_SWAP_LINE], ITEMMENU_SWAP_LINE_LENGTH);
-}
-
-void SetItemMenuSwapLineInvisibility(bool8 invisible)
-{
-    SetSwapLineSpritesInvisibility(&gBagMenu->spriteIds[ITEMMENUSPRITE_SWAP_LINE], ITEMMENU_SWAP_LINE_LENGTH, invisible);
-}
-
-void UpdateItemMenuSwapLinePos(u8 y)
-{
-    UpdateSwapLineSpritesPos(&gBagMenu->spriteIds[ITEMMENUSPRITE_SWAP_LINE], ITEMMENU_SWAP_LINE_LENGTH | SWAP_LINE_HAS_MARGIN, 120, (y + 1) * 16);
-}
-
 static void ArrangeBerryGfx(void *src, void *dest)
 {
     u8 i, j;

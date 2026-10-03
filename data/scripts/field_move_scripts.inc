@@ -36,16 +36,6 @@ EventScript_CheckTreeCantCut::
 	releaseall
 	end
 
-EventScript_CancelCut::
-	closemessage
-	releaseall
-	end
-
-Text_WantToCut:
-	.string "This tree looks like it can be\n"
-	.string "CUT down!\p"
-	.string "Would you like to CUT it?$"
-
 Text_MonUsedFieldMove:
 	.string "{STR_VAR_1} used {STR_VAR_2}!$"
 
@@ -204,15 +194,6 @@ EventScript_CantSmashRock::
 	releaseall
 	end
 
-EventScript_CancelSmash::
-	closemessage
-	releaseall
-	end
-
-Text_WantToSmash:
-	.string "This rock appears to be breakable.\n"
-	.string "Would you like to use ROCK SMASH?$"
-
 Text_CantSmash:
 	.string "It's a rugged rock, but a POKéMON\n"
 	.string "may be able to smash it.$"
@@ -245,16 +226,6 @@ EventScript_CheckActivatedBoulder::
 	msgbox_timed Text_StrengthActivated
 	releaseall
 	end
-
-EventScript_CancelStrength::
-	closemessage
-	releaseall
-	end
-
-Text_WantToStrength:
-	.string "It's a big boulder, but a POKéMON\n"
-	.string "may be able to push it aside.\p"
-	.string "Would you like to use STRENGTH?$"
 
 Text_MonUsedStrength:
 	.string "{STR_VAR_1} used STRENGTH!\p"
@@ -292,13 +263,6 @@ EventScript_EndWaterfall::
 Text_CantWaterfall:
 	.string "A wall of water is crashing down with\n"
 	.string "a mighty roar.$"
-
-Text_WantToWaterfall:
-	.string "It's a large waterfall.\n"
-	.string "Would you like to use WATERFALL?$"
-
-Text_MonUsedWaterfall:
-	.string "{STR_VAR_1} used WATERFALL.$"
 
 EventScript_UseDive::
 	lockall
@@ -383,9 +347,6 @@ Text_CantDive:
 Text_WantToDive:
 	.string "The sea is deep here.\n"
 	.string "Would you like to use DIVE?$"
-
-Text_MonUsedDive:
-	.string "{STR_VAR_1} used DIVE.$"
 
 Text_CantSurface:
 	.string "Light is filtering down from above.\n"

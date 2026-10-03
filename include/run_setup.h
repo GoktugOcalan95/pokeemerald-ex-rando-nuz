@@ -77,7 +77,6 @@ enum RunSetupDependency
     RUN_SETUP_DEPENDENCY_ITEMS,
     RUN_SETUP_DEPENDENCY_MOVES,
     RUN_SETUP_DEPENDENCY_TRAINERS,
-    RUN_SETUP_DEPENDENCY_TMS_TUTORS,
 };
 
 struct RunSetupSettingInfo
@@ -119,29 +118,6 @@ void RunSetup_ApplyToNewGame(void);
 void RunSetup_PrepareDisplay(void);
 void RunSetup_ClearDisplayTilemap(void);
 void RunSetup_ClearDisplayGraphics(void);
-bool32 RunSetup_GetFullCompatibility(void);
-void RunSetup_SetFullCompatibility(bool32 enabled);
-
-bool32 RunSetup_GetReusableTMs(void);
-void RunSetup_SetReusableTMs(bool32 enabled);
-
-bool32 RunSetup_GetNoEVGain(void);
-void RunSetup_SetNoEVGain(bool32 enabled);
-
-bool32 RunSetup_GetOpponentHPPercentage(void);
-void RunSetup_SetOpponentHPPercentage(bool32 enabled);
-
-bool32 RunSetup_GetLevelCaps(void);
-void RunSetup_SetLevelCaps(bool32 enabled);
-
-bool32 RunSetup_GetFrostbite(void);
-void RunSetup_SetFrostbite(bool32 enabled);
-
-bool32 RunSetup_GetSetupMovePP(void);
-void RunSetup_SetSetupMovePP(bool32 enabled);
-
-u32 RunSetup_GetCatchBonus(void);
 u32 GetSavedCatchBonus(void);
-void RunSetup_SetCatchBonus(u32 value);
 
 #endif // GUARD_RUN_SETUP_H

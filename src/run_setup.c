@@ -234,8 +234,6 @@ bool32 RunSetup_IsAvailable(enum RunSetupSetting setting)
         return RunSetup_GetValue(RUN_SETUP_ITEMS) != 0;
     case RUN_SETUP_DEPENDENCY_TRAINERS:
         return RunSetup_GetValue(RUN_SETUP_TRAINERS) != 0;
-    case RUN_SETUP_DEPENDENCY_TMS_TUTORS:
-        return RunSetup_GetValue(RUN_SETUP_TMS_TUTORS) != 0;
     case RUN_SETUP_DEPENDENCY_MOVES:
         return RunSetup_GetValue(RUN_SETUP_LEARNSETS) || RunSetup_GetValue(RUN_SETUP_TMS_TUTORS);
     default:
@@ -333,86 +331,6 @@ void RunSetup_ClearDisplayGraphics(void)
 {
     // The introduction uses a different character base, including setup's border tiles.
     DmaFill16(3, 0, (void *)VRAM, BG_VRAM_SIZE);
-}
-
-bool32 RunSetup_GetFullCompatibility(void)
-{
-    return RunSetup_GetValue(RUN_SETUP_FULL_COMPATIBILITY);
-}
-
-void RunSetup_SetFullCompatibility(bool32 enabled)
-{
-    RunSetup_SetValue(RUN_SETUP_FULL_COMPATIBILITY, enabled != FALSE);
-}
-
-bool32 RunSetup_GetReusableTMs(void)
-{
-    return RunSetup_GetValue(RUN_SETUP_REUSABLE_TMS);
-}
-
-void RunSetup_SetReusableTMs(bool32 enabled)
-{
-    RunSetup_SetValue(RUN_SETUP_REUSABLE_TMS, enabled != FALSE);
-}
-
-bool32 RunSetup_GetNoEVGain(void)
-{
-    return RunSetup_GetValue(RUN_SETUP_NO_EV_GAIN);
-}
-
-void RunSetup_SetNoEVGain(bool32 enabled)
-{
-    RunSetup_SetValue(RUN_SETUP_NO_EV_GAIN, enabled != FALSE);
-}
-
-bool32 RunSetup_GetOpponentHPPercentage(void)
-{
-    return RunSetup_GetValue(RUN_SETUP_OPPONENT_HP_PERCENTAGE);
-}
-
-void RunSetup_SetOpponentHPPercentage(bool32 enabled)
-{
-    RunSetup_SetValue(RUN_SETUP_OPPONENT_HP_PERCENTAGE, enabled != FALSE);
-}
-
-bool32 RunSetup_GetLevelCaps(void)
-{
-    return RunSetup_GetValue(RUN_SETUP_LEVEL_CAPS);
-}
-
-void RunSetup_SetLevelCaps(bool32 enabled)
-{
-    RunSetup_SetValue(RUN_SETUP_LEVEL_CAPS, enabled != FALSE);
-}
-
-bool32 RunSetup_GetFrostbite(void)
-{
-    return RunSetup_GetValue(RUN_SETUP_FROSTBITE);
-}
-
-void RunSetup_SetFrostbite(bool32 enabled)
-{
-    RunSetup_SetValue(RUN_SETUP_FROSTBITE, enabled != FALSE);
-}
-
-bool32 RunSetup_GetSetupMovePP(void)
-{
-    return RunSetup_GetValue(RUN_SETUP_SETUP_MOVE_PP);
-}
-
-void RunSetup_SetSetupMovePP(bool32 enabled)
-{
-    RunSetup_SetValue(RUN_SETUP_SETUP_MOVE_PP, enabled != FALSE);
-}
-
-u32 RunSetup_GetCatchBonus(void)
-{
-    return RunSetup_GetValue(RUN_SETUP_CATCH_BONUS);
-}
-
-void RunSetup_SetCatchBonus(u32 value)
-{
-    RunSetup_SetValue(RUN_SETUP_CATCH_BONUS, value);
 }
 
 u32 GetSavedCatchBonus(void)

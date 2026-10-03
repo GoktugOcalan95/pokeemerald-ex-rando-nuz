@@ -33,7 +33,7 @@ TEST("Reusable TMs run rule survives saving and loading")
     PARAMETRIZE { enabled = TRUE; }
 
     RunSetup_Begin();
-    RunSetup_SetReusableTMs(enabled);
+    RunSetup_SetValue(RUN_SETUP_REUSABLE_TMS, enabled);
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
     ClearSaveData();

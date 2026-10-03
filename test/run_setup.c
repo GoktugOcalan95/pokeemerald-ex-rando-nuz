@@ -127,14 +127,14 @@ TEST("Run setup defaults, presets and edits stay draft-only until START")
         else
             EXPECT_EQ(VarGet(info->storageId), 0);
     }
-    RunSetup_SetReusableTMs(!RunSetup_GetReusableTMs());
+    RunSetup_SetValue(RUN_SETUP_REUSABLE_TMS, !RunSetup_GetValue(RUN_SETUP_REUSABLE_TMS));
     EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
     RunSetup_SetPreset(preset);
     RunSetup_Confirm();
     RunSetup_SetPreset(RUN_SETUP_PRESET_CUSTOM);
     RunSetup_SetPreset((enum RunSetupPreset)-1);
     RunSetup_SetPreset((preset + 1) % RUN_SETUP_PRESET_COUNT);
-    RunSetup_SetReusableTMs(!RunSetup_GetReusableTMs());
+    RunSetup_SetValue(RUN_SETUP_REUSABLE_TMS, !RunSetup_GetValue(RUN_SETUP_REUSABLE_TMS));
     EXPECT_EQ(RunSetup_GetPreset(), preset);
     RunSetup_ApplyToNewGame();
     for (u32 i = 0; i < RUN_SETUP_SETTING_COUNT; i++)
@@ -164,8 +164,8 @@ TEST("Run setup discards drafts and refuses to apply settings without START")
         else
             EXPECT_EQ(VarGet(storage), 0);
     }
-    RunSetup_SetFullCompatibility(TRUE);
-    EXPECT_EQ(RunSetup_GetFullCompatibility(), FALSE);
+    RunSetup_SetValue(RUN_SETUP_FULL_COMPATIBILITY, TRUE);
+    EXPECT_EQ(RunSetup_GetValue(RUN_SETUP_FULL_COMPATIBILITY), FALSE);
     RunSetup_Begin();
     RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
     RunSetup_Discard();
@@ -430,7 +430,7 @@ TEST("Catch bonus tiers survive save and load and reject invalid values")
         PARAMETRIZE { tier = i; }
     InitEventData();
     RunSetup_Begin();
-    RunSetup_SetCatchBonus(tier);
+    RunSetup_SetValue(RUN_SETUP_CATCH_BONUS, tier);
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
     ClearSaveData();

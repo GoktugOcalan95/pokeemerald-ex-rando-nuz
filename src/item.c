@@ -601,11 +601,6 @@ static inline void NONNULL BagPocket_MoveItemSlot(struct BagPocket *pocket, u32 
     }
 }
 
-void MoveItemSlotInPocket(enum BagPocketId pocketId, u32 from, u32 to)
-{
-    BagPocket_MoveItemSlot(&gBagPockets[pocketId], from, to);
-}
-
 void MoveItemSlotInPC(struct ItemSlot *itemSlots, u32 from, u32 to)
 {
     struct BagPocket dummyPocket = DUMMY_PC_BAG_POCKET;

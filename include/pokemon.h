@@ -672,7 +672,6 @@ struct FormChangeContext
     u16 multichoiceSelection;
     enum Item heldItem;
     enum Ability ability;
-    u16 learnedMove;
     u32 status;
     enum Move moves[MAX_MON_MOVES];
     u16 hp;

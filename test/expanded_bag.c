@@ -143,26 +143,6 @@ TEST("Expanded Bag classifies functional evolution equipment without changing ga
     EXPECT_EQ(GetItemPocket(ITEM_ORAN_BERRY), POCKET_BERRIES);
 }
 
-TEST("Expanded Bag moves items beyond slot 255 without losing adjacent stacks")
-{
-    FillExpandedBag(513);
-    // Exercise wide indices even when every current pocket has fewer than 256 items.
-    u32 capacity = gBagPockets[0].capacity;
-    gBagPockets[0].capacity = 300;
-    u32 last = gBagPockets[0].capacity - 1;
-    enum Item firstItem = GetBagItemId(0, 0);
-    enum Item lastItem = GetBagItemId(0, last);
-    MoveItemSlotInPocket(0, last, 0);
-    EXPECT_EQ(GetBagItemId(0, 0), lastItem);
-    EXPECT_EQ(GetBagItemId(0, 1), firstItem);
-    MoveItemSlotInPocket(0, 0, last + 1);
-    EXPECT_EQ(GetBagItemId(0, last), lastItem);
-    EXPECT_EQ(GetBagItemId(0, 0), firstItem);
-    gBagPockets[0].capacity = capacity;
-    CheckExpandedBag(513);
-    ClearBag();
-}
-
 TEST("Expanded Bag detects damaged extension bytes and rejects invalid sector IDs")
 {
     gTestRunnerState.timeoutSeconds = 120;

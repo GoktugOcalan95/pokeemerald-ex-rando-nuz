@@ -227,7 +227,6 @@ void RemovePCItem(u8 index, u16 count);
 void CompactPCItems(void);
 void SwapRegisteredBike(void);
 void CompactItemsInBagPocket(enum BagPocketId pocketId);
-void MoveItemSlotInPocket(enum BagPocketId pocketId, u32 from, u32 to);
 void MoveItemSlotInPC(struct ItemSlot *itemSlots, u32 from, u32 to);
 void ClearBag(void);
 u32 CountTotalItemQuantityInBag(enum Item itemId);

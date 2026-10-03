@@ -240,7 +240,7 @@ TEST("No EVs run rule survives saving and loading")
     PARAMETRIZE { enabled = TRUE; }
 
     RunSetup_Begin();
-    RunSetup_SetNoEVGain(enabled);
+    RunSetup_SetValue(RUN_SETUP_NO_EV_GAIN, enabled);
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
     ClearSaveData();

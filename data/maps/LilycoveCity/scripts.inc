@@ -236,8 +236,7 @@ LilycoveCity_EventScript_RivalBattle:
 
 LilycoveCity_EventScript_May::
 	playbgm MUS_ENCOUNTER_MAY, TRUE
-	call_if_set FLAG_DECLINED_RIVAL_BATTLE_LILYCOVE, LilycoveCity_EventScript_MayAskToBattleAgain
-	call_if_unset FLAG_DECLINED_RIVAL_BATTLE_LILYCOVE, LilycoveCity_EventScript_MayAskToBattle
+	msgbox LilycoveCity_Text_MayShoppingLetsBattle, MSGBOX_DEFAULT
 	msgbox LilycoveCity_Text_MayWontBeBeaten, MSGBOX_DEFAULT
 	switch VAR_STARTER_MON
 	case 0, LilycoveCity_EventScript_BattleMayTreecko
@@ -245,47 +244,14 @@ LilycoveCity_EventScript_May::
 	case 2, LilycoveCity_EventScript_BattleMayMudkip
 	end
 
-LilycoveCity_EventScript_MayAskToBattleAgain::
-	msgbox LilycoveCity_Text_MayBattleMe, MSGBOX_DEFAULT
-	return
-
-LilycoveCity_EventScript_MayAskToBattle::
-	msgbox LilycoveCity_Text_MayShoppingLetsBattle, MSGBOX_DEFAULT
-	return
-
-LilycoveCity_EventScript_DeclineMayBattle::
-	setflag FLAG_DECLINED_RIVAL_BATTLE_LILYCOVE
-	msgbox LilycoveCity_Text_MayNotRaisingPokemon, MSGBOX_DEFAULT
-	savebgm MUS_DUMMY
-	fadedefaultbgm
-	release
-	end
-
 LilycoveCity_EventScript_Brendan::
 	playbgm MUS_ENCOUNTER_BRENDAN, TRUE
-	call_if_set FLAG_DECLINED_RIVAL_BATTLE_LILYCOVE, LilycoveCity_EventScript_BrendanAskToBattleAgain
-	call_if_unset FLAG_DECLINED_RIVAL_BATTLE_LILYCOVE, LilycoveCity_EventScript_BrendanAskToBattle
+	msgbox LilycoveCity_Text_BrendanShoppingLetsBattle, MSGBOX_DEFAULT
 	msgbox LilycoveCity_Text_BrendanWontBeBeaten, MSGBOX_DEFAULT
 	switch VAR_STARTER_MON
 	case 0, LilycoveCity_EventScript_BattleBrendanTreecko
 	case 1, LilycoveCity_EventScript_BattleBrendanTorchic
 	case 2, LilycoveCity_EventScript_BattleBrendanMudkip
-	end
-
-LilycoveCity_EventScript_BrendanAskToBattleAgain::
-	msgbox LilycoveCity_Text_BrendanBattleMe, MSGBOX_DEFAULT
-	return
-
-LilycoveCity_EventScript_BrendanAskToBattle::
-	msgbox LilycoveCity_Text_BrendanShoppingLetsBattle, MSGBOX_DEFAULT
-	return
-
-LilycoveCity_EventScript_DeclineBrendanBattle::
-	setflag FLAG_DECLINED_RIVAL_BATTLE_LILYCOVE
-	msgbox LilycoveCity_Text_BrendanNoConfidence, MSGBOX_DEFAULT
-	savebgm MUS_DUMMY
-	fadedefaultbgm
-	release
 	end
 
 LilycoveCity_EventScript_BattleMayTreecko::
@@ -421,16 +387,6 @@ LilycoveCity_Text_MayShoppingLetsBattle:
 	.string "I'll battle with you, so you can show\n"
 	.string "me your POKéMON, {PLAYER}{KUN}.$"
 
-LilycoveCity_Text_MayNotRaisingPokemon:
-	.string "MAY: Oh, why? {PLAYER}{KUN}, haven't you\n"
-	.string "been raising your POKéMON?\p"
-	.string "That's not a very good showing as a\n"
-	.string "TRAINER…$"
-
-LilycoveCity_Text_MayBattleMe:
-	.string "MAY: Come on, battle with me, so I can\n"
-	.string "check out your POKéMON!$"
-
 LilycoveCity_Text_MayWontBeBeaten:
 	.string "MAY: The POKéMON I raised won't be\n"
 	.string "beaten by your POKéMON, {PLAYER}{KUN}!$"
@@ -485,14 +441,6 @@ LilycoveCity_Text_BrendanShoppingLetsBattle:
 	.string "Anyways, it's been a while.\p"
 	.string "Want to have a battle to see who's been\n"
 	.string "raising POKéMON better?$"
-
-LilycoveCity_Text_BrendanNoConfidence:
-	.string "BRENDAN: Oh, what's the matter?\n"
-	.string "Don't have the confidence?$"
-
-LilycoveCity_Text_BrendanBattleMe:
-	.string "BRENDAN: Want to battle to see who's\n"
-	.string "been raising POKéMON better?$"
 
 LilycoveCity_Text_BrendanWontBeBeaten:
 	.string "BRENDAN: Aww, but you know I'm not\n"

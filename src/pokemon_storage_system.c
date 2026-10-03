@@ -2151,6 +2151,9 @@ static void Task_InitPokeStorage(u8 taskId)
                 // Return from bag menu
                 GiveChosenBagItem();
                 break;
+            case SCREEN_CHANGE_LEVEL_TO_CAP - 1:
+                // Return from Level to Cap move learning or evolution; resumed later via sLevelToCap
+                break;
             }
         }
         LoadPokeStorageMenuGfx();

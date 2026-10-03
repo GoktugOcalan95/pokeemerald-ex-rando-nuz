@@ -6918,7 +6918,7 @@ static enum Direction GetCopyDirection(u8 copyInitDir, enum Direction playerInit
     return sPlayerDirectionToCopyDirection[copyInitDir - 1][dir - 1];
 }
 
-static bool32 ShouldSpeedUpCutsceneMovement(struct ObjectEvent *objectEvent)
+bool32 ShouldSpeedUpCutsceneMovement(struct ObjectEvent *objectEvent)
 {
     if (objectEvent->localId == LOCALID_CAMERA
      || objectEvent->localId == OBJ_EVENT_ID_FOLLOWER

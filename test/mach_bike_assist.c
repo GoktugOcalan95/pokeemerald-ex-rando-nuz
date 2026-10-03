@@ -128,7 +128,7 @@ TEST("Mach assistance cannot search through terrain or moving objects and permit
     gMapHeader = savedMap;
 }
 
-TEST("Mach assistance defers to an eligible automatic Cut without starting a script during its probe")
+TEST("Mach assistance defers to an eligible automatic Cut without touching script state during its probe")
 {
     struct MapHeader savedMap = gMapHeader;
     struct MapLayout layout;
@@ -153,9 +153,15 @@ TEST("Mach assistance defers to an eligible automatic Cut without starting a scr
     EXPECT_EQ(GetMachBikeAssistanceDirection(DIR_NORTH, B_BUTTON), DIR_EAST);
     EXPECT(AddBagItem(ITEM_HM01, 1));
     FlagSet(FLAG_BADGE01_GET);
+    gSelectedObjectEvent = 0;
+    gSpecialVar_LastTalked = 0;
+    gSpecialVar_Facing = DIR_NONE;
     EXPECT(CanUseAutomaticHMInDirection(DIR_NORTH));
     EXPECT_EQ(GetMachBikeAssistanceDirection(DIR_NORTH, B_BUTTON), DIR_NONE);
     EXPECT(!ArePlayerFieldControlsLocked());
+    EXPECT_EQ(gSelectedObjectEvent, 0);
+    EXPECT_EQ(gSpecialVar_LastTalked, 0);
+    EXPECT_EQ(gSpecialVar_Facing, DIR_NONE);
     ClearBag();
     FlagClear(FLAG_BADGE01_GET);
     gMapHeader = savedMap;

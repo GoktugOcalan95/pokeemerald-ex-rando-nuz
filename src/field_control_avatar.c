@@ -192,7 +192,7 @@ int ProcessPlayerFieldInput(struct FieldInput *input)
     if (TryRunOnFrameMapScript() == TRUE)
         return TRUE;
 
-    if (FieldMove_CanUseAutomaticFlash() && GetFlashLevel() > 1)
+    if (GetFlashLevel() > 1 && FieldMove_CanUseAutomaticFlash())
     {
         FlagSet(FLAG_SYS_USE_FLASH);
         ScriptContext_SetupScript(EventScript_UseFlash);
@@ -380,15 +380,13 @@ const u8 *GetInteractedLinkPlayerScript(struct MapPosition *position, u8 metatil
     return GetObjectEventScriptPointerByObjectEventId(objectEventId);
 }
 
-static const u8 *GetInteractedObjectEventScript(struct MapPosition *position, u8 metatileBehavior, enum Direction direction)
+static u8 GetInteractedObjectEventId(struct MapPosition *position, u8 metatileBehavior, enum Direction direction)
 {
     u8 objectEventId;
-    const u8 *script;
     s16 currX = gObjectEvents[gPlayerAvatar.objectEventId].currentCoords.x;
     s16 currY = gObjectEvents[gPlayerAvatar.objectEventId].currentCoords.y;
     u8 currBehavior = MapGridGetMetatileBehaviorAt(currX, currY);
 
-    gSpecialVar_Facing = direction;
     switch (direction)
     {
     case DIR_EAST:
@@ -421,16 +419,19 @@ static const u8 *GetInteractedObjectEventScript(struct MapPosition *position, u8
     if (objectEventId == OBJECT_EVENTS_COUNT || gObjectEvents[objectEventId].localId == LOCALID_PLAYER)
     {
         if (MetatileBehavior_IsCounter(metatileBehavior) != TRUE)
-            return NULL;
+            return OBJECT_EVENTS_COUNT;
 
         // Look for an object event on the other side of the counter.
         objectEventId = GetObjectEventIdByPosition(position->x + gDirectionToVectors[direction].x, position->y + gDirectionToVectors[direction].y, position->elevation);
         if (objectEventId == OBJECT_EVENTS_COUNT || gObjectEvents[objectEventId].localId == LOCALID_PLAYER)
-            return NULL;
+            return OBJECT_EVENTS_COUNT;
     }
+    return objectEventId;
+}
 
-    gSelectedObjectEvent = objectEventId;
-    gSpecialVar_LastTalked = gObjectEvents[objectEventId].localId;
+static const u8 *GetObjectEventInteractionScript(u8 objectEventId)
+{
+    const u8 *script;
 
     if (PlayerHasFollowerNPC() && objectEventId == GetFollowerNPCObjectId())
         script = GetFollowerNPCScriptPointer();
@@ -442,9 +443,21 @@ static const u8 *GetInteractedObjectEventScript(struct MapPosition *position, u8
         script = GetTrainerHillTrainerScript();
     else
         script = GetObjectEventScriptPointerByObjectEventId(objectEventId);
-
-    script = GetRamScript(gSpecialVar_LastTalked, script);
     return script;
+}
+
+static const u8 *GetInteractedObjectEventScript(struct MapPosition *position, u8 metatileBehavior, enum Direction direction)
+{
+    u8 objectEventId;
+
+    gSpecialVar_Facing = direction;
+    objectEventId = GetInteractedObjectEventId(position, metatileBehavior, direction);
+    if (objectEventId == OBJECT_EVENTS_COUNT)
+        return NULL;
+
+    gSelectedObjectEvent = objectEventId;
+    gSpecialVar_LastTalked = gObjectEvents[objectEventId].localId;
+    return GetRamScript(gSpecialVar_LastTalked, GetObjectEventInteractionScript(objectEventId));
 }
 
 static const u8 *GetInteractedBackgroundEventScript(struct MapPosition *position, u8 metatileBehavior, enum Direction direction)
@@ -689,6 +702,7 @@ static const u8 *GetInteractedWaterScript(struct MapPosition *unused1, u8 metati
 
 static const u8 *GetAutomaticHMScript(struct MapPosition *position, u8 metatileBehavior, enum Direction direction)
 {
+    u8 objectEventId;
     const u8 *script;
 
     // Let Acro tricks finish before interpreting forward input as an HM action.
@@ -696,7 +710,10 @@ static const u8 *GetAutomaticHMScript(struct MapPosition *position, u8 metatileB
      && gPlayerAvatar.acroBikeState != ACRO_STATE_NORMAL)
         return NULL;
 
-    script = GetInteractedObjectEventScript(position, metatileBehavior, direction);
+    // Called every frame the player pushes into something, so it must not touch script state
+    // the way GetInteractedObjectEventScript does.
+    objectEventId = GetInteractedObjectEventId(position, metatileBehavior, direction);
+    script = objectEventId != OBJECT_EVENTS_COUNT ? GetObjectEventInteractionScript(objectEventId) : NULL;
     if (script != NULL)
     {
         if (!((script == EventScript_CutTree && IsFieldMoveUnlocked(FIELD_MOVE_CUT))
@@ -728,6 +745,8 @@ static bool32 TryAutomaticHM(struct MapPosition *position, u8 metatileBehavior, 
     const u8 *script = GetAutomaticHMScript(position, metatileBehavior, direction);
     if (script == NULL)
         return FALSE;
+    // Select the object and facing as an A press would; the Cut and Rock Smash scripts read them.
+    GetInteractedObjectEventScript(position, metatileBehavior, direction);
     if (TestPlayerAvatarFlags(PLAYER_AVATAR_FLAG_MACH_BIKE | PLAYER_AVATAR_FLAG_ACRO_BIKE))
         BikeClearState(0, 0);
     ScriptContext_SetupScript(script);

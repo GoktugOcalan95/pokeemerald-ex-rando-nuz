@@ -1934,7 +1934,10 @@ static void ItemMenu_Register(u8 taskId)
     RemoveContextWindow();
     ValidateRegisteredItems();
     if (!ShowRegisteredItemWheel(TRUE))
+    {
+        PlaySE(SE_FAILURE);
         ItemMenu_Cancel(taskId);
+    }
     else
     {
         FillWindowPixelBuffer(WIN_DESCRIPTION, PIXEL_FILL(0));
@@ -2131,6 +2134,7 @@ bool8 UseRegisteredKeyItemOnField(void)
     {
         if (!ShowRegisteredItemWheel(FALSE))
         {
+            PlaySE(SE_FAILURE);
             ScriptUnfreezeObjectEvents();
             UnlockPlayerFieldControls();
             return TRUE;

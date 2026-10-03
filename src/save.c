@@ -891,7 +891,8 @@ u8 LoadGameSave(u8 saveType)
     default:
         status = TryLoadSaveSlot(FULL_SAVE_SLOT, gRamSaveSectorLocations);
         CopyPartyAndObjectsFromSave();
-        if (status == SAVE_STATUS_OK)
+        // SAVE_STATUS_ERROR still loads the surviving slot, so normalize it too.
+        if (status == SAVE_STATUS_OK || status == SAVE_STATUS_ERROR)
             NormalizeStoredMonEVs();
         gSaveFileStatus = status;
         gGameContinueCallback = NULL;

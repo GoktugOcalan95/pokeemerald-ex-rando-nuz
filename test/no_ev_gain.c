@@ -1,4 +1,5 @@
 #include "global.h"
+#include "gba/flash_internal.h"
 #include "no_evs.h"
 #include "item.h"
 #include "pokemon_storage_system.h"
@@ -163,6 +164,32 @@ TEST("No EVs keeps party PC fusion and daycare EVs zero after save load")
         EXPECT_EQ(GetBoxMonData(&gSaveBlock1Ptr->daycare.mons[0].mon, MON_DATA_HP_EV + stat), 0);
     }
     FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
+}
+
+TEST("No EVs zeroes EVs when loading a save with one damaged slot")
+{
+    struct Pokemon mon;
+    u8 ev = 84;
+    FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
+    CreateRandomMonWithIVs(&mon, SPECIES_WOBBUFFET, 50, 0);
+    for (u32 stat = 0; stat < NUM_STATS; stat++)
+        SetMonData(&mon, MON_DATA_HP_EV + stat, &ev);
+    gParties[B_TRAINER_PLAYER][0] = mon;
+    gPartiesCount[B_TRAINER_PLAYER] = 1;
+    FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
+    ClearSaveData();
+    Save_ResetSaveCounters();
+    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
+    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
+    u32 sector = (gSaveCounter % NUM_SAVE_SLOTS) * NUM_SECTORS_PER_SLOT;
+    ReadFlash(sector, 0, (u8 *)&gSaveDataBuffer, sizeof(gSaveDataBuffer));
+    gSaveDataBuffer.saveBlock3Chunk[0] ^= 1;
+    EXPECT_EQ(ProgramFlashSector(sector, (u8 *)&gSaveDataBuffer), 0);
+    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_ERROR);
+    EXPECT(FlagGet(FLAG_RUN_RULE_NO_EV_GAIN));
+    EXPECT_EQ(GetMonEVCount(&gParties[B_TRAINER_PLAYER][0]), 0);
+    FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
+    ClearSaveData();
 }
 
 TEST("No EVs rejects authored EVs and blocks battle training bonuses")

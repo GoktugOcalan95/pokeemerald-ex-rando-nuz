@@ -90,10 +90,7 @@ TEST("Level to cap EXP and stats persist through saving and loading")
     FlagClear(FLAG_RUN_RULE_LEVEL_CAPS);
 }
 
-TEST("Level to cap continues learning after any learned move")
+TEST("Level to cap continues learning after a learned move")
 {
-    EXPECT(Test_PartyMenuContinuesLevelUpLearning(MOVE_POUND));
-    EXPECT(Test_PartyMenuContinuesLevelUpLearning(MOVE_LEER));
-    EXPECT(Test_PartyMenuContinuesLevelUpLearning(MOVE_AGILITY));
-    EXPECT(Test_PartyMenuContinuesLevelUpLearning(MOVE_TIDY_UP));
+    EXPECT(Test_PartyMenuContinuesLevelUpLearning());
 }

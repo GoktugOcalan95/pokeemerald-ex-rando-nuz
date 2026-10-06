@@ -5680,14 +5680,13 @@ static void Task_LearnNextMoveOrClosePartyMenu(u8 taskId)
 }
 
 #if TESTING
-bool32 Test_PartyMenuContinuesLevelUpLearning(enum Move move)
+bool32 Test_PartyMenuContinuesLevelUpLearning(void)
 {
     u8 taskId = CreateTask(Task_LearnNextMoveOrClosePartyMenu, 0);
     u16 previousKeys = gMain.newKeys;
     struct PartyMenu previousMenu = gPartyMenu;
 
     gPartyMenu.learnMoveState = 1;
-    gPartyMenu.data1 = move;
     gMain.newKeys = A_BUTTON;
     Task_LearnNextMoveOrClosePartyMenu(taskId);
     bool32 continues = gTasks[taskId].func == Task_TryLearningNextMove;

@@ -20,9 +20,9 @@ static EWRAM_DATA u16 sSpeciesPool[NUM_SPECIES] = {0};
 static EWRAM_DATA u16 sOrdinaryCount = 0;
 static EWRAM_DATA u16 sPoolCount = 0;
 
-static bool32 IsEnabledSpecies(u32 species)
+bool32 IsRandomizerSpeciesValid(u16 species)
 {
-    return species > SPECIES_NONE && species < NUM_SPECIES && gSpeciesInfo[species].baseHP != 0;
+    return species > SPECIES_NONE && species < NUM_SPECIES && IsSpeciesEnabled(species);
 }
 
 static u32 FindFamily(u32 species)
@@ -37,7 +37,7 @@ static u32 FindFamily(u32 species)
 
 static void JoinFamilies(u32 first, u32 second)
 {
-    if (!IsEnabledSpecies(second))
+    if (!IsRandomizerSpeciesValid(second))
         return;
     first = FindFamily(first);
     second = FindFamily(second);
@@ -51,7 +51,7 @@ static void InitSpeciesFamilies(void)
 
     for (u32 species = 1; species < NUM_SPECIES; species++)
     {
-        if (!IsEnabledSpecies(species))
+        if (!IsRandomizerSpeciesValid(species))
             continue;
         const struct Evolution *evolutions = GetSpeciesEvolutions(species);
         const u16 *forms = GetSpeciesFormTable(species);
@@ -71,7 +71,7 @@ static void InitSpeciesFamilies(void)
 
 u16 GetRandomizerSpeciesFamily(u16 species)
 {
-    if (!IsEnabledSpecies(species))
+    if (!IsRandomizerSpeciesValid(species))
         return SPECIES_NONE;
     if (!sFamiliesReady)
         InitSpeciesFamilies();
@@ -80,7 +80,7 @@ u16 GetRandomizerSpeciesFamily(u16 species)
 
 bool32 IsRandomizerSpeciesLegendary(u16 species)
 {
-    if (!IsEnabledSpecies(species))
+    if (!IsRandomizerSpeciesValid(species))
         return FALSE;
     return gSpeciesInfo[species].isRestrictedLegendary
         || gSpeciesInfo[species].isSubLegendary
@@ -89,7 +89,7 @@ bool32 IsRandomizerSpeciesLegendary(u16 species)
 
 bool32 IsRandomizerSpeciesEligible(u16 species)
 {
-    if (!IsEnabledSpecies(species))
+    if (!IsRandomizerSpeciesValid(species))
         return FALSE;
     const struct SpeciesInfo *info = &gSpeciesInfo[species];
     if (info->isMegaEvolution || info->isPrimalReversion || info->isUltraBurst
@@ -192,7 +192,7 @@ u16 PickRandomizerSpecies(bool32 legendary, u32 domain, u32 source, u32 slot, u1
 
 u16 RandomizeEncounterSpecies(u16 original, u32 domain, u32 source, u32 slot)
 {
-    if (!FlagGet(FLAG_RUN_RULE_ENCOUNTERS) || !IsEnabledSpecies(original))
+    if (!FlagGet(FLAG_RUN_RULE_ENCOUNTERS) || !IsRandomizerSpeciesValid(original))
         return original;
     bool32 legendary = (domain == SPECIES_REWARD_STATIC || domain == SPECIES_REWARD_ROAMER)
         && IsRandomizerSpeciesLegendary(original);
@@ -255,7 +255,7 @@ void NormalizeRandomizedMonForm(struct Pokemon *mon)
     for (u32 i = 0; i < MAX_MON_MOVES; i++)
         context.moves[i] = GetMonData(mon, MON_DATA_MOVE1 + i);
     form = GetFormChangeTargetSpecies_Internal(context);
-    if (IsEnabledSpecies(form) && form != species)
+    if (IsRandomizerSpeciesValid(form) && form != species)
     {
         SetMonData(mon, MON_DATA_SPECIES, &form);
         CalculateMonStats(mon);

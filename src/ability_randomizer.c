@@ -51,11 +51,6 @@ static void MarkNativeAbility(u32 ability)
     sNativeOnlyAbilities[ability / 8] |= 1 << (ability % 8);
 }
 
-static bool32 IsValidSpecies(u32 species)
-{
-    return species > SPECIES_NONE && species < NUM_SPECIES && gSpeciesInfo[species].baseHP != 0;
-}
-
 static u32 GetFormRequiredAbility(const struct FormChange *change)
 {
     switch (change->method)
@@ -97,7 +92,7 @@ static void InitNativeSlots(void)
 {
     for (u32 species = 1; species < NUM_SPECIES; species++)
     {
-        if (!IsValidSpecies(species))
+        if (!IsRandomizerSpeciesValid(species))
             continue;
         const struct FormChange *changes = GetSpeciesFormChanges(species);
         for (u32 i = 0; changes != NULL && changes[i].method != FORM_CHANGE_TERMINATOR; i++)
@@ -111,7 +106,7 @@ static void InitNativeSlots(void)
                 if (gSpeciesInfo[species].abilities[slot] != ability)
                     continue;
                 MarkNativeSlots(species, 1 << slot);
-                if (IsValidSpecies(changes[i].targetSpecies))
+                if (IsRandomizerSpeciesValid(changes[i].targetSpecies))
                     MarkNativeSlots(changes[i].targetSpecies, 1 << slot);
                 break;
             }
@@ -130,7 +125,7 @@ static void InitNativeSlots(void)
             for (u32 i = 0; changes != NULL && changes[i].method != FORM_CHANGE_TERMINATOR; i++)
             {
                 u32 target = changes[i].targetSpecies;
-                if (!IsValidSpecies(target)
+                if (!IsRandomizerSpeciesValid(target)
                     || (changes[i].method != FORM_CHANGE_END_BATTLE && changes[i].method != FORM_CHANGE_FAINT
                         && !(changes[i].method == FORM_CHANGE_BATTLE_SWITCH_OUT && changes[i].param1 == ABILITY_NONE)))
                     continue;
@@ -148,7 +143,7 @@ static void InitNativeSlots(void)
 
 u32 GetNativeFormAbilitySlots(u16 species)
 {
-    if (!IsValidSpecies(species))
+    if (!IsRandomizerSpeciesValid(species))
         return 0;
     if (!sNativeSlotsReady)
         InitNativeSlots();
@@ -234,7 +229,7 @@ static u32 ResolveFamilySlot(const struct FamilyAbilityCache *cache, u32 species
 
 u16 GetRandomizedSpeciesAbility(u16 species, u32 slot)
 {
-    if (!IsValidSpecies(species) || slot >= NUM_ABILITY_SLOTS)
+    if (!IsRandomizerSpeciesValid(species) || slot >= NUM_ABILITY_SLOTS)
         return ABILITY_NONE;
     if (!FlagGet(FLAG_RUN_RULE_ABILITIES))
         return gSpeciesInfo[species].abilities[slot];

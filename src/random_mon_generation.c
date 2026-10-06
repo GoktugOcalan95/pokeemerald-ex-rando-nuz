@@ -1,7 +1,7 @@
 #include "global.h"
-#include "item_randomizer.h"
 #include "event_data.h"
 #include "item.h"
+#include "item_randomizer.h"
 #include "pokemon.h"
 #include "random.h"
 #include "random_mon_generation.h"
@@ -319,11 +319,8 @@ static bool32 IsRandomItemAllowed(const struct RandomItemGeneratorOptions *optio
 {
     enum HoldEffect holdEffect = GetItemHoldEffect(item);
 
+    // Also rejects every Key and TM/HM-pocket item, which upstream filtered here.
     if (item != ITEM_NONE && !IsRandomizedRewardItemAllowed(item))
-        return FALSE;
-    if (GetItemPocket(item) == POCKET_KEY_ITEMS)
-        return FALSE;
-    if (GetItemPocket(item) == POCKET_TM_HM && GetItemPrice(item) == 0)
         return FALSE;
     for (u32 i = 0; i < options->bannedHoldEffectsCount; i++)
     {

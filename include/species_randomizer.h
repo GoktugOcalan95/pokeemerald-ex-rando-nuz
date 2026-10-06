@@ -9,6 +9,7 @@ struct WildPokemon;
 
 u16 GetBirchRescueSpecies(void);
 void SetBirchChaseGraphics(void);
+bool32 IsRandomizerSpeciesValid(u16 species);
 u16 GetRandomizerSpeciesFamily(u16 species);
 bool32 IsRandomizerSpeciesLegendary(u16 species);
 bool32 IsRandomizerSpeciesEligible(u16 species);

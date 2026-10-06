@@ -111,7 +111,7 @@ static void CreateInitialRoamerMon(u8 index, enum Species species, u8 level)
     PrepareRandomizedEncounterMon(&gParties[B_TRAINER_OPPONENT_A][0]);
     ROAMER(index)->ivs = GetMonData(&gParties[B_TRAINER_OPPONENT_A][0], MON_DATA_IVS);
     ROAMER(index)->personality = GetMonData(&gParties[B_TRAINER_OPPONENT_A][0], MON_DATA_PERSONALITY);
-    ROAMER(index)->species = species;
+    ROAMER(index)->species = GetMonData(&gParties[B_TRAINER_OPPONENT_A][0], MON_DATA_SPECIES);
     ROAMER(index)->level = level;
     ROAMER(index)->statusA = 0;
     ROAMER(index)->statusB = 0;

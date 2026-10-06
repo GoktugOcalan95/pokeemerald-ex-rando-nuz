@@ -611,6 +611,9 @@ void ClearBag(void)
 {
     memset(&gSaveBlock1Ptr->bag, 0, sizeof(struct Bag));
     memset(gSaveBlock3Ptr->bagItems, 0, sizeof(gSaveBlock3Ptr->bagItems));
+    // Encode empty slots as SetSlotData does so their quantity decodes as 0.
+    for (u32 slot = 0; slot < ITEMS_COUNT; slot++)
+        WritePackedBagSlot(slot, (gSaveBlock2Ptr->encryptionKey & 0x3FF) << 10);
 }
 
 static inline u32 NONNULL BagPocket_CountTotalItemQuantity(struct BagPocket *pocket, enum Item itemId)

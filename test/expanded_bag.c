@@ -76,6 +76,19 @@ TEST("Expanded Bag preserves both packed regions through encryption and temporar
     ClearBag();
 }
 
+TEST("Expanded Bag slots emptied by ClearBag decode with zero quantity")
+{
+    u32 oldKey = gSaveBlock2Ptr->encryptionKey;
+    gSaveBlock2Ptr->encryptionKey = 0x12345678;
+    ClearBag();
+    SetBagItemsPointers();
+    for (u32 pocket = 0; pocket < BAG_POCKETS_COUNT; pocket++)
+        for (u32 i = 0; i < gBagPockets[pocket].capacity; i++)
+            EXPECT_EQ(BagPocket_GetSlotData(&gBagPockets[pocket], i).quantity, 0);
+    gSaveBlock2Ptr->encryptionKey = oldKey;
+    ClearBag();
+}
+
 TEST("Expanded Bag round trips every item through all ordinary save paths")
 {
     u32 mode;

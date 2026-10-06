@@ -327,7 +327,7 @@ const struct AbilityInfo gAbilitiesInfo[ABILITIES_COUNT] =
         .name = _("Magma Armor"),
         .description = COMPOUND_STRING(
         #if B_USE_FROSTBITE
-            "Prevents frostbite."),
+            FROSTBITE_DESC_MAGMA_ARMOR),
         #else
             "Prevents freezing."),
         #endif

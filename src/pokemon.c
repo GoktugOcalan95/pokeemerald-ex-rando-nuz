@@ -30,6 +30,7 @@
 #include "field_weather.h"
 #include "fishing.h"
 #include "follower_npc.h"
+#include "frostbite.h"
 #include "frontier_util.h"
 #include "graphics.h"
 #include "item.h"
@@ -3147,6 +3148,13 @@ enum Ability GetAbilityBySpecies(enum Species species, u8 abilityNum)
     }
 
     return gLastUsedAbility;
+}
+
+const u8 *GetAbilityDescription(enum Ability ability)
+{
+    if (ability == ABILITY_MAGMA_ARMOR && IsFrostbiteEnabled())
+        return COMPOUND_STRING(FROSTBITE_DESC_MAGMA_ARMOR);
+    return gAbilitiesInfo[ability].description;
 }
 
 enum Ability GetMonAbility(struct Pokemon *mon)

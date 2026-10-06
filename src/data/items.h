@@ -888,8 +888,7 @@ const struct ItemInfo gItemsInfo[] =
     #endif
         .description = COMPOUND_STRING(
         #if B_USE_FROSTBITE
-            "Heals Pokémon\n"
-            "of frostbite."),
+            FROSTBITE_DESC_ICE_HEAL),
         #else
             "Defrosts a frozen\n"
             "Pokémon."),
@@ -11125,13 +11124,13 @@ const struct ItemInfo gItemsInfo[] =
         .price = (I_BERRY_PRICE >= GEN_8) ? 80 : 20,
         .holdEffect = HOLD_EFFECT_CURE_FRZ,
         .description = COMPOUND_STRING(
-            "A held item that\n"
         #if B_USE_FROSTBITE
-            "heals frostbite\n"
+            FROSTBITE_DESC_ASPEAR_BERRY),
         #else
+            "A held item that\n"
             "defrosts Pokémon\n"
-        #endif
             "in battle."),
+        #endif
         .pocket = POCKET_BERRIES,
         .type = ITEM_USE_PARTY_MENU,
         .fieldUseFunc = ItemUseOutOfBattle_Medicine,
@@ -12508,11 +12507,11 @@ const struct ItemInfo gItemsInfo[] =
         .name = ITEM_NAME("TM13"),
         .price = 3000,
         .description = COMPOUND_STRING(
+        #if B_USE_FROSTBITE
+            FROSTBITE_DESC_TM_ICE_BEAM),
+        #else
             "Fires an icy cold\n"
             "beam that may\n"
-        #if B_USE_FROSTBITE
-            "cause frostbite."),
-        #else
             "freeze the foe."),
         #endif
         .importance = I_REUSABLE_TMS,
@@ -12527,9 +12526,7 @@ const struct ItemInfo gItemsInfo[] =
         .price = 5500,
         .description = COMPOUND_STRING(
         #if B_USE_FROSTBITE
-            "A snow-and-wind\n"
-            "attack that may\n"
-            "cause frostbite."),
+            FROSTBITE_DESC_TM_BLIZZARD),
         #else
             "A brutal snow-and-\n"
             "wind attack that\n"

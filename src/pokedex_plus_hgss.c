@@ -1,5 +1,4 @@
 #include "global.h"
-#include "frostbite.h"
 #include "battle_main.h"
 #include "battle_util.h"
 #include "bg.h"

@@ -1,7 +1,6 @@
 #include "global.h"
 #include "event_data.h"
 #include "frostbite.h"
-#include "pokemon.h"
 #include "constants/flags.h"
 
 bool32 IsFrostbiteEnabled(void)
@@ -21,25 +20,25 @@ const u8 *GetFrostbiteMoveDescription(enum Move move, const u8 *description)
     switch (move)
     {
     case MOVE_ICE_PUNCH:
-        return COMPOUND_STRING("An icy punch that may\nleave the foe with frostbite.");
+        return COMPOUND_STRING(FROSTBITE_DESC_ICE_PUNCH);
     case MOVE_ICE_BEAM:
-        return COMPOUND_STRING("Blasts the foe with an icy\nbeam. May cause frostbite.");
+        return COMPOUND_STRING(FROSTBITE_DESC_ICE_BEAM);
     case MOVE_BLIZZARD:
-        return COMPOUND_STRING("Hits the foes with an icy\nstorm. May cause frostbite.");
+        return COMPOUND_STRING(FROSTBITE_DESC_BLIZZARD);
 #if B_UPDATED_MOVE_DATA >= GEN_2
     case MOVE_TRI_ATTACK:
-        return COMPOUND_STRING("Fires three types of beams.\nMay burn/parlyz/frostbite.");
+        return COMPOUND_STRING(FROSTBITE_DESC_TRI_ATTACK);
 #endif
     case MOVE_POWDER_SNOW:
-        return COMPOUND_STRING("Blasts the foes with a snowy\ngust. May cause frostbite.");
+        return COMPOUND_STRING(FROSTBITE_DESC_POWDER_SNOW);
     case MOVE_ICE_FANG:
-        return COMPOUND_STRING("May cause flinching or\nleave the foe with frostbite.");
+        return COMPOUND_STRING(FROSTBITE_DESC_ICE_FANG);
 #if B_UPDATED_MOVE_DATA < GEN_CHAMPIONS
     case MOVE_FREEZE_DRY:
-        return COMPOUND_STRING("Super effective on Water-\ntypes. May cause frostbite.");
+        return COMPOUND_STRING(FROSTBITE_DESC_FREEZE_DRY);
 #endif
     case MOVE_FREEZING_GLARE:
-        return COMPOUND_STRING("Shoots psychic power from\nthe eyes. May frostbite.");
+        return COMPOUND_STRING(FROSTBITE_DESC_FREEZING_GLARE);
     default:
         return description;
     }
@@ -53,21 +52,14 @@ const u8 *GetFrostbiteItemDescription(enum Item item, const u8 *description)
     switch (item)
     {
     case ITEM_ICE_HEAL:
-        return COMPOUND_STRING("Heals Pokémon\nof frostbite.");
+        return COMPOUND_STRING(FROSTBITE_DESC_ICE_HEAL);
     case ITEM_ASPEAR_BERRY:
-        return COMPOUND_STRING("A held item that\nheals frostbite\nin battle.");
+        return COMPOUND_STRING(FROSTBITE_DESC_ASPEAR_BERRY);
     case ITEM_TM13:
-        return COMPOUND_STRING("Fires an icy cold\nbeam that may\ncause frostbite.");
+        return COMPOUND_STRING(FROSTBITE_DESC_TM_ICE_BEAM);
     case ITEM_TM14:
-        return COMPOUND_STRING("A snow-and-wind\nattack that may\ncause frostbite.");
+        return COMPOUND_STRING(FROSTBITE_DESC_TM_BLIZZARD);
     default:
         return description;
     }
-}
-
-const u8 *GetAbilityDescription(enum Ability ability)
-{
-    if (ability == ABILITY_MAGMA_ARMOR && IsFrostbiteEnabled())
-        return COMPOUND_STRING("Prevents frostbite.");
-    return gAbilitiesInfo[ability].description;
 }

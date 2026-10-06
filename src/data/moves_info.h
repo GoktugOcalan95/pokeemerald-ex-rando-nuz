@@ -216,10 +216,10 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     {
         .name = COMPOUND_STRING("Ice Punch"),
         .description = COMPOUND_STRING(
-            "An icy punch that may\n"
         #if B_USE_FROSTBITE
-            "leave the foe with frostbite."),
+            FROSTBITE_DESC_ICE_PUNCH),
         #else
+            "An icy punch that may\n"
             "freeze the foe."),
         #endif
         .effect = EFFECT_HIT,
@@ -1559,10 +1559,10 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     {
         .name = COMPOUND_STRING("Ice Beam"),
         .description = COMPOUND_STRING(
-            "Blasts the foe with an icy\n"
         #if B_USE_FROSTBITE
-            "beam. May cause frostbite."),
+            FROSTBITE_DESC_ICE_BEAM),
         #else
+            "Blasts the foe with an icy\n"
             "beam that may freeze it."),
         #endif
         .effect = EFFECT_HIT,
@@ -1591,10 +1591,10 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     {
         .name = COMPOUND_STRING("Blizzard"),
         .description = COMPOUND_STRING(
-            "Hits the foes with an icy\n"
         #if B_USE_FROSTBITE
-            "storm. May cause frostbite."),
+            FROSTBITE_DESC_BLIZZARD),
         #else
+            "Hits the foes with an icy\n"
             "storm that may freeze."),
         #endif
         .effect = EFFECT_HIT,
@@ -4401,10 +4401,10 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
         .name = COMPOUND_STRING("Tri Attack"),
         .description = COMPOUND_STRING(
     #if B_UPDATED_MOVE_DATA >= GEN_2
-            "Fires three types of beams.\n"
         #if B_USE_FROSTBITE
-            "May burn/parlyz/frostbite."),
+            FROSTBITE_DESC_TRI_ATTACK),
         #else
+            "Fires three types of beams.\n"
             "May burn/paralyze/freeze."),
         #endif
         .additionalEffects = ADDITIONAL_EFFECTS({
@@ -4961,10 +4961,10 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     {
         .name = COMPOUND_STRING("Powder Snow"),
         .description = COMPOUND_STRING(
-            "Blasts the foes with a snowy\n"
         #if B_USE_FROSTBITE
-            "gust. May cause frostbite."),
+            FROSTBITE_DESC_POWDER_SNOW),
         #else
+            "Blasts the foes with a snowy\n"
             "gust. May cause freezing."),
         #endif
         .effect = EFFECT_HIT,
@@ -11441,10 +11441,10 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     {
         .name = COMPOUND_STRING("Ice Fang"),
         .description = COMPOUND_STRING(
-            "May cause flinching or\n"
         #if B_USE_FROSTBITE
-            "leave the foe with frostbite."),
+            FROSTBITE_DESC_ICE_FANG),
         #else
+            "May cause flinching or\n"
             "leave the foe frozen."),
         #endif
         .effect = EFFECT_HIT,
@@ -15302,10 +15302,10 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
         .name = COMPOUND_STRING("Freeze-Dry"),
         #if B_UPDATED_MOVE_DATA < GEN_CHAMPIONS
         .description = COMPOUND_STRING(
-            "Super effective on Water-\n"
             #if B_USE_FROSTBITE == TRUE
-                "types. May cause frostbite."),
+                FROSTBITE_DESC_FREEZE_DRY),
             #else
+                "Super effective on Water-\n"
                 "types. May cause freezing."),
             #endif
         #else
@@ -19833,10 +19833,10 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     {
         .name = COMPOUND_STRING("Freezing Glare"),
         .description = COMPOUND_STRING(
-            "Shoots psychic power from\n"
         #if B_USE_FROSTBITE
-            "the eyes. May frostbite."),
+            FROSTBITE_DESC_FREEZING_GLARE),
         #else
+            "Shoots psychic power from\n"
             "the eyes. May freeze the foe."),
         #endif
         .power = 90,

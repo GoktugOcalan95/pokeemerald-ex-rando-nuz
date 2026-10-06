@@ -2565,5 +2565,7 @@ const struct AbilityInfo gAbilitiesInfo[ABILITIES_COUNT] =
     {
         .name = _("Aura Guard"),
         .description = COMPOUND_STRING("Unimplemented."),
+        // Unimplemented upstream; unban once it has battle effects.
+        .randomizerBanned = TRUE,
     },
 };

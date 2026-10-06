@@ -36,7 +36,7 @@ bool32 IsEVRelatedItem(u16 item)
     return (item >= ITEM_HP_UP && item <= ITEM_CARBOS)
         || (item >= ITEM_HEALTH_FEATHER && item <= ITEM_SWIFT_FEATHER)
         || (item >= ITEM_MACHO_BRACE && item <= ITEM_POWER_ANKLET)
-        || (item >= ITEM_HEALTH_MOCHI && item <= ITEM_GLIMMERING_CHARM);
+        || (item >= ITEM_HEALTH_MOCHI && item <= ITEM_FRESH_START_MOCHI);
 }
 
 bool32 IsItemAllowedByNoEVs(u16 item)

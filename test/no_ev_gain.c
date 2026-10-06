@@ -106,7 +106,7 @@ TEST("No EVs normalizes imported copies and cached stats without changing other 
 
 TEST("No EVs filters exactly the approved training items from shop stock independently of randomization")
 {
-    const u16 original[] = {ITEM_HP_UP, ITEM_POWER_WEIGHT, ITEM_GLIMMERING_CHARM, ITEM_FRESH_START_MOCHI,
+    const u16 original[] = {ITEM_HP_UP, ITEM_POWER_WEIGHT, ITEM_FRESH_START_MOCHI, ITEM_GLIMMERING_CHARM,
         ITEM_PRETTY_FEATHER, ITEM_POMEG_BERRY, ITEM_ADAMANT_MINT, ITEM_POTION, ITEM_NONE};
     const u16 *stock = original;
     u16 count = ARRAY_COUNT(original) - 1;
@@ -122,11 +122,11 @@ TEST("No EVs filters exactly the approved training items from shop stock indepen
             EXPECT(!IsItemShopCriteriaFulfilled(item));
         }
     }
-    EXPECT_EQ(blocked, 27);
+    EXPECT_EQ(blocked, 26);
     TryBuildDynamicShopItemList(&stock, &count);
-    EXPECT_EQ(count, 4);
+    EXPECT_EQ(count, 5);
     for (u32 i = 0; i < count; i++)
-        EXPECT_EQ(stock[i], original[i + 4]);
+        EXPECT_EQ(stock[i], original[i + 3]);
     TryFreeDynamicShopItemList(&stock);
     EXPECT_EQ(stock, original);
     FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);

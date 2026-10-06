@@ -675,6 +675,7 @@ void GoToBagMenu(u8 location, u8 pocket, MainCallback exitCallback)
 
 void CB2_BagMenuRun(void)
 {
+    // Undo the L=A remap (field and battle Bag alike): L pages the item list, so it must not also select.
     gMain.newKeys = gMain.newKeysRaw;
     gMain.heldKeys = gMain.heldKeysRaw;
     RunTasks();

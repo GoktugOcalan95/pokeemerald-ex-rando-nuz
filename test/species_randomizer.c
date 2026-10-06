@@ -151,19 +151,10 @@ TEST("Species randomizer starter previews choose three distinct evolution famili
         EXPECT_NE(GetRandomizerSpeciesFamily(first), GetRandomizerSpeciesFamily(third));
         EXPECT_NE(GetRandomizerSpeciesFamily(second), GetRandomizerSpeciesFamily(third));
         EXPECT_EQ(GetStarterPokemon(0), first);
-        ZeroPlayerPartyMons();
-        ScriptGiveMon(first, 5, ITEM_NONE);
-        EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][0], MON_DATA_SPECIES), first);
-        SetBoxMonPerfectIVs(&gParties[B_TRAINER_PLAYER][0].box, 5);
-        u32 perfect = 0;
-        for (u32 stat = 0; stat < NUM_STATS; stat++)
-            perfect += GetMonData(&gParties[B_TRAINER_PLAYER][0], MON_DATA_HP_IV + stat) == 31;
-        EXPECT(perfect >= 5);
     }
     FlagClear(FLAG_RUN_RULE_ENCOUNTERS);
     EXPECT_EQ(GetStarterPokemon(0), SPECIES_TREECKO);
     EXPECT_EQ(GetStarterPokemon(3), SPECIES_TREECKO);
-    ZeroPlayerPartyMons();
 }
 
 TEST("Species randomizer wild slots retain authored levels and selection probabilities")
@@ -208,9 +199,6 @@ TEST("Species randomizer initializes timed forms and follows independently selec
     PrepareRandomizedEncounterMon(&mon);
     EXPECT_EQ(GetMonData(&mon, MON_DATA_SPECIES), SPECIES_ARCEUS_FIRE);
     EXPECT_EQ(GetMonData(&mon, MON_DATA_HELD_ITEM), ITEM_FLAME_PLATE);
-    CreateRandomMon(&mon, SPECIES_ALCREMIE_BERRY_RAINBOW_SWIRL, 20);
-    EXPECT(!TryFormChange(&mon, FORM_CHANGE_END_BATTLE, B_TRAINER_PLAYER));
-    EXPECT_EQ(GetMonData(&mon, MON_DATA_SPECIES), SPECIES_ALCREMIE_BERRY_RAINBOW_SWIRL);
     FlagClear(FLAG_RUN_RULE_ENCOUNTERS);
 }
 

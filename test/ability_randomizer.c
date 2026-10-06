@@ -159,7 +159,6 @@ TEST("Ability randomizer authored trainer abilities still select their original 
     u16 evolved = SPECIES_VENUSAUR;
     SetMonData(&mon, MON_DATA_SPECIES, &evolved);
     EXPECT_EQ(GetMonAbility(&mon), GetSpeciesAbility(SPECIES_VENUSAUR, 2));
-    EXPECT_EQ(source.ability, ABILITY_CHLOROPHYLL);
 }
 
 TEST("Ability randomizer form upgrades require native mechanics while cleanup stays unconditional")

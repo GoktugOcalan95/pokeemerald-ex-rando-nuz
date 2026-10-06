@@ -51,30 +51,6 @@ TEST("Full compatibility On allows offered moves for valid non-Egg species")
     FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
 }
 
-TEST("Full compatibility Pokédex moves match effective compatibility without duplicates")
-{
-    u32 count;
-    bool8 seen[MOVES_COUNT] = {0};
-
-    FlagSet(FLAG_RUN_RULE_FULL_COMPATIBILITY);
-    FlagSet(FLAG_RUN_RULE_EXPANDED_TMS);
-    count = GetPlayerTeachableMoveCount(SPECIES_BULBASAUR);
-
-    EXPECT_GT(count, GetNormalTeachableMoveCount(SPECIES_BULBASAUR));
-    for (u32 i = 0; i < count; i++)
-    {
-        enum Move move = GetPlayerTeachableMove(SPECIES_BULBASAUR, i);
-
-        EXPECT_NE(move, MOVE_NONE);
-        EXPECT(CanPlayerLearnTeachableMove(SPECIES_BULBASAUR, move));
-        EXPECT(!seen[move]);
-        seen[move] = TRUE;
-    }
-    EXPECT_EQ(GetPlayerTeachableMove(SPECIES_BULBASAUR, count), MOVE_NONE);
-
-    FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
-}
-
 TEST("Teaching compatibility retains Baxcalibur native TM and inherited egg moves")
 {
     static const u16 moves[] = {

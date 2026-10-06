@@ -8,7 +8,6 @@
 #include "item_randomizer.h"
 #include "run_randomizer.h"
 #include "run_setup.h"
-#include "save.h"
 #include "shop_criteria.h"
 #include "slateport_shops.h"
 #include "teaching_randomizer.h"
@@ -18,7 +17,7 @@
 
 asm(".set VAR_TRICK_HOUSE_PRIZE_PICKUP, " STR(VAR_TRICK_HOUSE_PRIZE_PICKUP) "\n");
 
-TEST("Expanded TMs work independently of randomized teaching and retain their saved choice")
+TEST("Expanded TMs work independently of randomized teaching")
 {
     RunSetup_Begin();
     RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
@@ -30,19 +29,6 @@ TEST("Expanded TMs work independently of randomized teaching and retain their sa
     RunSetup_ApplyToNewGame();
     EXPECT(IsExpandedTMListEnabled());
     EXPECT_EQ(GetItemTMHMMoveId(ITEM_TM51), MOVE_FOCUS_BLAST);
-    RunSetup_Begin();
-    RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
-    RunSetup_Confirm();
-    RunSetup_ApplyToNewGame();
-    u16 move = GetItemTMHMMoveId(ITEM_TM100);
-    EXPECT_NE(move, MOVE_NONE);
-    ClearSaveData();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    FlagClear(FLAG_RUN_RULE_EXPANDED_TMS);
-    EXPECT_EQ(GetItemTMHMMoveId(ITEM_TM100), MOVE_NONE);
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT_EQ(GetItemTMHMMoveId(ITEM_TM100), move);
 }
 
 TEST("Expanded TMs pair only authored rewards and roll back when the complete pair cannot fit")

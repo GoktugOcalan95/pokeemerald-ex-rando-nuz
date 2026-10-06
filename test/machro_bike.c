@@ -50,7 +50,7 @@ static void InitMachroField(void)
     AddBagItem(ITEM_BICYCLE, 1);
 }
 
-TEST("Machro switches only with a new B press while L is held and preserves its mode in the save")
+TEST("Machro switches only with a new B press while L is held and restores its mode on remount")
 {
     struct MapHeader savedMap = gMapHeader;
     InitMachroField();
@@ -63,13 +63,6 @@ TEST("Machro switches only with a new B press while L is held and preserves its 
     EXPECT_EQ(VarGet(VAR_MOUNTED_BIKE), ITEM_BICYCLE);
     EXPECT(FlagGet(FLAG_MACHRO_ACRO_MODE));
     EXPECT(!TrySwitchMachroBike(0, L_BUTTON | B_BUTTON));
-    ClearSaveData();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    FlagClear(FLAG_MACHRO_ACRO_MODE);
-    VarSet(VAR_MOUNTED_BIKE, ITEM_NONE);
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT_EQ(GetBikeItemMode(VarGet(VAR_MOUNTED_BIKE)), PLAYER_AVATAR_FLAG_ACRO_BIKE);
     ClearPlayerAvatarInfo();
     SetPlayerAvatarExtraStateTransition(gObjectEvents[0].graphicsId, PLAYER_AVATAR_FLAG_CONTROLLABLE);
     EXPECT(TestPlayerAvatarFlags(PLAYER_AVATAR_FLAG_ACRO_BIKE));

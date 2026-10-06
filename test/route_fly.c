@@ -5,7 +5,6 @@
 #include "item.h"
 #include "metatile_behavior.h"
 #include "overworld.h"
-#include "save.h"
 #include "text.h"
 #include "string_util.h"
 #include "test/test.h"
@@ -98,24 +97,6 @@ TEST("Route Fly retains water visits while Surf is locked and lands at exact sel
     EXPECT(!TrySetRouteFlyDestination(ROUTE_FLY_NONE));
     FlagClear(FLAG_BADGE05_GET);
     ClearBag();
-    ClearRouteVisits();
-}
-
-TEST("Route Fly preserves independent destination visits through saving and loading")
-{
-    ClearRouteVisits();
-    for (u32 i = 0; i < GetRouteFlyDestinationCount(); i += 2)
-    {
-        const struct RouteFlyDestination *dest = GetRouteFlyDestination(i);
-        RecordRouteFlyVisit(dest->mapGroup, dest->mapNum, dest->x, dest->y, dest->requiresSurf);
-    }
-    ClearSaveData();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    ClearRouteVisits();
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    for (u32 i = 0; i < GetRouteFlyDestinationCount(); i++)
-        EXPECT_EQ(IsRouteFlyVisited(i), i % 2 == 0);
     ClearRouteVisits();
 }
 

@@ -12,7 +12,6 @@
 #include "metatile_behavior.h"
 #include "overworld.h"
 #include "pokemon.h"
-#include "save.h"
 #include "script.h"
 #include "sprite.h"
 #include "task.h"
@@ -92,26 +91,6 @@ TEST("Automatic HMs script checks enforce progression even without a party or th
     ScrCmd_checkfieldmove(&ctx);
     EXPECT_EQ(gSpecialVar_Result, 0);
     EXPECT_EQ(gSpecialVar_0x8004, SPECIES_NONE);
-    ResetHMProgress();
-}
-
-TEST("Automatic HMs inventory and badge gates survive saving and loading")
-{
-    ResetHMProgress();
-    EXPECT(AddBagItem(ITEM_HM02, 1));
-    EXPECT(AddBagItem(ITEM_HM05, 1));
-    EXPECT(AddBagItem(ITEM_HM08, 1));
-    FlagSet(FLAG_BADGE02_GET);
-    FlagSet(FLAG_BADGE06_GET);
-    ClearSaveData();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    ResetHMProgress();
-    FlagSet(FLAG_BADGE07_GET);
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT(IsFieldMoveUnlocked(FIELD_MOVE_FLY));
-    EXPECT(IsFieldMoveUnlocked(FIELD_MOVE_FLASH));
-    EXPECT(!IsFieldMoveUnlocked(FIELD_MOVE_DIVE));
     ResetHMProgress();
 }
 

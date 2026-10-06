@@ -89,7 +89,8 @@ bool32 IsRandomizerSpeciesLegendary(u16 species)
 
 bool32 IsRandomizerSpeciesEligible(u16 species)
 {
-    if (!IsRandomizerSpeciesValid(species))
+    // Eternamax is a battle-only form that no data flag marks.
+    if (!IsRandomizerSpeciesValid(species) || species == SPECIES_ETERNATUS_ETERNAMAX)
         return FALSE;
     const struct SpeciesInfo *info = &gSpeciesInfo[species];
     if (info->isMegaEvolution || info->isPrimalReversion || info->isUltraBurst
@@ -127,12 +128,29 @@ static u32 GetCosmeticGroup(u32 species)
     return group != SPECIES_NONE ? group : species;
 }
 
+// Cap and Cosplay Pikachu share base Pikachu's pool entry instead of adding two more.
+static u32 GetPoolEntry(u32 species)
+{
+    u32 group = GetCosmeticGroup(species);
+    if (group == SPECIES_PIKACHU_COSPLAY || group == SPECIES_PIKACHU_ORIGINAL)
+        return SPECIES_PIKACHU;
+    return group;
+}
+
+static bool32 IsPoolAppearance(u32 form, u32 species)
+{
+    // Base Pikachu gets its own half of the merged entry below, since only it evolves.
+    if (species == SPECIES_PIKACHU && form == SPECIES_PIKACHU)
+        return FALSE;
+    return GetPoolEntry(form) == species && IsRandomizerSpeciesEligible(form);
+}
+
 static void InitSpeciesPool(void)
 {
     for (u32 legendary = 0; legendary < 2; legendary++)
     {
         for (u32 species = 1; species < NUM_SPECIES; species++)
-            if (GetCosmeticGroup(species) == species && IsRandomizerSpeciesEligible(species)
+            if (GetPoolEntry(species) == species && IsRandomizerSpeciesEligible(species)
                 && IsRandomizerSpeciesLegendary(species) == legendary)
                 sSpeciesPool[sPoolCount++] = species;
         if (!legendary)
@@ -145,15 +163,22 @@ static u16 PickAppearance(u32 species, u32 domain, u32 source, u32 slot)
     const u16 *forms = GetSpeciesFormTable(species);
     if (forms == NULL)
         return species;
+    u32 hash = RunRandomizerHash(domain ^ 0x80000000, source, slot);
+    if (species == SPECIES_PIKACHU)
+    {
+        if (hash & 1)
+            return species;
+        hash >>= 1;
+    }
     u32 count = 0;
     for (u32 i = 0; forms[i] != FORM_SPECIES_END; i++)
-        if (GetCosmeticGroup(forms[i]) == species && IsRandomizerSpeciesEligible(forms[i]))
+        if (IsPoolAppearance(forms[i], species))
             count++;
     if (count == 0)
         return species;
-    u32 choice = RunRandomizerHash(domain ^ 0x80000000, source, slot) % count;
+    u32 choice = hash % count;
     for (u32 i = 0; forms[i] != FORM_SPECIES_END; i++)
-        if (GetCosmeticGroup(forms[i]) == species && IsRandomizerSpeciesEligible(forms[i]) && choice-- == 0)
+        if (IsPoolAppearance(forms[i], species) && choice-- == 0)
             return forms[i];
     return species;
 }

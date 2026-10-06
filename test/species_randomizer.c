@@ -58,14 +58,15 @@ TEST("Species randomizer excludes temporary forms and unsupported creation state
         SPECIES_WISHIWASHI_SOLO, SPECIES_MINIOR_CORE_BLUE, SPECIES_ZYGARDE_10_POWER_CONSTRUCT,
         SPECIES_ZYGARDE_50_POWER_CONSTRUCT, SPECIES_ROTOM_HEAT, SPECIES_HOOPA_UNBOUND,
         SPECIES_FURFROU_HEART, SPECIES_BURMY_TRASH, SPECIES_ALCREMIE_BERRY_RAINBOW_SWIRL,
-        SPECIES_MEOWTH_ALOLA, SPECIES_NIHILEGO, SPECIES_IRON_VALIANT};
+        SPECIES_MEOWTH_ALOLA, SPECIES_NIHILEGO, SPECIES_IRON_VALIANT, SPECIES_PICHU_SPIKY_EARED,
+        SPECIES_FLOETTE_ETERNAL};
     const u16 excluded[] = {SPECIES_NONE, SPECIES_EGG, SPECIES_GRENINJA_ASH, SPECIES_PALAFIN_HERO,
         SPECIES_WISHIWASHI_SCHOOL, SPECIES_MINIOR_METEOR_BLUE, SPECIES_ZYGARDE_COMPLETE,
         SPECIES_CHARIZARD_MEGA_X, SPECIES_GROUDON_PRIMAL, SPECIES_NECROZMA_ULTRA,
         SPECIES_ALCREMIE_GMAX, SPECIES_TERAPAGOS_TERASTAL, SPECIES_KYUREM_WHITE,
         SPECIES_NECROZMA_DUSK_MANE, SPECIES_CALYREX_ICE, SPECIES_ARCEUS_FIRE,
         SPECIES_GIRATINA_ORIGIN, SPECIES_OGERPON_WELLSPRING, SPECIES_RATICATE_ALOLA_TOTEM,
-        SPECIES_MIMIKYU_TOTEM_DISGUISED};
+        SPECIES_MIMIKYU_TOTEM_DISGUISED, SPECIES_ETERNATUS_ETERNAMAX};
     for (u32 i = 0; i < ARRAY_COUNT(stable); i++)
         EXPECT(IsRandomizerSpeciesEligible(stable[i]));
     for (u32 i = 0; i < ARRAY_COUNT(excluded); i++)
@@ -103,6 +104,27 @@ TEST("Species randomizer cosmetic metadata preserves functional and regional for
     EXPECT_EQ((u32)gSpeciesInfo[SPECIES_MEOWTH_ALOLA].cosmeticFormOf, SPECIES_NONE);
     EXPECT_EQ((u32)gSpeciesInfo[SPECIES_FLOETTE_ETERNAL].cosmeticFormOf, SPECIES_NONE);
     EXPECT_EQ((u32)gSpeciesInfo[SPECIES_TATSUGIRI_DROOPY].cosmeticFormOf, SPECIES_NONE);
+}
+
+TEST("Species randomizer counts all Pikachu forms as one entry that is base Pikachu half the time")
+{
+    u32 pikachu = 0, basePikachu = 0, bulbasaur = 0;
+    FlagSet(FLAG_RUN_RULE_ENCOUNTERS);
+    for (u32 source = 0; source < 60000; source++)
+    {
+        u32 species = RandomizeEncounterSpecies(SPECIES_ZIGZAGOON, SPECIES_REWARD_WILD, source, 0);
+        u32 group = gSpeciesInfo[species].cosmeticFormOf;
+        if (species == SPECIES_PIKACHU || group == SPECIES_PIKACHU_COSPLAY || group == SPECIES_PIKACHU_ORIGINAL)
+            pikachu++;
+        basePikachu += species == SPECIES_PIKACHU;
+        bulbasaur += species == SPECIES_BULBASAUR;
+    }
+    FlagClear(FLAG_RUN_RULE_ENCOUNTERS);
+    // Three separate entries would give about three times a single-form entry's share.
+    EXPECT_LT(pikachu, bulbasaur * 2);
+    EXPECT_GT(basePikachu * 100, pikachu * 38);
+    EXPECT_LT(basePikachu * 100, pikachu * 62);
+    EXPECT_LT(basePikachu, pikachu);
 }
 
 TEST("Species randomizer assignments respect source pools and survive save load without using gameplay RNG")

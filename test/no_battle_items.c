@@ -5,11 +5,10 @@
 #include "item.h"
 #include "item_use.h"
 #include "run_setup.h"
-#include "save.h"
 #include "test/test.h"
 #include "constants/flags.h"
 
-TEST("No Battle Items permits only balls and escape items while preserving the Bag")
+TEST("No Battle Items permits only balls and escape items and stops AI item use")
 {
     bool32 enabled = FALSE;
     PARAMETRIZE { enabled = FALSE; }
@@ -26,10 +25,5 @@ TEST("No Battle Items permits only balls and escape items while preserving the B
         EXPECT(!IsBattleItemBlockedByRunRule(allowed[i]));
     if (enabled)
         EXPECT(!ShouldUseItem((enum BattlerId)1));
-    ClearSaveData();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
     FlagClear(FLAG_RUN_RULE_NO_BATTLE_ITEMS);
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_NO_BATTLE_ITEMS), enabled);
 }

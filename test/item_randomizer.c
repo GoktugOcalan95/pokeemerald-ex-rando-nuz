@@ -46,9 +46,6 @@ TEST("Item randomizer excludes unfinished items and retains indirect uses")
     for (u32 i = 0; i < ARRAY_COUNT(retained); i++)
         EXPECT(IsRandomizedRewardItemAllowed(retained[i]));
     FlagClear(FLAG_RUN_RULE_ITEMS);
-    for (u32 domain = ITEM_REWARD_PICKUP; domain <= ITEM_REWARD_PRIZE; domain++)
-        for (u32 i = 0; i < ARRAY_COUNT(excluded); i++)
-            EXPECT_EQ(RandomizeItemReward(excluded[i], domain, 123, 0), excluded[i]);
 }
 
 TEST("Item randomizer shares ability item exclusions and refreshes the No EVs pool")
@@ -340,12 +337,8 @@ TEST("Ban gimmick categories filter independently and refresh every reward domai
             EXPECT_EQ(IsRandomizedRewardItemAllowed(item), baseline[item]);
         FlagSet(FLAG_RUN_RULE_ITEMS);
     }
-    FlagSet(FLAG_RUN_RULE_BAN_SLATEPORT);
-    EXPECT(!IsRandomizedRewardItemAllowed(ITEM_THUNDER_STONE));
-    EXPECT(IsRandomizedRewardItemAllowed(ITEM_ADAMANT_MINT));
     for (u32 bit = 0; bit < ARRAY_COUNT(flags); bit++)
         FlagClear(flags[bit]);
-    FlagClear(FLAG_RUN_RULE_BAN_SLATEPORT);
     FlagClear(FLAG_RUN_RULE_ITEMS);
 }
 

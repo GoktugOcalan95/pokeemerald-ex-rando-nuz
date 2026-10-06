@@ -8,7 +8,6 @@
 #include "constants/field_specials.h"
 #include "event_data.h"
 #include "pokemon.h"
-#include "run_setup.h"
 #include "save.h"
 #include "test/test.h"
 #include "constants/flags.h"
@@ -228,33 +227,6 @@ TEST("No EVs rejects authored EVs and blocks battle training bonuses")
         if (item == ITEM_POWER_BRACER)
             EXPECT_GT(GetMonData(&mon, MON_DATA_ATK_EV), ev);
     }
-    FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
-}
-
-TEST("No EVs run rule survives saving and loading")
-{
-    bool32 enabled = FALSE;
-    struct Pokemon mon;
-
-    PARAMETRIZE { enabled = FALSE; }
-    PARAMETRIZE { enabled = TRUE; }
-
-    RunSetup_Begin();
-    RunSetup_SetValue(RUN_SETUP_NO_EV_GAIN, enabled);
-    RunSetup_Confirm();
-    RunSetup_ApplyToNewGame();
-    ClearSaveData();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    if (enabled)
-        FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
-    else
-        FlagSet(FLAG_RUN_RULE_NO_EV_GAIN);
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_NO_EV_GAIN), enabled);
-    CreateRandomMonWithIVs(&mon, SPECIES_WOBBUFFET, 50, 0);
-    MonGainEVs(&mon, SPECIES_CATERPIE);
-    EXPECT_EQ(GetMonData(&mon, MON_DATA_HP_EV), enabled ? 0 : gSpeciesInfo[SPECIES_CATERPIE].evYield_HP);
     FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
 }
 

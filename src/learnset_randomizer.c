@@ -22,7 +22,7 @@ static EWRAM_DATA u8 sNextCache = 0;
 
 static void GenerateLearnset(struct LevelUpMove *moves, const struct LevelUpMove *original, u16 species)
 {
-    bool8 used[MOVES_COUNT] = {0};
+    u32 used[MOVE_BITSET_WORDS] = {0};
     u32 count = 0;
     for (u32 level = 0; level <= MAX_LEVEL; level++)
     {
@@ -46,16 +46,17 @@ static void GenerateLearnset(struct LevelUpMove *moves, const struct LevelUpMove
             }
             if (level == 1 && i == 0)
                 for (u32 move = 1; move < MOVES_COUNT; move++)
-                    used[move] |= !IsRandomizerDirectAttack(move);
+                    if (!IsRandomizerDirectAttack(move))
+                        AddMoveToBitset(used, move);
             u32 move = ChooseRandomizerMove(LEARNSET_DOMAIN, species, count, used);
             if (level == 1 && i == 0)
             {
                 memset(used, 0, sizeof(used));
                 for (u32 j = 0; j < count; j++)
-                    used[moves[j].move] = TRUE;
+                    AddMoveToBitset(used, moves[j].move);
             }
             moves[count++] = (struct LevelUpMove){move, level};
-            used[move] = TRUE;
+            AddMoveToBitset(used, move);
         }
     }
     u32 first = 0;
@@ -96,12 +97,12 @@ static void GenerateLearnset(struct LevelUpMove *moves, const struct LevelUpMove
             }
         u32 candidates = 0;
         for (u32 move = 1; move < MOVES_COUNT; move++)
-            if (!used[move] && IsRandomizerDirectAttack(move) && GetRandomizerMovePower(move) <= ceiling)
+            if (!IsMoveInBitset(used, move) && IsRandomizerDirectAttack(move) && GetRandomizerMovePower(move) <= ceiling)
                 candidates++;
         assertf(candidates != 0, "No starting attack for species %d", species);
         u32 choice = RunRandomizerHash(LEARNSET_DOMAIN, species, 0xFFFF) % candidates;
         for (u32 move = 1; move < MOVES_COUNT; move++)
-            if (!used[move] && IsRandomizerDirectAttack(move) && GetRandomizerMovePower(move) <= ceiling && choice-- == 0)
+            if (!IsMoveInBitset(used, move) && IsRandomizerDirectAttack(move) && GetRandomizerMovePower(move) <= ceiling && choice-- == 0)
             {
                 moves[slot].move = move;
                 break;

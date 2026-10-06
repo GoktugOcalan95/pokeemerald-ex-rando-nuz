@@ -37,8 +37,6 @@ u32 GetActiveTMCount(void)
     return IsExpandedTMListEnabled() ? NUM_TECHNICAL_MACHINES : NUM_ORIGINAL_TECHNICAL_MACHINES;
 }
 
-#define MOVE_BITSET_WORDS DIV_ROUND_UP(MOVES_COUNT, 32)
-
 static u32 CountBits(u32 bits)
 {
     bits -= (bits >> 1) & 0x55555555;

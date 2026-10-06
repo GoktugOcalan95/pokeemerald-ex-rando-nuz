@@ -61,7 +61,9 @@ TEST("Good move chance biases unique teaching moves and restores across save loa
     EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
     for (u32 i = 0; i < ARRAY_COUNT(moves); i++)
         EXPECT_EQ(i < 50 ? GetRandomizedMachineMove(i + 1) : GetTutorMove(i - 50), moves[i]);
+    u32 goodMoves[MOVE_BITSET_WORDS] = {0};
     for (u32 move = 1; move < MOVES_COUNT; move++)
-        used[move] = IsRandomizerGoodAttack(move);
-    EXPECT_NE(ChooseRandomizerMove(123, 0, 0, used), MOVE_NONE);
+        if (IsRandomizerGoodAttack(move))
+            AddMoveToBitset(goodMoves, move);
+    EXPECT_NE(ChooseRandomizerMove(123, 0, 0, goodMoves), MOVE_NONE);
 }

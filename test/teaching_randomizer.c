@@ -276,16 +276,16 @@ TEST("Teaching startup preserves assignments and reduces cold TM lookup cost")
     while (gTutorMoves[tutorCount] != MOVE_UNAVAILABLE)
         tutorCount++;
     u16 expected[NUM_TECHNICAL_MACHINES + 64];
-    bool8 used[MOVES_COUNT] = {0};
+    u32 used[MOVE_BITSET_WORDS] = {0};
     for (u32 i = NUM_TECHNICAL_MACHINES + 1; i <= NUM_ALL_MACHINES; i++)
-        used[gTMHMItemMoveIds[i].moveId] = TRUE;
+        AddMoveToBitset(used, gTMHMItemMoveIds[i].moveId);
     u32 baseline = 0;
     VBlankIntrWait();
     for (u32 i = 0; i < tmCount + tutorCount; i++)
     {
         REG_TM3CNT = (TIMER_ENABLE | TIMER_1024CLK) << 16;
         expected[i] = ChooseRandomizerMove(0x300, i, 0, used);
-        used[expected[i]] = TRUE;
+        AddMoveToBitset(used, expected[i]);
         REG_TM3CNT_H = 0;
         baseline += REG_TM3CNT_L;
     }

@@ -197,7 +197,7 @@ u32 GetRandomizerGoodMoveChance(void)
     return min(100, VarGet(VAR_RUN_RULE_GOOD_MOVE_CHANCE));
 }
 
-u16 ChooseRandomizerMove(u32 domain, u32 source, u32 slot, const bool8 *used)
+u16 ChooseRandomizerMove(u32 domain, u32 source, u32 slot, const u32 *used)
 {
     bool32 good = RunRandomizerHash(domain ^ 0x80000000, source, slot) % 100 < GetRandomizerGoodMoveChance();
     InitMoveClasses();
@@ -207,13 +207,13 @@ u16 ChooseRandomizerMove(u32 domain, u32 source, u32 slot, const bool8 *used)
         u32 mask = good ? MOVE_CLASS_GOOD : MOVE_CLASS_ALLOWED;
         u32 count = 0;
         for (u32 move = 1; move < MOVES_COUNT; move++)
-            if ((sMoveClasses[move] & mask) && (used == NULL || !used[move]))
+            if ((sMoveClasses[move] & mask) && (used == NULL || !IsMoveInBitset(used, move)))
                 count++;
         if (count == 0)
             continue;
         u32 choice = RunRandomizerHash(domain, source, slot) % count;
         for (u32 move = 1; move < MOVES_COUNT; move++)
-            if ((sMoveClasses[move] & mask) && (used == NULL || !used[move]) && choice-- == 0)
+            if ((sMoveClasses[move] & mask) && (used == NULL || !IsMoveInBitset(used, move)) && choice-- == 0)
                 return move;
     }
     return MOVE_NONE;

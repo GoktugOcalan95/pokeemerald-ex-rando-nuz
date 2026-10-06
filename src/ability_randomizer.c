@@ -208,6 +208,15 @@ static void InitFamilyAbilities(struct FamilyAbilityCache *cache, u32 family)
     cache->family = family;
 }
 
+static bool32 HasSingleAbility(u32 species)
+{
+    const u16 *abilities = gSpeciesInfo[species].abilities;
+    for (u32 slot = 1; slot < NUM_ABILITY_SLOTS; slot++)
+        if (abilities[slot] != ABILITY_NONE && abilities[slot] != abilities[0])
+            return FALSE;
+    return abilities[0] != ABILITY_NONE;
+}
+
 static u32 ResolveFamilySlot(const struct FamilyAbilityCache *cache, u32 species, u32 slot)
 {
     u32 native = ReadNativeSlots(species);
@@ -224,6 +233,9 @@ static u32 ResolveFamilySlot(const struct FamilyAbilityCache *cache, u32 species
         if (useAddedSlot)
             return cache->mapping[EXTRA_SLOT_KEY(slot)];
     }
+    // Single-ability species gain a hidden ability; slot 1 stays empty so it needs an Ability Patch.
+    if (!native && slot == 2 && HasSingleAbility(species))
+        return cache->mapping[EXTRA_SLOT_KEY(slot)];
     return cache->mapping[original];
 }
 

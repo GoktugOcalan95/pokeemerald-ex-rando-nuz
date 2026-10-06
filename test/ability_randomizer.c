@@ -12,7 +12,7 @@
 #include "constants/flags.h"
 #include "constants/form_change_types.h"
 
-TEST("Ability randomizer preserves ordinary family relationships and native three-option slots")
+TEST("Ability randomizer preserves ordinary family relationships, native three-option slots and adds hidden abilities to single-ability species")
 {
     gTestRunnerState.timeoutSeconds = 120;
     FlagSet(FLAG_RUN_RULE_ABILITIES);
@@ -22,11 +22,16 @@ TEST("Ability randomizer preserves ordinary family relationships and native thre
             continue;
         u16 mapping[ABILITIES_COUNT] = {0};
         bool8 used[ABILITIES_COUNT] = {0};
+        u32 addedHidden = ABILITY_NONE;
         for (u32 species = family; species < NUM_SPECIES; species++)
         {
             if (GetRandomizerSpeciesFamily(species) != family)
                 continue;
             u32 native = GetNativeFormAbilitySlots(species);
+            const u16 *originals = gSpeciesInfo[species].abilities;
+            bool32 single = originals[0] != ABILITY_NONE
+                && (originals[1] == ABILITY_NONE || originals[1] == originals[0])
+                && (originals[2] == ABILITY_NONE || originals[2] == originals[0]);
             for (u32 slot = 0; slot < NUM_ABILITY_SLOTS; slot++)
             {
                 u32 ability = GetSpeciesAbility(species, slot);
@@ -40,6 +45,19 @@ TEST("Ability randomizer preserves ordinary family relationships and native thre
                         EXPECT_EQ(ability, original ?: gSpeciesInfo[species].abilities[0]);
                     else
                         EXPECT(IsRandomizerAbilityAllowed(ability));
+                    continue;
+                }
+                if (single && slot == 2)
+                {
+                    EXPECT(IsRandomizerAbilityAllowed(ability));
+                    if (addedHidden)
+                        EXPECT_EQ(ability, addedHidden);
+                    else
+                    {
+                        EXPECT(!used[ability]);
+                        addedHidden = ability;
+                        used[ability] = TRUE;
+                    }
                     continue;
                 }
                 if (original == ABILITY_NONE)

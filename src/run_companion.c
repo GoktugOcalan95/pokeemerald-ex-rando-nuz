@@ -13,7 +13,7 @@ void RunCompanion_Init(void)
     struct CompanionSaveMetadata *metadata = &gPokemonStoragePtr->companion;
     memset(metadata, 0, sizeof(*metadata));
     metadata->magic = COMPANION_SAVE_MAGIC;
-    metadata->version = COMPANION_SAVE_VERSION;
+    metadata->layoutHash = COMPANION_SAVE_LAYOUT_HASH;
     metadata->runId = Random32();
     memset(&gSaveBlock1Ptr->runDiscovery, 0, sizeof(gSaveBlock1Ptr->runDiscovery));
 }

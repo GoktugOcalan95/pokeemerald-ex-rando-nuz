@@ -2,14 +2,22 @@
 #define GUARD_RUN_COMPANION_H
 
 #define COMPANION_SAVE_MAGIC 0x434F4D50
-#define COMPANION_SAVE_VERSION 1
 #define RUN_DISCOVERY_TUTOR_COUNT 32
+
+// FNV-1a over the save struct sizes, so the companion rejects saves from builds with a different layout.
+#define COMPANION_LAYOUT_STEP(hash, size) ((((u32)(hash)) ^ (u32)(size)) * 16777619u)
+#define COMPANION_SAVE_LAYOUT_HASH                                                     \
+    COMPANION_LAYOUT_STEP(COMPANION_LAYOUT_STEP(COMPANION_LAYOUT_STEP(                  \
+    COMPANION_LAYOUT_STEP(COMPANION_LAYOUT_STEP(COMPANION_LAYOUT_STEP(                  \
+    COMPANION_LAYOUT_STEP(2166136261u, sizeof(struct SaveBlock1)),                      \
+        sizeof(struct SaveBlock2)), sizeof(struct SaveBlock3)),                         \
+        sizeof(struct PokemonStorage)), sizeof(struct BoxPokemon)),                     \
+        BAG_SAVE1_BYTES), BAG_SAVE3_BYTES)
 
 struct CompanionSaveMetadata
 {
     u32 magic;
-    u16 version;
-    u16 reserved;
+    u32 layoutHash;
     u32 runId;
 };
 

@@ -11,7 +11,7 @@ TEST("Companion metadata and tutor discovery survive a full save and load")
     struct RunDiscovery discovery;
     RunCompanion_Init();
     EXPECT_EQ(gPokemonStoragePtr->companion.magic, COMPANION_SAVE_MAGIC);
-    EXPECT_EQ(gPokemonStoragePtr->companion.version, COMPANION_SAVE_VERSION);
+    EXPECT_EQ(gPokemonStoragePtr->companion.layoutHash, COMPANION_SAVE_LAYOUT_HASH);
     RunCompanion_RecordTutor(MOVE_DOUBLE_EDGE);
     EXPECT(gSaveBlock1Ptr->runDiscovery.tutorsSeen != 0);
     expected = gPokemonStoragePtr->companion;

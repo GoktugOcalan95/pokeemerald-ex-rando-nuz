@@ -93,7 +93,7 @@ bool32 IsRandomizerSpeciesEligible(u16 species)
         return FALSE;
     const struct SpeciesInfo *info = &gSpeciesInfo[species];
     if (info->isMegaEvolution || info->isPrimalReversion || info->isUltraBurst
-        || info->isGigantamax || info->isTeraForm)
+        || info->isGigantamax || info->isTeraForm || info->isTotem)
         return FALSE;
 
     const struct FormChange *changes = GetSpeciesFormChanges(species);

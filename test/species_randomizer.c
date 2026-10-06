@@ -64,7 +64,8 @@ TEST("Species randomizer excludes temporary forms and unsupported creation state
         SPECIES_CHARIZARD_MEGA_X, SPECIES_GROUDON_PRIMAL, SPECIES_NECROZMA_ULTRA,
         SPECIES_ALCREMIE_GMAX, SPECIES_TERAPAGOS_TERASTAL, SPECIES_KYUREM_WHITE,
         SPECIES_NECROZMA_DUSK_MANE, SPECIES_CALYREX_ICE, SPECIES_ARCEUS_FIRE,
-        SPECIES_GIRATINA_ORIGIN, SPECIES_OGERPON_WELLSPRING};
+        SPECIES_GIRATINA_ORIGIN, SPECIES_OGERPON_WELLSPRING, SPECIES_RATICATE_ALOLA_TOTEM,
+        SPECIES_MIMIKYU_TOTEM_DISGUISED};
     for (u32 i = 0; i < ARRAY_COUNT(stable); i++)
         EXPECT(IsRandomizerSpeciesEligible(stable[i]));
     for (u32 i = 0; i < ARRAY_COUNT(excluded); i++)
@@ -75,7 +76,7 @@ TEST("Species randomizer excludes temporary forms and unsupported creation state
             continue;
         const struct SpeciesInfo *info = &gSpeciesInfo[species];
         EXPECT(!info->isMegaEvolution && !info->isPrimalReversion && !info->isUltraBurst
-            && !info->isGigantamax && !info->isTeraForm);
+            && !info->isGigantamax && !info->isTeraForm && !info->isTotem);
         const struct FormChange *changes = GetSpeciesFormChanges(species);
         if (changes != NULL)
             for (u32 i = 0; changes[i].method != FORM_CHANGE_TERMINATOR; i++)

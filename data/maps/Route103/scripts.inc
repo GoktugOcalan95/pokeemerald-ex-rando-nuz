@@ -351,12 +351,16 @@ Route103_Text_RouteSign:
 	.string "ROUTE 103\n"
 	.string "{DOWN_ARROW} OLDALE TOWN$"
 
+Route103_Text_GettingItchToFish:
+	.string "This water is teeming with POKéMON.\n"
+	.string "Are you getting the itch to fish?$"
+
 
 Route103_EventScript_OldRodFisherman::
 	lock
 	faceplayer
 	goto_if_set FLAG_RECEIVED_OLD_ROD, DewfordTown_EventScript_HowsFishing
-	msgbox DewfordTown_Text_GettingItchToFish, MSGBOX_YESNO
+	msgbox Route103_Text_GettingItchToFish, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, YES, Route103_EventScript_GiveOldRod
 	goto_if_eq VAR_RESULT, NO, Route103_EventScript_NotGettingItchToFish
 	end

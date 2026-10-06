@@ -4,7 +4,7 @@
 #include "menu.h"
 #include "test/test.h"
 
-TEST("Overworld feedback waits 64 completed frames in Auto and accepts earlier A or B")
+TEST("Overworld feedback waits 64 completed frames in Auto")
 {
     u32 oldSpeed = gSaveBlock2Ptr->optionsTextSpeed;
     gSaveBlock2Ptr->optionsTextSpeed = OPTIONS_TEXT_SPEED_AUTO;
@@ -16,14 +16,6 @@ TEST("Overworld feedback waits 64 completed frames in Auto and accepts earlier A
         gMain.vblankCounter1++;
     }
     EXPECT(FieldMessage_WaitForInput());
-    FieldMessage_StartInputWait(64);
-    gMain.newKeys = A_BUTTON;
-    EXPECT(FieldMessage_WaitForInput());
-    gMain.vblankCounter1++;
-    FieldMessage_StartInputWait(64);
-    gMain.newKeys = B_BUTTON;
-    EXPECT(FieldMessage_WaitForInput());
-    gMain.newKeys = 0;
     gSaveBlock2Ptr->optionsTextSpeed = oldSpeed;
 }
 

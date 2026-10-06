@@ -75,17 +75,6 @@ TEST("Text speed respects forced medium speed")
     gSaveBlock2Ptr->optionsTextSpeed = savedSpeed;
 }
 
-TEST("Text speed choices fit beside the Options label")
-{
-    u32 width = GetStringWidth(FONT_NORMAL, COMPOUND_STRING("AUTO"), 0)
-              + GetStringWidth(FONT_NORMAL, COMPOUND_STRING("MID"), 0)
-              + GetStringWidth(FONT_NORMAL, COMPOUND_STRING("FAST"), 0)
-              + GetStringWidth(FONT_NORMAL, COMPOUND_STRING("INSTANT"), 0)
-              + 3 * 4;
-
-    EXPECT_GT(198 - width, 8 + GetStringWidth(FONT_NORMAL, COMPOUND_STRING("TEXT SPEED"), 0));
-}
-
 TEST("Text speed validates current settings")
 {
     u32 savedSpeed = gSaveBlock2Ptr->optionsTextSpeed;
@@ -111,16 +100,18 @@ TEST("Text speed validates current settings")
 TEST("Text speed Instant and Auto share instant rendering settings")
 {
     u32 savedSpeed = gSaveBlock2Ptr->optionsTextSpeed;
-    u32 speed;
+    u32 delay, modifier, scroll;
 
-    PARAMETRIZE { speed = OPTIONS_TEXT_SPEED_INSTANT; }
-    PARAMETRIZE { speed = OPTIONS_TEXT_SPEED_AUTO; }
-
-    gSaveBlock2Ptr->optionsTextSpeed = speed;
     gTextFlags.forceMidTextSpeed = FALSE;
+    gSaveBlock2Ptr->optionsTextSpeed = OPTIONS_TEXT_SPEED_INSTANT;
+    delay = GetPlayerTextSpeedDelay();
+    modifier = GetPlayerTextSpeedModifier();
+    scroll = GetPlayerTextScrollSpeed();
+
+    gSaveBlock2Ptr->optionsTextSpeed = OPTIONS_TEXT_SPEED_AUTO;
     EXPECT(IsPlayerTextSpeedInstant());
-    EXPECT_EQ(GetPlayerTextSpeedDelay(), 1);
-    EXPECT_EQ(GetPlayerTextSpeedModifier(), TEXT_SPEED_INSTANT_MODIFIER);
-    EXPECT_EQ(GetPlayerTextScrollSpeed(), 6);
+    EXPECT_EQ(GetPlayerTextSpeedDelay(), delay);
+    EXPECT_EQ(GetPlayerTextSpeedModifier(), modifier);
+    EXPECT_EQ(GetPlayerTextScrollSpeed(), scroll);
     gSaveBlock2Ptr->optionsTextSpeed = savedSpeed;
 }

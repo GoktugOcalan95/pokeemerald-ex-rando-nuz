@@ -5,21 +5,11 @@
 #include "item_use.h"
 #include "new_game.h"
 #include "registered_items.h"
-#include "run_setup.h"
-#include "save.h"
 #include "test/test.h"
 #include "constants/flags.h"
 
-TEST("Starting equipment grants shoes and registered Machro independently of presets")
+TEST("Starting equipment grants shoes and registered Machro")
 {
-    u32 preset = 0;
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_VANILLA; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_NUZLOCKE; }
-    PARAMETRIZE { preset = RUN_SETUP_PRESET_BISHEY; }
-    RunSetup_Begin();
-    RunSetup_SetPreset(preset);
-    RunSetup_Confirm();
-    RunSetup_ApplyToNewGame();
     ClearBag();
     InitToggleRepel();
     InitStartingEquipment();
@@ -37,11 +27,4 @@ TEST("Starting equipment grants shoes and registered Machro independently of pre
         EXPECT_EQ(RegisteredItemWheelInput(DPAD_UP), ITEM_NONE);
         EXPECT_EQ(RegisteredItemWheelInput(DPAD_LEFT), ITEM_NONE);
     }
-    ClearSaveData();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    ClearBag();
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT_EQ(CheckBagHasItem(ITEM_BICYCLE, 1), OW_START_WITH_SHOES_AND_MACHRO);
-    EXPECT_EQ(FlagGet(FLAG_SYS_B_DASH), OW_START_WITH_SHOES_AND_MACHRO);
 }

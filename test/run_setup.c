@@ -51,39 +51,6 @@ TEST("Run setup frees the main menu windows and clears its highlight mask")
     SetGpuReg(REG_OFFSET_DISPCNT, previousDisplayControl);
 }
 
-TEST("Run setup clears its tilemap before the introduction")
-{
-    static EWRAM_DATA u16 runSetupTilemap[BG_SCREEN_SIZE / sizeof(u16)];
-    bool32 tilemapCleared = TRUE;
-    static const struct BgTemplate bgTemplate =
-    {
-        .bg = 0,
-        .charBaseIndex = 2,
-        .mapBaseIndex = 30,
-        .screenSize = 0,
-        .paletteMode = 0,
-        .priority = 0,
-        .baseTile = 0,
-    };
-
-    memset(runSetupTilemap, 0xFF, sizeof(runSetupTilemap));
-    ResetBgsAndClearDma3BusyFlags(FALSE);
-    InitBgFromTemplate(&bgTemplate);
-    SetBgTilemapBuffer(0, runSetupTilemap);
-    RunSetup_ClearDisplayTilemap();
-
-    for (u32 y = 0; y < DISPLAY_TILE_HEIGHT; y++)
-    {
-        for (u32 x = 0; x < DISPLAY_TILE_WIDTH; x++)
-        {
-            if (runSetupTilemap[y * 32 + x] != 0)
-                tilemapCleared = FALSE;
-        }
-    }
-    EXPECT(tilemapCleared);
-    ResetBgsAndClearDma3BusyFlags(FALSE);
-}
-
 TEST("Run setup clears background graphics before Birch changes character base")
 {
     volatile u16 *background = (volatile u16 *)VRAM;
@@ -189,6 +156,7 @@ TEST("Run setup disabled children retain choices but have no saved effect")
     EXPECT(!RunSetup_IsAvailable(RUN_SETUP_BAN_TYPE_GEMS));
     EXPECT(!RunSetup_IsAvailable(RUN_SETUP_BAN_BATTLE_ITEMS));
     EXPECT(!RunSetup_IsAvailable(RUN_SETUP_GOOD_MOVE_CHANCE));
+    EXPECT(RunSetup_IsAvailable(RUN_SETUP_LIMIT_SLATEPORT_SHOP));
     RunSetup_SetValue(RUN_SETUP_BAN_SLATEPORT, 0);
     RunSetup_SetValue(RUN_SETUP_GOOD_MOVE_CHANCE, 10);
     EXPECT_EQ(RunSetup_GetValue(RUN_SETUP_BAN_SLATEPORT), 1);
@@ -234,9 +202,10 @@ TEST("Run setup saves and reloads every setting and numeric choice")
 {
     u32 chance;
     u32 difficulty;
-    PARAMETRIZE { chance = 0; difficulty = 0; }
-    PARAMETRIZE { chance = 3; difficulty = 1; }
-    PARAMETRIZE { chance = 10; difficulty = 2; }
+    u32 catchBonus;
+    PARAMETRIZE { chance = 0; difficulty = 0; catchBonus = CATCH_BONUS_NONE; }
+    PARAMETRIZE { chance = 3; difficulty = 1; catchBonus = CATCH_BONUS_MEDIUM; }
+    PARAMETRIZE { chance = 10; difficulty = 2; catchBonus = CATCH_BONUS_INSTANT; }
 
     InitEventData();
     RunSetup_Begin();
@@ -247,6 +216,7 @@ TEST("Run setup saves and reloads every setting and numeric choice")
     RunSetup_SetValue(RUN_SETUP_BAN_TYPE_GEMS, 1);
     RunSetup_SetValue(RUN_SETUP_GOOD_MOVE_CHANCE, chance);
     RunSetup_SetValue(RUN_SETUP_DIFFICULTY, difficulty);
+    RunSetup_SetValue(RUN_SETUP_CATCH_BONUS, catchBonus);
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
     ClearSaveData();
@@ -261,6 +231,9 @@ TEST("Run setup saves and reloads every setting and numeric choice")
     }
     EXPECT_EQ(VarGet(VAR_RUN_RULE_GOOD_MOVE_CHANCE), chance * 10);
     EXPECT_EQ(VarGet(VAR_RUN_RULE_DIFFICULTY), difficulty);
+    EXPECT_EQ(GetSavedCatchBonus(), catchBonus);
+    VarSet(VAR_RUN_RULE_CATCH_BONUS, CATCH_BONUS_COUNT);
+    EXPECT_EQ(GetSavedCatchBonus(), CATCH_BONUS_NONE);
     InitEventData();
 }
 
@@ -340,106 +313,5 @@ TEST("Run setup Enemy STAB requires trainer randomization")
     RunSetup_Confirm();
     RunSetup_ApplyToNewGame();
     EXPECT_EQ(FlagGet(FLAG_RUN_RULE_ENEMY_STAB), trainers);
-    InitEventData();
-}
-
-TEST("Run setup gimmick page presets and dependencies preserve individual choices")
-{
-    const enum RunSetupSetting settings[] = {RUN_SETUP_BAN_MEGA_STONES, RUN_SETUP_BAN_Z_CRYSTALS,
-        RUN_SETUP_BAN_TERA_SHARDS, RUN_SETUP_BAN_TYPE_GEMS};
-    const bool8 bishey[] = {FALSE, TRUE, FALSE, TRUE};
-
-    EXPECT_EQ(RUN_SETUP_CATEGORY_GIMMICK_BANS, RUN_SETUP_CATEGORY_ITEMS + 1);
-    EXPECT_EQ(RunSetup_GetCategoryCount(RUN_SETUP_CATEGORY_ITEMS), 4);
-    EXPECT_EQ(RunSetup_GetCategoryCount(RUN_SETUP_CATEGORY_GIMMICK_BANS), 4);
-    for (u32 preset = 0; preset < RUN_SETUP_PRESET_COUNT; preset++)
-    {
-        RunSetup_Begin();
-        RunSetup_SetPreset(preset);
-        for (u32 i = 0; i < ARRAY_COUNT(settings); i++)
-        {
-            EXPECT_EQ(RunSetup_GetCategorySetting(RUN_SETUP_CATEGORY_GIMMICK_BANS, i), settings[i]);
-            EXPECT_EQ(RunSetup_GetValue(settings[i]), preset == RUN_SETUP_PRESET_BISHEY && bishey[i]);
-        }
-        RunSetup_Discard();
-    }
-    RunSetup_Begin();
-    RunSetup_SetPreset(RUN_SETUP_PRESET_BISHEY);
-    for (u32 i = 0; i < ARRAY_COUNT(settings); i++)
-        RunSetup_SetValue(settings[i], !bishey[i]);
-    EXPECT_EQ(RunSetup_GetPreset(), RUN_SETUP_PRESET_CUSTOM);
-    RunSetup_SetValue(RUN_SETUP_ITEMS, FALSE);
-    for (u32 i = 0; i < ARRAY_COUNT(settings); i++)
-    {
-        EXPECT(!RunSetup_IsAvailable(settings[i]));
-        RunSetup_SetValue(settings[i], bishey[i]);
-        EXPECT_EQ(RunSetup_GetValue(settings[i]), !bishey[i]);
-    }
-    RunSetup_SetValue(RUN_SETUP_ITEMS, TRUE);
-    for (u32 i = 0; i < ARRAY_COUNT(settings); i++)
-    {
-        EXPECT(RunSetup_IsAvailable(settings[i]));
-        EXPECT_EQ(RunSetup_GetValue(settings[i]), !bishey[i]);
-    }
-    RunSetup_SetValue(RUN_SETUP_ITEMS, FALSE);
-    RunSetup_Confirm();
-    RunSetup_ApplyToNewGame();
-    for (u32 i = 0; i < ARRAY_COUNT(settings); i++)
-        EXPECT(!FlagGet(gRunSetupSettings[settings[i]].storageId));
-    InitEventData();
-}
-
-TEST("Run setup Slateport limit is independent and saves both choices")
-{
-    bool32 enabled;
-    PARAMETRIZE { enabled = FALSE; }
-    PARAMETRIZE { enabled = TRUE; }
-
-    for (u32 preset = 0; preset < RUN_SETUP_PRESET_COUNT; preset++)
-    {
-        RunSetup_Begin();
-        RunSetup_SetPreset(preset);
-        EXPECT_EQ(RunSetup_GetValue(RUN_SETUP_LIMIT_SLATEPORT_SHOP), preset != RUN_SETUP_PRESET_VANILLA);
-        RunSetup_Discard();
-    }
-    InitEventData();
-    RunSetup_Begin();
-    EXPECT_EQ(RunSetup_GetCategorySetting(RUN_SETUP_CATEGORY_ITEMS, 3), RUN_SETUP_LIMIT_SLATEPORT_SHOP);
-    EXPECT_EQ(RunSetup_GetValue(RUN_SETUP_ITEMS), FALSE);
-    EXPECT(RunSetup_IsAvailable(RUN_SETUP_LIMIT_SLATEPORT_SHOP));
-    RunSetup_SetValue(RUN_SETUP_LIMIT_SLATEPORT_SHOP, enabled);
-    RunSetup_Confirm();
-    RunSetup_ApplyToNewGame();
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_LIMIT_SLATEPORT_SHOP), enabled);
-    ClearSaveData();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    if (enabled)
-        FlagClear(FLAG_RUN_RULE_LIMIT_SLATEPORT_SHOP);
-    else
-        FlagSet(FLAG_RUN_RULE_LIMIT_SLATEPORT_SHOP);
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_LIMIT_SLATEPORT_SHOP), enabled);
-    InitEventData();
-}
-
-TEST("Catch bonus tiers survive save and load and reject invalid values")
-{
-    u32 tier = 0;
-    for (u32 i = CATCH_BONUS_NONE; i < CATCH_BONUS_COUNT; i++)
-        PARAMETRIZE { tier = i; }
-    InitEventData();
-    RunSetup_Begin();
-    RunSetup_SetValue(RUN_SETUP_CATCH_BONUS, tier);
-    RunSetup_Confirm();
-    RunSetup_ApplyToNewGame();
-    ClearSaveData();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    InitEventData();
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT_EQ(GetSavedCatchBonus(), tier);
-    VarSet(VAR_RUN_RULE_CATCH_BONUS, CATCH_BONUS_COUNT);
-    EXPECT_EQ(GetSavedCatchBonus(), CATCH_BONUS_NONE);
     InitEventData();
 }

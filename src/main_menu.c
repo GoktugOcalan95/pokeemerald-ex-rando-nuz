@@ -1409,7 +1409,7 @@ static void Task_RunSetup_ProcessInput(u8 taskId)
         PlaySE(SE_SELECT);
         RunSetup_Confirm();
         gTasks[taskId].tRunSetupStartIntro = TRUE;
-        RunSetup_ClearDisplayTilemap();
+        FillBgTilemapBufferRect_Palette0(0, 0, 0, 0, DISPLAY_TILE_WIDTH, DISPLAY_TILE_HEIGHT);
         CopyBgTilemapBufferToVram(0);
         BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
         gTasks[taskId].func = Task_RunSetup_FadeOut;

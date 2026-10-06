@@ -322,11 +322,6 @@ void RunSetup_PrepareDisplay(void)
     SetGpuReg(REG_OFFSET_BLDY, 0);
 }
 
-void RunSetup_ClearDisplayTilemap(void)
-{
-    FillBgTilemapBufferRect_Palette0(0, 0, 0, 0, DISPLAY_TILE_WIDTH, DISPLAY_TILE_HEIGHT);
-}
-
 void RunSetup_ClearDisplayGraphics(void)
 {
     // The introduction uses a different character base, including setup's border tiles.

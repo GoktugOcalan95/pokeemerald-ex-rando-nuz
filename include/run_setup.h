@@ -116,7 +116,6 @@ void RunSetup_Discard(void);
 void RunSetup_Confirm(void);
 void RunSetup_ApplyToNewGame(void);
 void RunSetup_PrepareDisplay(void);
-void RunSetup_ClearDisplayTilemap(void);
 void RunSetup_ClearDisplayGraphics(void);
 u32 GetSavedCatchBonus(void);
 

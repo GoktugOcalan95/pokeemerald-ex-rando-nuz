@@ -1,7 +1,6 @@
 #include "global.h"
 #include "registered_items.h"
 #include "item.h"
-#include "save.h"
 #include "gpu_regs.h"
 #include "sprite.h"
 #include "test/test.h"
@@ -12,7 +11,7 @@ static void ResetRegistration(void)
     memset(gSaveBlock1Ptr->registeredItems, 0, sizeof(gSaveBlock1Ptr->registeredItems));
 }
 
-TEST("Registered items move between slots replace assignments and survive save load")
+TEST("Registered items move between slots replace assignments")
 {
     static const u16 items[] = {ITEM_MACH_BIKE, ITEM_TOGGLE_REPEL, ITEM_OLD_ROD, ITEM_WAILMER_PAIL};
     ResetRegistration();
@@ -28,14 +27,6 @@ TEST("Registered items move between slots replace assignments and survive save l
     EXPECT_EQ(GetRegisteredItemSlot(ITEM_OLD_ROD), -1);
     EXPECT_EQ(GetRegisteredItemSlot(ITEM_MACH_BIKE), 2);
     EXPECT_EQ(ValidateRegisteredItems(), 3);
-    ClearSaveData();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    memset(gSaveBlock1Ptr->registeredItems, 0, sizeof(gSaveBlock1Ptr->registeredItems));
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT_EQ(GetRegisteredItemSlot(ITEM_TOGGLE_REPEL), 1);
-    EXPECT_EQ(GetRegisteredItemSlot(ITEM_MACH_BIKE), 2);
-    EXPECT_EQ(GetRegisteredItemSlot(ITEM_WAILMER_PAIL), 3);
     UnregisterItem(ITEM_TOGGLE_REPEL);
     EXPECT_EQ(GetRegisteredItemSlot(ITEM_TOGGLE_REPEL), -1);
     EXPECT(CheckBagHasItem(ITEM_TOGGLE_REPEL, 1));

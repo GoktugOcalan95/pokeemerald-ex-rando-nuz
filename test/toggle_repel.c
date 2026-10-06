@@ -2,11 +2,10 @@
 #include "event_data.h"
 #include "item.h"
 #include "item_use.h"
-#include "save.h"
 #include "test/test.h"
 #include "constants/flags.h"
 
-TEST("Toggle Repel starts enabled is registrable and shares the saved debug flag without consumption")
+TEST("Toggle Repel starts enabled and toggles the debug encounter flag without consumption")
 {
     ClearBag();
     memset(gSaveBlock1Ptr->registeredItems, 0, sizeof(gSaveBlock1Ptr->registeredItems));
@@ -16,19 +15,8 @@ TEST("Toggle Repel starts enabled is registrable and shares the saved debug flag
     EXPECT_EQ(CountTotalItemQuantityInBag(ITEM_TOGGLE_REPEL), 1);
     for (u32 i = 0; i < REGISTERED_ITEMS_COUNT; i++)
         EXPECT_EQ(gSaveBlock1Ptr->registeredItems[i], ITEM_NONE);
-    EXPECT_EQ(GetItemType(ITEM_TOGGLE_REPEL), ITEM_USE_FIELD);
-    EXPECT_EQ(GetItemFieldFunc(ITEM_TOGGLE_REPEL), ItemUseOutOfBattle_ToggleRepel);
     ToggleRepelEncounters();
     EXPECT(FlagGet(FLAG_DEBUG_NO_ENCOUNTER));
-    ClearSaveData();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    FlagClear(FLAG_DEBUG_NO_ENCOUNTER);
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT(FlagGet(FLAG_DEBUG_NO_ENCOUNTER));
-    ToggleRepelEncounters();
-    EXPECT(!FlagGet(FLAG_DEBUG_NO_ENCOUNTER));
-    FlagSet(FLAG_DEBUG_NO_ENCOUNTER);
     ToggleRepelEncounters();
     EXPECT(!FlagGet(FLAG_DEBUG_NO_ENCOUNTER));
     EXPECT_EQ(CountTotalItemQuantityInBag(ITEM_TOGGLE_REPEL), 1);

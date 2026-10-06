@@ -2,7 +2,6 @@
 #include "species_randomizer.h"
 #include "event_data.h"
 #include "constants/flags.h"
-#include "event_data.h"
 #include "main.h"
 #include "mass_outbreak.h"
 #include "overworld.h"

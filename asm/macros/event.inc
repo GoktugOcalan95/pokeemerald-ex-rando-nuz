@@ -2809,7 +2809,6 @@
 	.endif
 	goto \taughtJmp
 .LrandomTutor\@:
-	setvar VAR_0x8005, \moveId
 	callnative ScriptRandomizeTutorMove
 	.if \flagId
 		goto_if_set \flagId, MoveTutor_EventScript_RandomTaught

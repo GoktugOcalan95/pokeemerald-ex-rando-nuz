@@ -1,7 +1,6 @@
 #include "global.h"
 #include "event_data.h"
 #include "item.h"
-#include "malloc.h"
 #include "move.h"
 #include "move_randomizer.h"
 #include "player_teachable_moves.h"
@@ -38,62 +37,81 @@ u32 GetActiveTMCount(void)
     return IsExpandedTMListEnabled() ? NUM_TECHNICAL_MACHINES : NUM_ORIGINAL_TECHNICAL_MACHINES;
 }
 
+#define MOVE_BITSET_WORDS DIV_ROUND_UP(MOVES_COUNT, 32)
+
+static u32 CountBits(u32 bits)
+{
+    bits -= (bits >> 1) & 0x55555555;
+    bits = (bits & 0x33333333) + ((bits >> 2) & 0x33333333);
+    return (((bits + (bits >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
+}
+
 static void InitTeachingMoves(void)
 {
     u32 seed = RunRandomizerHash(TEACHING_DOMAIN, 0, 0);
     u32 tmCount = GetActiveTMCount();
     if (sTeachingReady && seed == sTeachingSeed && sTeachingChance == GetRandomizerGoodMoveChance() && sTeachingTMCount == tmCount)
         return;
-    bool8 excluded[MOVES_COUNT] = {0};
-    struct TeachingPool
-    {
-        bool8 good[MOVES_COUNT];
-        u16 moves[MOVES_COUNT];
-    } *pool = Alloc(sizeof(*pool));
+    // Good attacks are a subset of allowed moves. Each pick takes the choice-th set bit in ascending move order.
+    u32 available[MOVE_BITSET_WORDS] = {0}, good[MOVE_BITSET_WORDS] = {0};
     u32 count = 0, goodCount = 0;
     u32 chance = GetRandomizerGoodMoveChance();
-    for (u32 index = NUM_TECHNICAL_MACHINES + 1; index <= NUM_ALL_MACHINES; index++)
-        excluded[gTMHMItemMoveIds[index].moveId] = TRUE;
-    if (pool == NULL)
+    for (u32 move = 1; move < MOVES_COUNT; move++)
     {
-        for (u32 index = 0; index < tmCount + TUTOR_MOVE_COUNT; index++)
+        if (!IsRandomizerMoveAllowed(move))
+            continue;
+        available[move / 32] |= 1u << (move % 32);
+        count++;
+        if (IsRandomizerGoodAttack(move))
         {
-            sTeachingMoves[index] = ChooseRandomizerMove(TEACHING_DOMAIN, index, 0, excluded);
-            excluded[sTeachingMoves[index]] = TRUE;
+            good[move / 32] |= 1u << (move % 32);
+            goodCount++;
         }
     }
-    else
+    // HMs stay fixed, so their moves never fill a TM or tutor slot.
+    for (u32 index = NUM_TECHNICAL_MACHINES + 1; index <= NUM_ALL_MACHINES; index++)
     {
-        for (u32 move = 1; move < MOVES_COUNT; move++)
+        u32 move = gTMHMItemMoveIds[index].moveId, mask = 1u << (move % 32);
+        if (!(available[move / 32] & mask))
+            continue;
+        available[move / 32] &= ~mask;
+        count--;
+        if (good[move / 32] & mask)
         {
-            if (excluded[move] || !IsRandomizerMoveAllowed(move))
-                continue;
-            pool->moves[count++] = move;
-            pool->good[move] = IsRandomizerGoodAttack(move);
-            goodCount += pool->good[move];
+            good[move / 32] &= ~mask;
+            goodCount--;
         }
-        for (u32 index = 0; index < tmCount + TUTOR_MOVE_COUNT; index++)
+    }
+    for (u32 index = 0; index < tmCount + TUTOR_MOVE_COUNT; index++)
+    {
+        sTeachingMoves[index] = MOVE_NONE;
+        if (count == 0)
+            continue;
+        bool32 preferGood = goodCount != 0 && RunRandomizerHash(TEACHING_DOMAIN ^ 0x80000000, index, 0) % 100 < chance;
+        u32 choice = RunRandomizerHash(TEACHING_DOMAIN, index, 0) % (preferGood ? goodCount : count);
+        for (u32 word = 0; word < MOVE_BITSET_WORDS; word++)
         {
-            if (count == 0)
+            u32 bits = preferGood ? good[word] : available[word];
+            u32 bitCount = CountBits(bits);
+            if (choice >= bitCount)
             {
-                sTeachingMoves[index] = MOVE_NONE;
+                choice -= bitCount;
                 continue;
             }
-            bool32 preferGood = goodCount != 0 && RunRandomizerHash(TEACHING_DOMAIN ^ 0x80000000, index, 0) % 100 < chance;
-            u32 choice = RunRandomizerHash(TEACHING_DOMAIN, index, 0) % (preferGood ? goodCount : count);
-            for (u32 slot = 0; slot < count; slot++)
+            u32 bit = 0;
+            while (!((bits >> bit) & 1) || choice-- != 0)
+                bit++;
+            u32 mask = 1u << bit;
+            sTeachingMoves[index] = word * 32 + bit;
+            available[word] &= ~mask;
+            count--;
+            if (good[word] & mask)
             {
-                if ((!preferGood || pool->good[pool->moves[slot]]) && choice-- == 0)
-                {
-                    sTeachingMoves[index] = pool->moves[slot];
-                    goodCount -= pool->good[pool->moves[slot]];
-                    // Preserve ascending pool order so seeded selections stay identical.
-                    memmove(&pool->moves[slot], &pool->moves[slot + 1], (--count - slot) * sizeof(pool->moves[0]));
-                    break;
-                }
+                good[word] &= ~mask;
+                goodCount--;
             }
+            break;
         }
-        Free(pool);
     }
     sTeachingTMCount = tmCount;
     sTeachingSeed = seed;
@@ -109,36 +127,6 @@ u16 GetRandomizedMachineMove(u32 index)
         return gTMHMItemMoveIds[index].moveId;
     InitTeachingMoves();
     return sTeachingMoves[index - 1];
-}
-
-u16 GetOriginalTeachingMove(u16 assigned)
-{
-    if (!FlagGet(FLAG_RUN_RULE_TMS_TUTORS) || assigned >= MOVES_COUNT)
-        return assigned;
-    InitTeachingMoves();
-    for (u32 index = 0; index < sTeachingTMCount + TUTOR_MOVE_COUNT; index++)
-    {
-        if (sTeachingMoves[index] == assigned)
-        {
-            u16 original = index < sTeachingTMCount ? gTMHMItemMoveIds[index + 1].moveId : gTutorMoves[index - sTeachingTMCount];
-            return original == MOVE_NONE ? assigned : original;
-        }
-    }
-    return assigned;
-}
-
-u16 GetRandomizedTeachingMove(u16 original)
-{
-    if (!FlagGet(FLAG_RUN_RULE_TMS_TUTORS) || original >= MOVES_COUNT)
-        return original;
-    InitTeachingMoves();
-    for (u32 index = sTeachingTMCount + TUTOR_MOVE_COUNT; index > 0; index--)
-    {
-        u16 source = index <= sTeachingTMCount ? gTMHMItemMoveIds[index].moveId : gTutorMoves[index - sTeachingTMCount - 1];
-        if (source != MOVE_NONE && source == original)
-            return sTeachingMoves[index - 1];
-    }
-    return original;
 }
 
 u16 GetTutorMove(u32 index)

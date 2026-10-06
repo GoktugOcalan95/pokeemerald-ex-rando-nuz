@@ -101,7 +101,10 @@ TEST("Teaching randomizer compatibility follows assigned moves and full native d
                     naturalOnly += natural && !current;
                     randomizedOnly += !natural && current;
                     rejected += !natural && !current;
-                    sourceMismatch += HasNaturalMove(species[s], GetOriginalTeachingMove(move)) != (natural || current);
+                    FlagClear(FLAG_RUN_RULE_TMS_TUTORS);
+                    u32 original = i < 50 ? GetTMHMMoveId(i + 1) : GetTutorMove(i - 50);
+                    FlagSet(FLAG_RUN_RULE_TMS_TUTORS);
+                    sourceMismatch += HasNaturalMove(species[s], original) != (natural || current);
                     FlagSet(FLAG_RUN_RULE_FULL_COMPATIBILITY);
                     EXPECT(CanPlayerLearnTeachableMove(species[s], move));
                     FlagClear(FLAG_RUN_RULE_FULL_COMPATIBILITY);
@@ -193,7 +196,10 @@ TEST("Teaching randomizer script and Frontier tutors resolve matching assigned m
         {
             u32 move = GetFrontierTutorMove(tutor, i);
             EXPECT_NE(move, MOVE_NONE);
-            EXPECT_EQ(GetRandomizedTutorMove(GetOriginalTeachingMove(move)), move);
+            bool32 assigned = FALSE;
+            for (u32 j = 0; GetTutorMove(j) != MOVE_UNAVAILABLE; j++)
+                assigned |= GetTutorMove(j) == move;
+            EXPECT(assigned);
         }
 }
 

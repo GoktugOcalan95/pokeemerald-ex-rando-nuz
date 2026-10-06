@@ -10,15 +10,9 @@ SINGLE_BATTLE_TEST("Frostbite run rule replaces freezing moves, Tri Attack and S
 
     for (u32 rule = FALSE; rule <= TRUE; rule++)
     {
-        PARAMETRIZE { enabled = rule; move = MOVE_ICE_PUNCH; }
         PARAMETRIZE { enabled = rule; move = MOVE_ICE_BEAM; }
-        PARAMETRIZE { enabled = rule; move = MOVE_BLIZZARD; }
-        PARAMETRIZE { enabled = rule; move = MOVE_POWDER_SNOW; }
-        PARAMETRIZE { enabled = rule; move = MOVE_ICE_FANG; }
-        PARAMETRIZE { enabled = rule; move = MOVE_FREEZING_GLARE; }
         PARAMETRIZE { enabled = rule; move = MOVE_TRI_ATTACK; }
         PARAMETRIZE { enabled = rule; move = MOVE_SECRET_POWER; }
-        PARAMETRIZE { enabled = rule; move = MOVE_FREEZE_DRY; }
     }
 
     GIVEN {

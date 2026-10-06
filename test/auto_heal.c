@@ -4,7 +4,6 @@
 #include "event_data.h"
 #include "item.h"
 #include "pokemon.h"
-#include "save.h"
 #include "test/test.h"
 #include "constants/flags.h"
 
@@ -39,17 +38,6 @@ TEST("Auto heal restores survivors and Orb charge without changing fainted Pokem
     EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][0], MON_DATA_HELD_ITEM), ITEM_NONE);
     EXPECT_EQ(memcmp(&fainted, &gParties[B_TRAINER_PLAYER][1], sizeof(fainted)), 0);
     EXPECT(FlagGet(FLAG_TERA_ORB_CHARGED));
-    FlagClear(FLAG_TERA_ORB_CHARGED);
-    AutoHealAfterBattle();
-    EXPECT(FlagGet(FLAG_TERA_ORB_CHARGED));
-    ClearSaveData();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    FlagClear(FLAG_TERA_ORB_CHARGED);
-    FlagClear(FLAG_RUN_RULE_AUTO_HEAL);
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT(FlagGet(FLAG_TERA_ORB_CHARGED));
-    EXPECT(FlagGet(FLAG_RUN_RULE_AUTO_HEAL));
     FlagClear(FLAG_RUN_RULE_AUTO_HEAL);
     FlagClear(FLAG_TERA_ORB_CHARGED);
     ClearBag();

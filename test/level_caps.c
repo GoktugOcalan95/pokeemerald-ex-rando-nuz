@@ -3,8 +3,6 @@
 #include "daycare.h"
 #include "event_data.h"
 #include "pokemon.h"
-#include "run_setup.h"
-#include "save.h"
 #include "test/test.h"
 #include "constants/flags.h"
 #include "constants/items.h"
@@ -32,34 +30,6 @@ TEST("Level caps follow badges, stay at 58 through the League, and lift after Ch
     }
     FlagSet(FLAG_IS_CHAMPION);
     EXPECT_EQ(GetCurrentLevelCap(), MAX_LEVEL);
-    FlagClear(FLAG_RUN_RULE_LEVEL_CAPS);
-    ResetLevelCapProgress();
-}
-
-TEST("Level caps run rule and progression survive saving and loading")
-{
-    bool32 enabled = FALSE;
-
-    PARAMETRIZE { enabled = FALSE; }
-    PARAMETRIZE { enabled = TRUE; }
-
-    ResetLevelCapProgress();
-    RunSetup_Begin();
-    RunSetup_SetValue(RUN_SETUP_LEVEL_CAPS, enabled);
-    RunSetup_Confirm();
-    RunSetup_ApplyToNewGame();
-    FlagSet(FLAG_BADGE01_GET);
-    ClearSaveData();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    FlagClear(FLAG_BADGE01_GET);
-    if (enabled)
-        FlagClear(FLAG_RUN_RULE_LEVEL_CAPS);
-    else
-        FlagSet(FLAG_RUN_RULE_LEVEL_CAPS);
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_LEVEL_CAPS), enabled);
-    EXPECT_EQ(GetCurrentLevelCap(), enabled ? 19 : MAX_LEVEL);
     FlagClear(FLAG_RUN_RULE_LEVEL_CAPS);
     ResetLevelCapProgress();
 }

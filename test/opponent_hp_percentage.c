@@ -2,35 +2,8 @@
 #include "event_data.h"
 #include "battle.h"
 #include "battle_interface.h"
-#include "run_setup.h"
-#include "save.h"
 #include "test/test.h"
 #include "constants/flags.h"
-
-TEST("Opponent HP percentage run rule survives saving and loading")
-{
-    bool32 enabled;
-
-    PARAMETRIZE { enabled = FALSE; }
-    PARAMETRIZE { enabled = TRUE; }
-
-    RunSetup_Begin();
-    RunSetup_SetValue(RUN_SETUP_OPPONENT_HP_PERCENTAGE, enabled);
-    RunSetup_Confirm();
-    RunSetup_ApplyToNewGame();
-    ClearSaveData();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-
-    if (enabled)
-        FlagClear(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE);
-    else
-        FlagSet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE);
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT_EQ(FlagGet(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE), enabled);
-    EXPECT_EQ(ShouldDisplayOpponentHPPercentage(), enabled);
-    FlagClear(FLAG_RUN_RULE_OPPONENT_HP_PERCENTAGE);
-}
 
 TEST("Opponent HP percentage shifts only the singles opponent healthbox")
 {

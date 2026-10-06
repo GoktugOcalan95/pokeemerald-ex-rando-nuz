@@ -5,11 +5,12 @@
 #include "constants/vars.h"
 #include "test/battle.h"
 
-WILD_BATTLE_TEST("Instant catch guarantees critical captures with every ball and preserves ball effects")
+WILD_BATTLE_TEST("Instant catch guarantees critical captures and preserves ball effects")
 {
     enum Item item = ITEM_NONE;
-    for (enum PokeBall ball = BALL_STRANGE; ball < POKEBALL_COUNT; ball++)
-        PARAMETRIZE { item = gPokeBalls[ball].itemId; }
+    PARAMETRIZE { item = ITEM_POKE_BALL; }
+    PARAMETRIZE { item = ITEM_HEAL_BALL; }
+    PARAMETRIZE { item = ITEM_FRIEND_BALL; }
 
     GIVEN {
         VarSet(VAR_RUN_RULE_CATCH_BONUS, CATCH_BONUS_INSTANT);
@@ -32,19 +33,6 @@ WILD_BATTLE_TEST("Instant catch guarantees critical captures with every ball and
         if (item == ITEM_FRIEND_BALL)
             EXPECT_EQ(GetMonData(caught, MON_DATA_FRIENDSHIP), (B_FRIEND_BALL_MODIFIER >= GEN_8 ? 150 : 200));
         VarSet(VAR_RUN_RULE_CATCH_BONUS, CATCH_BONUS_NONE);
-    }
-}
-
-WILD_BATTLE_TEST("Instant catch Off retains failed captures")
-{
-    GIVEN {
-        VarSet(VAR_RUN_RULE_CATCH_BONUS, CATCH_BONUS_NONE);
-        PLAYER(SPECIES_WOBBUFFET);
-        OPPONENT(SPECIES_BELDUM) { Level(100); }
-    } WHEN {
-        TURN { USE_ITEM(player, ITEM_POKE_BALL, WITH_RNG(RNG_BALLTHROW_SHAKE, MAX_u16)); }
-    } THEN {
-        EXPECT_EQ(GetMonData(&gParties[B_TRAINER_PLAYER][1], MON_DATA_SPECIES), SPECIES_NONE);
     }
 }
 

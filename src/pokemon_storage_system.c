@@ -579,7 +579,7 @@ EWRAM_DATA static struct {
     u16 startSpecies;
     u16 evoSpecies;
     bool32 evoCanStop;
-} sLevelToCap = {0};
+} sPcLevelToCap = {0};
 
 enum {
     LTC_START,
@@ -2063,7 +2063,7 @@ static void CB2_ReturnToPokeStorage(void)
     if (sStorage == NULL)
     {
         StorageLevelCap_Finish();
-        sLevelToCap.resuming = FALSE;
+        sPcLevelToCap.resuming = FALSE;
         if (sCurrentBoxOption == OPTION_SELECT_MON)
             SetMainCallback2(CB2_ReturnToFieldContinueScript);
         else
@@ -2152,7 +2152,7 @@ static void Task_InitPokeStorage(u8 taskId)
                 GiveChosenBagItem();
                 break;
             case SCREEN_CHANGE_LEVEL_TO_CAP - 1:
-                // Return from Level to Cap move learning or evolution; resumed later via sLevelToCap
+                // Return from Level to Cap move learning or evolution; resumed later via sPcLevelToCap
                 break;
             }
         }
@@ -2270,10 +2270,10 @@ static void Task_ReshowPokeStorage(u8 taskId)
     case 1:
         if (!UpdatePaletteFade())
         {
-            if (sLevelToCap.resuming)
+            if (sPcLevelToCap.resuming)
             {
-                u8 state = sLevelToCap.resumeState;
-                sLevelToCap.resuming = FALSE;
+                u8 state = sPcLevelToCap.resumeState;
+                sPcLevelToCap.resuming = FALSE;
                 SetPokeStorageTask(Task_LevelMonToCap);
                 sStorage->state = state;
             }
@@ -3688,9 +3688,9 @@ static void ClearLevelToCapWindow(void)
 
 static void LevelToCapChangeScreen(u8 screenChangeType, u8 resumeState)
 {
-    SetMonData(&gParties[B_TRAINER_PLAYER][sLevelToCap.slot], MON_DATA_LEVEL, &sLevelToCap.finalLevel);
-    sLevelToCap.resuming = TRUE;
-    sLevelToCap.resumeState = resumeState;
+    SetMonData(&gParties[B_TRAINER_PLAYER][sPcLevelToCap.slot], MON_DATA_LEVEL, &sPcLevelToCap.finalLevel);
+    sPcLevelToCap.resuming = TRUE;
+    sPcLevelToCap.resumeState = resumeState;
     sWhichToReshow = SCREEN_CHANGE_LEVEL_TO_CAP - 1;
     sStorage->screenChangeType = screenChangeType;
     SetPokeStorageTask(Task_ChangeScreen);
@@ -3711,12 +3711,12 @@ static void Task_LevelMonToCap(u8 taskId)
             break;
         }
 
-        sLevelToCap.slot = StorageLevelCap_GetPartySlot();
-        mon = &gParties[B_TRAINER_PLAYER][sLevelToCap.slot];
-        sLevelToCap.startSpecies = GetMonData(mon, MON_DATA_SPECIES);
-        sLevelToCap.curLevel = GetMonData(mon, MON_DATA_LEVEL);
-        sLevelToCap.finalLevel = GetCurrentLevelCap();
-        if (sLevelToCap.curLevel >= sLevelToCap.finalLevel)
+        sPcLevelToCap.slot = StorageLevelCap_GetPartySlot();
+        mon = &gParties[B_TRAINER_PLAYER][sPcLevelToCap.slot];
+        sPcLevelToCap.startSpecies = GetMonData(mon, MON_DATA_SPECIES);
+        sPcLevelToCap.curLevel = GetMonData(mon, MON_DATA_LEVEL);
+        sPcLevelToCap.finalLevel = GetCurrentLevelCap();
+        if (sPcLevelToCap.curLevel >= sPcLevelToCap.finalLevel)
         {
             PrintLevelToCapMessage(sText_LevelToCapNoEffect);
             sStorage->state = LTC_NO_EFFECT;
@@ -3726,14 +3726,14 @@ static void Task_LevelMonToCap(u8 taskId)
         RaiseMonToLevelCap(mon);
 
         GetMonNickname(mon, gStringVar1);
-        ConvertIntToDecimalStringN(gStringVar2, sLevelToCap.finalLevel, STR_CONV_MODE_LEFT_ALIGN, 3);
+        ConvertIntToDecimalStringN(gStringVar2, sPcLevelToCap.finalLevel, STR_CONV_MODE_LEFT_ALIGN, 3);
         StringExpandPlaceholders(gStringVar4, sText_LevelToCapGrewTo);
         PrintLevelToCapMessage(gStringVar4);
         TryRefreshDisplayMon();
         RefreshDisplayMonData();
 
-        sLevelToCap.curLevel++;
-        sLevelToCap.firstMove = TRUE;
+        sPcLevelToCap.curLevel++;
+        sPcLevelToCap.firstMove = TRUE;
         sStorage->state = LTC_LEVEL_MSG;
         break;
 
@@ -3743,26 +3743,26 @@ static void Task_LevelMonToCap(u8 taskId)
         break;
 
     case LTC_MOVE_LOOP:
-        mon = &gParties[B_TRAINER_PLAYER][sLevelToCap.slot];
-        if (sLevelToCap.curLevel > sLevelToCap.finalLevel)
+        mon = &gParties[B_TRAINER_PLAYER][sPcLevelToCap.slot];
+        if (sPcLevelToCap.curLevel > sPcLevelToCap.finalLevel)
         {
-            SetMonData(mon, MON_DATA_LEVEL, &sLevelToCap.finalLevel);
+            SetMonData(mon, MON_DATA_LEVEL, &sPcLevelToCap.finalLevel);
             sStorage->state = LTC_EVO_CHECK;
             break;
         }
 
-        SetMonData(mon, MON_DATA_LEVEL, &sLevelToCap.curLevel);
-        move = MonTryLearningNewMove(mon, sLevelToCap.firstMove);
-        sLevelToCap.firstMove = FALSE;
+        SetMonData(mon, MON_DATA_LEVEL, &sPcLevelToCap.curLevel);
+        move = MonTryLearningNewMove(mon, sPcLevelToCap.firstMove);
+        sPcLevelToCap.firstMove = FALSE;
 
         if (move == MOVE_NONE)
         {
-            sLevelToCap.curLevel++;
-            sLevelToCap.firstMove = TRUE;
+            sPcLevelToCap.curLevel++;
+            sPcLevelToCap.firstMove = TRUE;
         }
         else if (move == MON_HAS_MAX_MOVES)
         {
-            sLevelToCap.moveToLearn = gMoveToLearn;
+            sPcLevelToCap.moveToLearn = gMoveToLearn;
             StringCopy(gStringVar2, GetMoveName(gMoveToLearn));
             StringExpandPlaceholders(gStringVar4, sText_LevelToCapForgetPrompt);
             PrintLevelToCapMessage(gStringVar4);
@@ -3800,7 +3800,7 @@ static void Task_LevelMonToCap(u8 taskId)
         break;
 
     case LTC_FORGOT_MSG:
-        mon = &gParties[B_TRAINER_PLAYER][sLevelToCap.slot];
+        mon = &gParties[B_TRAINER_PLAYER][sPcLevelToCap.slot];
         if (GetMoveSlotToReplace() == MAX_MON_MOVES)
         {
             sStorage->state = LTC_MOVE_LOOP;
@@ -3810,20 +3810,20 @@ static void Task_LevelMonToCap(u8 taskId)
         GetMonNickname(mon, gStringVar1);
         StringCopy(gStringVar2, GetMoveName(move));
         RemoveMonPPBonus(mon, GetMoveSlotToReplace());
-        SetMonMoveSlot(mon, sLevelToCap.moveToLearn, GetMoveSlotToReplace());
+        SetMonMoveSlot(mon, sPcLevelToCap.moveToLearn, GetMoveSlotToReplace());
         StringExpandPlaceholders(gStringVar4, sText_LevelToCapForgotMove);
         PrintLevelToCapMessage(gStringVar4);
         sStorage->state = LTC_LEARNED_MSG;
         break;
 
     case LTC_EVO_CHECK:
-        mon = &gParties[B_TRAINER_PLAYER][sLevelToCap.slot];
-        sLevelToCap.evoCanStop = TRUE;
-        sLevelToCap.evoSpecies = GetEvolutionTargetSpecies(mon, EVO_MODE_NORMAL, ITEM_NONE, NULL, &sLevelToCap.evoCanStop, CHECK_EVO);
+        mon = &gParties[B_TRAINER_PLAYER][sPcLevelToCap.slot];
+        sPcLevelToCap.evoCanStop = TRUE;
+        sPcLevelToCap.evoSpecies = GetEvolutionTargetSpecies(mon, EVO_MODE_NORMAL, ITEM_NONE, NULL, &sPcLevelToCap.evoCanStop, CHECK_EVO);
 
-        if (sLevelToCap.evoSpecies != SPECIES_NONE)
+        if (sPcLevelToCap.evoSpecies != SPECIES_NONE)
         {
-            GetEvolutionTargetSpecies(mon, EVO_MODE_NORMAL, ITEM_NONE, NULL, &sLevelToCap.evoCanStop, DO_EVO);
+            GetEvolutionTargetSpecies(mon, EVO_MODE_NORMAL, ITEM_NONE, NULL, &sPcLevelToCap.evoCanStop, DO_EVO);
             ClearLevelToCapWindow();
             LevelToCapChangeScreen(SCREEN_CHANGE_LEVEL_TO_CAP_EVO, LTC_DONE);
             break;
@@ -3859,7 +3859,7 @@ static void Task_LevelMonToCap(u8 taskId)
         else
             boxMon = GetBoxedMonPtr(StorageGetCurrentBox(), sCursorPosition);
 
-        if (boxMon != NULL && GetBoxMonData(boxMon, MON_DATA_SPECIES) != sLevelToCap.startSpecies)
+        if (boxMon != NULL && GetBoxMonData(boxMon, MON_DATA_SPECIES) != sPcLevelToCap.startSpecies)
             UpdateSpeciesSpritePSS(boxMon);
         else
             RefreshDisplayMonData();
@@ -4073,15 +4073,15 @@ static void Task_ChangeScreen(u8 taskId)
     case SCREEN_CHANGE_LEVEL_TO_CAP_MOVE:
         SetVBlankCallback(NULL);
         FreePokeStorageData();
-        ShowSelectMovePokemonSummaryScreen(gParties[B_TRAINER_PLAYER], sLevelToCap.slot,
-                                           CB2_ReturnToPokeStorage, sLevelToCap.moveToLearn);
+        ShowSelectMovePokemonSummaryScreen(gParties[B_TRAINER_PLAYER], sPcLevelToCap.slot,
+                                           CB2_ReturnToPokeStorage, sPcLevelToCap.moveToLearn);
         break;
     case SCREEN_CHANGE_LEVEL_TO_CAP_EVO:
         SetVBlankCallback(NULL);
         FreePokeStorageData();
         gCB2_AfterEvolution = CB2_ReturnToPokeStorage;
-        BeginEvolutionScene(&gParties[B_TRAINER_PLAYER][sLevelToCap.slot], sLevelToCap.evoSpecies,
-                            sLevelToCap.evoCanStop, sLevelToCap.slot);
+        BeginEvolutionScene(&gParties[B_TRAINER_PLAYER][sPcLevelToCap.slot], sPcLevelToCap.evoSpecies,
+                            sPcLevelToCap.evoCanStop, sPcLevelToCap.slot);
         break;
     }
 

@@ -3934,13 +3934,11 @@ void BattlePutTextOnWindow(const u8 *text, u8 windowId)
         gTextFlags.canABSpeedUpPrint = 0;
     }
 
-    if (protectDisplay)
+    // Queueing allocates; without heap, print immediately like other windows and skip the minimum display time.
+    if (!protectDisplay || !AddTextPrinterWithMinimumDisplayTime(&printerTemplate, speed, B_MIN_TEXT_DISPLAY_FRAMES, copyToVram))
     {
-        bool32 added = AddTextPrinterWithMinimumDisplayTime(&printerTemplate, speed, B_MIN_TEXT_DISPLAY_FRAMES, copyToVram);
-        fatal_assertf(added, "Could not queue battle text");
-    }
-    else
-    {
+        if (protectDisplay && copyToVram)
+            FillWindowPixelBuffer(windowId, textInfo[windowId].fillValue);
         AddTextPrinter(&printerTemplate, speed, NULL);
     }
 

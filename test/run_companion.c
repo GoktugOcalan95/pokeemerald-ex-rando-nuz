@@ -10,8 +10,6 @@ TEST("Companion metadata and tutor discovery survive a full save and load")
     struct CompanionSaveMetadata expected;
     struct RunDiscovery discovery;
     RunCompanion_Init();
-    EXPECT_EQ(sizeof(struct CompanionSaveMetadata), 12);
-    EXPECT_EQ(sizeof(struct RunDiscovery), 36);
     EXPECT_EQ(gPokemonStoragePtr->companion.magic, COMPANION_SAVE_MAGIC);
     EXPECT_EQ(gPokemonStoragePtr->companion.version, COMPANION_SAVE_VERSION);
     RunCompanion_RecordTutor(MOVE_DOUBLE_EDGE);

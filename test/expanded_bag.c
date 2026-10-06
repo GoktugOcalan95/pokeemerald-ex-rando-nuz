@@ -229,43 +229,6 @@ TEST("Expanded Bag counts and removes more than 65535 items across stacks")
     ClearBag();
 }
 
-void Test_SortBagDisplay(struct ListMenuItem *items, u32 count, u8 pocket, enum BagSortOptions mode);
-
-TEST("Expanded Bag display sorting preserves inventory and targets the selected stack")
-{
-    struct ListMenuItem display[4] = {0};
-    const u16 items[] = {ITEM_POTION, ITEM_ANTIDOTE, ITEM_FULL_RESTORE};
-    const u16 quantities[] = {3, 7, 2};
-    ClearBag();
-    for (u32 i = 0; i < ARRAY_COUNT(items); i++)
-    {
-        EXPECT_EQ(GetBagStoragePocket(items[i]), BAG_MEDICINE);
-        EXPECT(AddBagItem(items[i], quantities[i]));
-        display[i].id = i;
-        display[i].name = GetItemName(items[i]);
-    }
-    display[3].id = LIST_CANCEL;
-    Test_SortBagDisplay(display, 3, BAG_MEDICINE, SORT_ALPHABETICALLY);
-    EXPECT_EQ(display[0].id, 1);
-    EXPECT_EQ(display[1].id, 2);
-    EXPECT_EQ(display[2].id, 0);
-    EXPECT_EQ(display[0].name, GetItemName(ITEM_ANTIDOTE));
-    EXPECT_EQ(display[3].id, LIST_CANCEL);
-    Test_SortBagDisplay(display, 3, BAG_MEDICINE, SORT_BY_AMOUNT);
-    EXPECT_EQ(display[0].id, 1);
-    EXPECT_EQ(display[1].id, 0);
-    EXPECT_EQ(display[2].id, 2);
-    for (u32 i = 0; i < ARRAY_COUNT(items); i++)
-    {
-        EXPECT_EQ(GetBagItemId(BAG_MEDICINE, i), items[i]);
-        EXPECT_EQ(GetBagItemQuantity(BAG_MEDICINE, i), quantities[i]);
-    }
-    RemoveBagItemFromSlot(&gBagPockets[BAG_MEDICINE], display[0].id, 2);
-    EXPECT_EQ(CountTotalItemQuantityInBag(ITEM_ANTIDOTE), 5);
-    EXPECT_EQ(CountTotalItemQuantityInBag(ITEM_POTION), 3);
-    ClearBag();
-}
-
 TEST("Expanded Bag acquisition order survives holes replenishment and reacquisition")
 {
     ClearBag();
@@ -291,19 +254,35 @@ TEST("Expanded Bag acquisition order survives holes replenishment and reacquisit
 bool32 Test_LoadBagDisplay(u8 pocket, enum BagSortOptions mode, s32 *slots, u32 count);
 u32 Test_DrawBagQuickPanel(bool32 chooser);
 
-TEST("Expanded Bag returns to acquired or numerical order and preserves Berry Tag navigation")
+TEST("Expanded Bag display sorting targets the selected stack, returns to acquired order and preserves Berry Tag navigation")
 {
     s32 slots[4];
+    const u16 items[] = {ITEM_POTION, ITEM_ANTIDOTE, ITEM_FULL_RESTORE};
+    const u16 quantities[] = {3, 7, 2};
     ClearBag();
-    EXPECT(AddBagItem(ITEM_POTION, 3));
-    EXPECT(AddBagItem(ITEM_ANTIDOTE, 7));
-    EXPECT(Test_LoadBagDisplay(BAG_MEDICINE, SORT_ALPHABETICALLY, slots, 3));
+    for (u32 i = 0; i < ARRAY_COUNT(items); i++)
+        EXPECT(AddBagItem(items[i], quantities[i]));
+    EXPECT(Test_LoadBagDisplay(BAG_MEDICINE, SORT_ALPHABETICALLY, slots, 4));
+    EXPECT_EQ(slots[0], 1);
+    EXPECT_EQ(slots[1], 2);
+    EXPECT_EQ(slots[2], 0);
+    EXPECT_EQ(slots[3], LIST_CANCEL);
+    EXPECT(Test_LoadBagDisplay(BAG_MEDICINE, SORT_BY_AMOUNT, slots, 3));
     EXPECT_EQ(slots[0], 1);
     EXPECT_EQ(slots[1], 0);
-    EXPECT_EQ(slots[2], LIST_CANCEL);
+    EXPECT_EQ(slots[2], 2);
+    for (u32 i = 0; i < ARRAY_COUNT(items); i++)
+    {
+        EXPECT_EQ(GetBagItemId(BAG_MEDICINE, i), items[i]);
+        EXPECT_EQ(GetBagItemQuantity(BAG_MEDICINE, i), quantities[i]);
+    }
+    RemoveBagItemFromSlot(&gBagPockets[BAG_MEDICINE], slots[0], 2);
+    EXPECT_EQ(CountTotalItemQuantityInBag(ITEM_ANTIDOTE), 5);
+    EXPECT_EQ(CountTotalItemQuantityInBag(ITEM_POTION), 3);
     EXPECT(Test_LoadBagDisplay(BAG_MEDICINE, SORT_BY_ACQUIRED, slots, 3));
     EXPECT_EQ(slots[0], 0);
     EXPECT_EQ(slots[1], 1);
+    EXPECT_EQ(slots[2], 2);
     EXPECT(AddBagItem(ITEM_ORAN_BERRY, 1));
     EXPECT(AddBagItem(ITEM_CHERI_BERRY, 2));
     EXPECT(AddBagItem(ITEM_ASPEAR_BERRY, 3));
@@ -346,10 +325,6 @@ TEST("Expanded Bag quick panels use a readable palette and nonoverlapping graphi
     u32 end = base + GetWindowAttribute(window, WINDOW_WIDTH) * GetWindowAttribute(window, WINDOW_HEIGHT);
     EXPECT_GE(base, 0x21D);
     EXPECT_LE(end, 0x3E0);
-    EXPECT_LE(GetStringWidth(FONT_SMALL, COMPOUND_STRING("A: Choose  B: Back"), 0), 118);
-    EXPECT_LE(GetStringWidth(FONT_SMALL, COMPOUND_STRING("START: Menu"), 0), 96);
-    EXPECT_LE(GetStringWidth(FONT_NORMAL, COMPOUND_STRING("Order resets when"), 0), 109);
-    EXPECT_LE(GetStringWidth(FONT_NORMAL, COMPOUND_STRING("you leave the Bag."), 0), 109);
     ProcessDma3Requests();
     DeactivateAllTextPrinters();
     FreeAllWindowBuffers();

@@ -3210,11 +3210,6 @@ u32 Test_DrawBagQuickPanel(bool32 chooser)
     return gBagMenu->quickMenuWindow;
 }
 
-void Test_SortBagDisplay(struct ListMenuItem *items, u32 count, u8 pocket, enum BagSortOptions mode)
-{
-    SortBagDisplay(items, count, pocket, mode);
-}
-
 u32 Test_MoveBagPocketChoice(u32 current, u16 keys)
 {
     return MoveBagPocketChoice(current, keys);

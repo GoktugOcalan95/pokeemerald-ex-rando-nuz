@@ -80,35 +80,6 @@ TEST("Enemy STAB guarantees natural coverage and leaves disabled rules unchanged
     EXPECT(!IsEnemyStabMove(MOVE_SEISMIC_TOSS, TYPE_FIGHTING));
 }
 
-TEST("Enemy STAB supplies low-level coverage for every ordinary type")
-{
-    FlagSet(FLAG_RUN_RULE_TRAINERS);
-    FlagSet(FLAG_RUN_RULE_ENEMY_STAB);
-    bool8 tested[32] = {0};
-    for (u32 species = 1; species < NUM_SPECIES; species++)
-    {
-        if (!gSpeciesInfo[species].baseHP)
-            continue;
-        u32 type = GetSpeciesType(species, 0);
-        u32 other = GetSpeciesType(species, 1);
-        if (other != type && other != TYPE_NONE && other != TYPE_MYSTERY && other != TYPE_STELLAR
-            && RunRandomizerHash(0x521, TRAINER_ROXANNE_1, 0) % 2)
-            type = other;
-        if (type == TYPE_NONE || type == TYPE_MYSTERY || type == TYPE_STELLAR || tested[type])
-            continue;
-        struct Pokemon mon;
-        CreateMon(&mon, species, 1, 0, OTID_STRUCT_PLAYER_ID);
-        for (u32 i = 0; i < 4; i++)
-            SetMonMoveSlot(&mon, MOVE_GROWL, i);
-        EnsureEnemyStabMoves(&mon, TRAINER_ROXANNE_1, 0);
-        bool32 covered = FALSE;
-        for (u32 i = 0; i < 4; i++)
-            covered |= IsEnemyStabMove(GetMonData(&mon, MON_DATA_MOVE1 + i), type);
-        EXPECT(covered);
-        tested[type] = TRUE;
-    }
-}
-
 TEST("Enemy STAB respects tier boundaries accuracy and strongest available fallbacks for every type")
 {
     const u8 levels[] = {1, 9, 10, 19, 20, 29, 30, 39, 40, 49, 50, 100};

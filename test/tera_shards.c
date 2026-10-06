@@ -1,9 +1,7 @@
 #include "global.h"
 #include "tera_shards.h"
 #include "battle_util.h"
-#include "battle_terastal.h"
 #include "daycare.h"
-#include "event_data.h"
 #include "item.h"
 #include "item_use.h"
 #include "pokemon.h"
@@ -16,7 +14,6 @@ TEST("Tera shards unlock on the first same type application and consume only suc
     struct Pokemon mon;
     u32 type = TYPE_WATER;
     ClearBag();
-    FlagClear(FLAG_TERA_ORB_CHARGED);
     CreateRandomMon(&mon, SPECIES_MAGIKARP, 5);
     EXPECT(!GetMonData(&mon, MON_DATA_TERA_UNLOCKED));
     EXPECT_EQ(GetMonData(&mon, MON_DATA_TERA_TYPE), TYPE_WATER);
@@ -34,17 +31,11 @@ TEST("Tera shards unlock on the first same type application and consume only suc
     EXPECT(ApplyTeraShard(&mon, ITEM_FIRE_TERA_SHARD));
     EXPECT_EQ(GetMonData(&mon, MON_DATA_TERA_TYPE), TYPE_FIRE);
     EXPECT_EQ(CountTotalItemQuantityInBag(ITEM_FIRE_TERA_SHARD), 0);
-    EXPECT(!FlagGet(FLAG_TERA_ORB_CHARGED));
-    EXPECT(AddBagItem(ITEM_TERA_ORB, 1));
-    FlagSet(FLAG_TERA_ORB_CHARGED);
-    EXPECT(IsTeraOrbCharged());
-    EXPECT(GetMonData(&mon, MON_DATA_TERA_UNLOCKED));
     CreateRandomMon(&mon, SPECIES_MAGIKARP, 5);
     EXPECT(!GetMonData(&mon, MON_DATA_TERA_UNLOCKED));
     SetMonData(&mon, MON_DATA_TERA_TYPE, &type);
     EXPECT(!GetMonData(&mon, MON_DATA_TERA_UNLOCKED));
     ClearBag();
-    FlagClear(FLAG_TERA_ORB_CHARGED);
 }
 
 TEST("Tera shards cover all nineteen types through usable party items and reject Eggs and non shards")

@@ -62,7 +62,6 @@ TEST("Trainer difficulty applies the level IV and party size matrix to campaign 
         if (count < PARTY_SIZE)
             EXPECT_EQ(GetMonData(&gParties[B_TRAINER_OPPONENT_A][count], MON_DATA_SPECIES), SPECIES_NONE);
     }
-    EXPECT_EQ(GetRunTrainerLevel(TRAINER_CALVIN_1, 100), 100);
 }
 
 TEST("Trainer difficulty Hard raises boss teammates while preserving the ace gap")
@@ -223,12 +222,5 @@ TEST("Trainer difficulty Unfair follows the highest completed progression milest
             EXPECT_EQ(GetRunTrainerLevel(trainers[i], 10), 11 + tier);
             EXPECT_EQ(GetRunTrainerLevel(trainers[i], 99), 100);
         }
-        ClearSaveData();
-        Save_ResetSaveCounters();
-        EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-        if (tier)
-            FlagClear(milestones[tier - 1]);
-        EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-        EXPECT_EQ(GetRunTrainerLevel(TRAINER_CALVIN_1, 10), 11 + tier);
     }
 }

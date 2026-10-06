@@ -7,6 +7,7 @@
 #include "test/test.h"
 #include "constants/flags.h"
 #include "constants/vars.h"
+#include "battle_main.h"
 
 static const struct { u32 seed; u16 species; u8 chance; u16 abilities[3]; struct LevelUpMove moves[64]; } sVectors[] = {
     {0x0, 25, 0, {99, 0, 38}, {{360,1},{205,1},{228,1},{176,1},{27,4},{75,8},{386,12},{542,16},{716,20},{783,24},{267,28},{456,32},{662,36},{817,40},{618,44},{54,50},{689,55},{617,60},{65535,0}}},
@@ -1059,5 +1060,22 @@ TEST("Companion item pools match ROM eligibility")
     {
         EXPECT_EQ(IsRandomizedRewardItemAllowed(item), sPoolVectors[vector].allowed[item] & 1);
         EXPECT_EQ(IsRandomizedLootItemAllowed(item), (sPoolVectors[vector].allowed[item] >> 1) & 1);
+    }
+}
+
+static const u8 sHiddenPowerVectors[64] = {2,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,7,8,8,8,8,9,9,9,9,11,11,11,11,12,12,12,12,13,13,13,13,13,14,14,14,14,15,15,15,15,16,16,16,16,17,17,17,17,18};
+TEST("Companion Hidden Power types match the ROM")
+{
+    static const u8 sIvData[] = {MON_DATA_HP_IV, MON_DATA_ATK_IV, MON_DATA_DEF_IV, MON_DATA_SPEED_IV, MON_DATA_SPATK_IV, MON_DATA_SPDEF_IV};
+    struct Pokemon mon;
+    CreateMon(&mon, SPECIES_PIKACHU, 5, 0, OTID_STRUCT_PLAYER_ID);
+    for (u32 bits = 0; bits < ARRAY_COUNT(sHiddenPowerVectors); bits++)
+    {
+        for (u32 stat = 0; stat < ARRAY_COUNT(sIvData); stat++)
+        {
+            u32 iv = (bits >> stat) & 1;
+            SetMonData(&mon, sIvData[stat], &iv);
+        }
+        EXPECT_EQ(GetDynamicMoveType(&mon, MOVE_HIDDEN_POWER, 0, ABILITY_NONE, HOLD_EFFECT_NONE, MON_OUTSIDE_BATTLE), sHiddenPowerVectors[bits]);
     }
 }

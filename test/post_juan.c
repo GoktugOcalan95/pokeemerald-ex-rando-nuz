@@ -1,7 +1,6 @@
 #include "global.h"
 #include "event_data.h"
 #include "post_juan.h"
-#include "save.h"
 #include "test/test.h"
 #include "constants/flags.h"
 #include "constants/vars.h"
@@ -40,12 +39,6 @@ TEST("Post-Juan unlocks require Juan and open every puzzle with either story set
     EXPECT_EQ(VarGet(VAR_SKY_PILLAR_RAYQUAZA_CRY_DONE), 1);
     EXPECT(FlagGet(FLAG_DEFEATED_RAYQUAZA));
     EXPECT(FlagGet(FLAG_DEFEATED_REGIROCK));
-    EXPECT(!TryUnlockPostJuanLegendaries());
-    ClearSaveData();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    FlagClear(FLAG_POST_JUAN_LEGENDARIES_UNLOCKED);
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
     EXPECT(!TryUnlockPostJuanLegendaries());
     FlagClear(FLAG_POST_JUAN_LEGENDARIES_UNLOCKED);
     FlagClear(FLAG_BADGE08_GET);

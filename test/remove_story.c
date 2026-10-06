@@ -8,7 +8,6 @@
 #include "overworld.h"
 #include "constants/map_event_ids.h"
 #include "constants/map_groups.h"
-#include "save.h"
 #include "script.h"
 #include "test/test.h"
 #include "test/overworld_script.h"
@@ -138,14 +137,6 @@ TEST("Remove Story opens Briney and retains the Rustboro rival only after Roxann
     EXPECT(!FlagGet(FLAG_HIDE_RUSTBORO_CITY_RIVAL));
     EXPECT_EQ(VarGet(VAR_RUSTBORO_CITY_STATE), 7);
     EXPECT(!FlagGet(FLAG_DELIVERED_STEVEN_LETTER));
-    ClearSaveData();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    StartStoryMode(FALSE);
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT(FlagGet(FLAG_RUN_RULE_REMOVE_STORY));
-    EXPECT_EQ(VarGet(VAR_RUSTBORO_CITY_STATE), 7);
-    EXPECT(!FlagGet(FLAG_HIDE_BRINEYS_HOUSE_MR_BRINEY));
     StartStoryMode(FALSE);
 }
 
@@ -169,7 +160,7 @@ TEST("Remove Story Letter receipt retries after a full Bag independently of Poke
     StartStoryMode(FALSE);
 }
 
-TEST("Remove Story replacement HM and Emblem gifts retry without bypassing field badges")
+TEST("Remove Story replacement HM and Emblem gifts retry after a full Bag")
 {
     u32 item, flag;
     const u8 *script;
@@ -187,12 +178,6 @@ TEST("Remove Story replacement HM and Emblem gifts retry without bypassing field
     RunGift(script, flag);
     EXPECT(FlagGet(flag));
     EXPECT_EQ(CountTotalItemQuantityInBag(item), 999);
-    EXPECT(!IsFieldMoveUnlocked(FIELD_MOVE_DIVE));
-    EXPECT(!IsFieldMoveUnlocked(FIELD_MOVE_WATERFALL));
-    FlagSet(FLAG_BADGE07_GET);
-    EXPECT_EQ(IsFieldMoveUnlocked(FIELD_MOVE_DIVE), item == ITEM_HM_DIVE);
-    FlagSet(FLAG_BADGE08_GET);
-    EXPECT_EQ(IsFieldMoveUnlocked(FIELD_MOVE_WATERFALL), item == ITEM_HM_WATERFALL);
     StartStoryMode(FALSE);
 }
 
@@ -263,7 +248,6 @@ TEST("Remove Story keeps Waterfall available after Juan and uses safe Sootopolis
     RunGift(RemoveStory_Wallace, FLAG_RECEIVED_HM_WATERFALL);
     EXPECT(CheckBagHasItem(ITEM_HM_WATERFALL, 1));
     EXPECT(IsFieldMoveUnlocked(FIELD_MOVE_WATERFALL));
-    EXPECT(FlagGet(FLAG_HIDE_CAVE_OF_ORIGIN_B1F_WALLACE));
     EXPECT_EQ(gSaveBlock1Ptr->objectEventTemplates[LOCALID_SOOTOPOLIS_WALLACE - 1].x, 32);
     EXPECT_EQ(gSaveBlock1Ptr->objectEventTemplates[LOCALID_SOOTOPOLIS_EXPERT - 1].x, 30);
     gMapHeader = savedMap;

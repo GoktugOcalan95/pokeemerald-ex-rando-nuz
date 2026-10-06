@@ -2,7 +2,8 @@
 
 set -euo pipefail
 
-readonly repo_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+repo_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+readonly repo_dir
 readonly rom_path="$repo_dir/pokeemerald.gba"
 destination_dir="${1:-/mnt/d/DEV/Projects/pokeemerald-ex-rando-nuz-root/playtest}"
 temp_path=""

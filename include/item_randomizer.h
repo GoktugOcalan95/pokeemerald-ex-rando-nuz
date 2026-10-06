@@ -42,5 +42,8 @@ void RandomizeGiftFromScript(struct ScriptContext *ctx);
 void RandomizeFreeGiftFromScript(struct ScriptContext *ctx);
 
 bool32 AddAuthoredItemReward(u16 original, u16 item, u16 count);
+void GiveAuthoredRandomGiftFromScript(struct ScriptContext *ctx);
+void GiveAuthoredItemFromScript(struct ScriptContext *ctx);
+void GiveAuthoredPickupFromScript(void);
 
 #endif

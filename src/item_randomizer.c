@@ -122,12 +122,20 @@ void RandomizeGiftFromScript(struct ScriptContext *ctx)
     gSpecialVar_0x8000 = RandomizeItemReward(gSpecialVar_0x8000, ITEM_REWARD_GIFT, source, slot);
 }
 
+// With the expanded TM list on, an authored TM01-TM50 reward also grants its TM51-TM100 partner.
+static u16 GetAuthoredTMPartner(u16 original)
+{
+    if (IsExpandedTMListEnabled() && original >= ITEM_TM01 && original <= ITEM_TM50)
+        return original + 50;
+    return ITEM_NONE;
+}
+
 void GiveAuthoredRandomGiftFromScript(struct ScriptContext *ctx)
 {
     u16 original = gSpecialVar_0x8000;
     RandomizeGiftFromScript(ctx);
     gSpecialVar_Result = AddAuthoredItemReward(original, gSpecialVar_0x8000, gSpecialVar_0x8001);
-    gSpecialVar_0x800B = gSpecialVar_Result && IsExpandedTMListEnabled() && original >= ITEM_TM01 && original <= ITEM_TM50 ? original + 50 : ITEM_NONE;
+    gSpecialVar_0x800B = gSpecialVar_Result ? GetAuthoredTMPartner(original) : ITEM_NONE;
 }
 
 void RandomizeFreeGiftFromScript(struct ScriptContext *ctx)
@@ -137,7 +145,7 @@ void RandomizeFreeGiftFromScript(struct ScriptContext *ctx)
 
 bool32 AddAuthoredItemReward(u16 original, u16 item, u16 count)
 {
-    u16 partner = IsExpandedTMListEnabled() && original >= ITEM_TM01 && original <= ITEM_TM50 ? original + 50 : ITEM_NONE;
+    u16 partner = GetAuthoredTMPartner(original);
     if (partner != ITEM_NONE && !CheckBagHasSpace(partner, count))
         return FALSE;
     if (!AddBagItem(item, count))
@@ -155,7 +163,7 @@ void GiveAuthoredItemFromScript(struct ScriptContext *ctx)
     u16 original = gSpecialVar_0x8000;
     RandomizeFreeGiftFromScript(ctx);
     gSpecialVar_Result = AddAuthoredItemReward(original, gSpecialVar_0x8000, gSpecialVar_0x8001);
-    gSpecialVar_0x800B = gSpecialVar_Result && IsExpandedTMListEnabled() && original >= ITEM_TM01 && original <= ITEM_TM50 ? original + 50 : ITEM_NONE;
+    gSpecialVar_0x800B = gSpecialVar_Result ? GetAuthoredTMPartner(original) : ITEM_NONE;
 }
 
 void GiveAuthoredPickupFromScript(void)
@@ -163,5 +171,5 @@ void GiveAuthoredPickupFromScript(void)
     u16 original = gSpecialVar_0x8000;
     RandomizePickupFromScript();
     gSpecialVar_Result = AddAuthoredItemReward(original, gSpecialVar_0x8000, gSpecialVar_0x8001);
-    gSpecialVar_0x800B = gSpecialVar_Result && IsExpandedTMListEnabled() && original >= ITEM_TM01 && original <= ITEM_TM50 ? original + 50 : ITEM_NONE;
+    gSpecialVar_0x800B = gSpecialVar_Result ? GetAuthoredTMPartner(original) : ITEM_NONE;
 }

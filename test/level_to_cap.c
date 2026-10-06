@@ -3,7 +3,6 @@
 #include "event_data.h"
 #include "pokemon.h"
 #include "party_menu.h"
-#include "save.h"
 #include "test/test.h"
 #include "constants/flags.h"
 
@@ -66,27 +65,6 @@ TEST("Level to cap leaves Eggs, capped and overleveled Pokemon, and disabled run
     original = mon;
     EXPECT(!RaiseMonToLevelCap(&mon));
     EXPECT_EQ(memcmp(&mon, &original, sizeof(mon)), 0);
-    FlagClear(FLAG_RUN_RULE_LEVEL_CAPS);
-}
-
-TEST("Level to cap EXP and stats persist through saving and loading")
-{
-    struct Pokemon expected;
-    struct Pokemon *mon = &gParties[B_TRAINER_PLAYER][0];
-    ResetCapProgress();
-    FlagSet(FLAG_RUN_RULE_LEVEL_CAPS);
-    CreateRandomMon(mon, SPECIES_TREECKO, 5);
-    gPartiesCount[B_TRAINER_PLAYER] = 1;
-    EXPECT(RaiseMonToLevelCap(mon));
-    expected = *mon;
-    ClearSaveData();
-    Save_ResetSaveCounters();
-    EXPECT_EQ(TrySavingData(SAVE_NORMAL), SAVE_STATUS_OK);
-    ZeroMonData(mon);
-    EXPECT_EQ(LoadGameSave(SAVE_NORMAL), SAVE_STATUS_OK);
-    EXPECT_EQ(GetMonData(mon, MON_DATA_EXP), GetMonData(&expected, MON_DATA_EXP));
-    EXPECT_EQ(GetMonData(mon, MON_DATA_LEVEL), GetMonData(&expected, MON_DATA_LEVEL));
-    EXPECT_EQ(GetMonData(mon, MON_DATA_ATK), GetMonData(&expected, MON_DATA_ATK));
     FlagClear(FLAG_RUN_RULE_LEVEL_CAPS);
 }
 

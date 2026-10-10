@@ -42,6 +42,7 @@ TEST("Teaching randomizer uses one unique TM and tutor pool and leaves HMs fixed
         {
             u32 move = GetTMHMMoveId(index);
             EXPECT(IsRandomizerMoveAllowed(move));
+            EXPECT_NE(move, MOVE_SKETCH);
             EXPECT(!used[move]);
             used[move] = TRUE;
             EXPECT_EQ(GetItemTMHMMoveId(GetTMHMItemId(index)), move);
@@ -52,6 +53,7 @@ TEST("Teaching randomizer uses one unique TM and tutor pool and leaves HMs fixed
         {
             u32 move = GetTutorMove(index);
             EXPECT(IsRandomizerMoveAllowed(move));
+            EXPECT_NE(move, MOVE_SKETCH);
             EXPECT(!used[move]);
             used[move] = TRUE;
             EXPECT_EQ(GetRandomizedTutorMove(gTutorMoves[index]), move);

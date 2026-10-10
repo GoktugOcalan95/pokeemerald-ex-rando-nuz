@@ -912,6 +912,12 @@ static bool32 IsTmAvailable(enum Item item)
     return CheckBagHasItem(item, 1);
 }
 
+// Sketch from a randomized learnset is a one-time copy, so relearning must not renew it.
+static bool32 IsLevelUpMoveRelearnable(enum Move move)
+{
+    return move != MOVE_SKETCH || !FlagGet(FLAG_RUN_RULE_LEARNSETS);
+}
+
 static u32 GetRelearnerLevelUpMoves(struct BoxPokemon *mon, u16 *moves)
 {
     enum Species species = GetBoxMonData(mon, MON_DATA_SPECIES);
@@ -926,7 +932,7 @@ static u32 GetRelearnerLevelUpMoves(struct BoxPokemon *mon, u16 *moves)
             if (learnset[i].level > level)
                 break;
 
-            if (BoxMonKnowsMove(mon, learnset[i].move))
+            if (BoxMonKnowsMove(mon, learnset[i].move) || !IsLevelUpMoveRelearnable(learnset[i].move))
                 continue;
 
             bool32 alreadyInList = FALSE;
@@ -1048,7 +1054,7 @@ static bool32 HasRelearnerLevelUpMoves(struct BoxPokemon *boxMon)
             if (learnset[i].level > level)
                 break;
 
-            if (!BoxMonKnowsMove(boxMon, learnset[i].move))
+            if (!BoxMonKnowsMove(boxMon, learnset[i].move) && IsLevelUpMoveRelearnable(learnset[i].move))
                 return TRUE;
         }
 

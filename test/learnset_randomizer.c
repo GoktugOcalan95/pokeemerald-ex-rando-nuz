@@ -134,3 +134,32 @@ TEST("Randomized learnsets offer matching padded and evolution moves")
         }
     EXPECT(!first);
 }
+
+TEST("Randomized learnsets never offer Sketch for relearning")
+{
+    struct Pokemon mon;
+    u16 moveIds[MAX_MON_MOVES] = {MOVE_NONE};
+    u32 count = 0;
+    bool32 hasSketch = FALSE;
+    FlagSet(FLAG_RUN_RULE_LEARNSETS);
+    // Cubone's default-seed randomized learnset has Sketch among its level 1 moves.
+    const struct LevelUpMove *moves = GetSpeciesLevelUpLearnset(SPECIES_CUBONE);
+    for (u32 i = 0; moves[i].move != LEVEL_UP_MOVE_END && moves[i].level <= 1; i++)
+    {
+        ASSUME(count < MAX_MON_MOVES);
+        if (moves[i].move == MOVE_SKETCH)
+            hasSketch = TRUE;
+        else
+            moveIds[count++] = moves[i].move;
+    }
+    ASSUME(hasSketch);
+    CreateMon(&mon, SPECIES_CUBONE, 1, 0, OTID_STRUCT_PLAYER_ID);
+    for (u32 i = 0; i < MAX_MON_MOVES; i++)
+        SetMonData(&mon, MON_DATA_MOVE1 + i, &moveIds[i]);
+    EXPECT(!HasMoveToRelearn(&mon.box, MOVE_RELEARNER_LEVEL_UP_MOVES));
+    FlagClear(FLAG_RUN_RULE_LEARNSETS);
+    CreateMon(&mon, SPECIES_SMEARGLE, 1, 0, OTID_STRUCT_PLAYER_ID);
+    u16 tackle = MOVE_TACKLE;
+    SetMonData(&mon, MON_DATA_MOVE1, &tackle);
+    EXPECT(HasMoveToRelearn(&mon.box, MOVE_RELEARNER_LEVEL_UP_MOVES));
+}

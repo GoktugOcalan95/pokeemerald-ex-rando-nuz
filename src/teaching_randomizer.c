@@ -56,7 +56,8 @@ static void InitTeachingMoves(void)
     u32 chance = GetRandomizerGoodMoveChance();
     for (u32 move = 1; move < MOVES_COUNT; move++)
     {
-        if (!IsRandomizerMoveAllowed(move))
+        // A taught Sketch could be repeated without limit; randomized learnsets may still grant it once.
+        if (!IsRandomizerMoveAllowed(move) || move == MOVE_SKETCH)
             continue;
         available[move / 32] |= 1u << (move % 32);
         count++;

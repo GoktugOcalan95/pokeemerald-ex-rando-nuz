@@ -129,8 +129,10 @@ static void InitStockCategories(void)
     sStockReady = TRUE;
 }
 
-static s32 CompareNames(u16 left, u16 right)
+static s32 CompareStockOrder(u16 left, u16 right)
 {
+    if (gItemsInfo[left].sortType != gItemsInfo[right].sortType)
+        return gItemsInfo[left].sortType - gItemsInfo[right].sortType;
     u8 leftName[ITEM_NAME_LENGTH + 1], rightName[ITEM_NAME_LENGTH + 1];
     StringCopyUppercase(leftName, GetItemName(left));
     StringCopyUppercase(rightName, GetItemName(right));
@@ -158,7 +160,7 @@ u32 BuildSlateportShopStock(u32 category, u16 *items)
             if (!(sStockCategories[item] & (1 << category)) || !IsItemShopCriteriaFulfilled(item))
                 continue;
             u32 index = count++;
-            while (index > 0 && CompareNames(items[index - 1], item) > 0)
+            while (index > 0 && CompareStockOrder(items[index - 1], item) > 0)
             {
                 items[index] = items[index - 1];
                 index--;

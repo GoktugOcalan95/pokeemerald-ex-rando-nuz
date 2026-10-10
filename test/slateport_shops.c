@@ -54,7 +54,7 @@ TEST("Slateport shops sell working evolution and form items")
     FlagClear(FLAG_IS_CHAMPION);
 }
 
-TEST("Slateport shops alphabetize every purchase list and keep postgame items out of pre-Champion stock")
+TEST("Slateport shops group every purchase list by category then name and keep postgame items out of pre-Champion stock")
 {
     u16 stock[ITEMS_COUNT];
     FlagSet(FLAG_RUN_RULE_LIMIT_SLATEPORT_SHOP);
@@ -73,13 +73,16 @@ TEST("Slateport shops alphabetize every purchase list and keep postgame items ou
             EXPECT_NE(stock[i], ITEM_ABILITY_PATCH);
             if (category >= SLATEPORT_SHOP_MEGA)
                 EXPECT(!IsSlateportPreChampionItem(stock[i]));
-            if (i > 0)
+            if (i > 0 && gItemsInfo[stock[i - 1]].sortType != gItemsInfo[stock[i]].sortType)
+            {
+                EXPECT_LT(gItemsInfo[stock[i - 1]].sortType, gItemsInfo[stock[i]].sortType);
+            }
+            else if (i > 0)
             {
                 u8 previous[ITEM_NAME_LENGTH + 1], current[ITEM_NAME_LENGTH + 1];
                 StringCopyUppercase(previous, GetItemName(stock[i - 1]));
                 StringCopyUppercase(current, GetItemName(stock[i]));
-                EXPECT_LE(StringCompare(previous, current), 0);
-                EXPECT_NE(stock[i - 1], stock[i]);
+                EXPECT_LT(StringCompare(previous, current), 0);
             }
         }
     }

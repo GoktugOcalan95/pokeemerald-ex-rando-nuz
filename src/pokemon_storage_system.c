@@ -575,6 +575,7 @@ EWRAM_DATA static struct {
     u8 slot;
     u8 curLevel;
     u8 finalLevel;
+    u8 messageFrames;
     u16 moveToLearn;
     u16 startSpecies;
     u16 evoSpecies;
@@ -3672,12 +3673,23 @@ static const u8 sText_LevelToCapLearned[] = _("{STR_VAR_1} learned\n{STR_VAR_2}!
 
 static void PrintLevelToCapMessage(const u8 *str)
 {
+    sPcLevelToCap.messageFrames = 0;
     FillWindowPixelBuffer(WIN_LEVEL_TO_CAP, PIXEL_FILL(1));
     AddTextPrinterParameterized(WIN_LEVEL_TO_CAP, FONT_NORMAL, str, 0, 1, TEXT_SKIP_DRAW, NULL);
     DrawTextBorderOuter(WIN_LEVEL_TO_CAP, 2, 14);
     PutWindowTilemap(WIN_LEVEL_TO_CAP);
     CopyWindowToVram(WIN_LEVEL_TO_CAP, COPYWIN_GFX);
     ScheduleBgCopyTilemapToVram(0);
+}
+
+// Auto text speed continues on its own once the progress message has been readable for 64 frames.
+static bool32 IsLevelToCapProgressMessageDone(void)
+{
+    if (IsDma3ManagerBusyWithBgCopy())
+        return FALSE;
+    if (JOY_NEW(A_BUTTON | B_BUTTON | DPAD_ANY))
+        return TRUE;
+    return GetPlayerTextSpeed() == OPTIONS_TEXT_SPEED_AUTO && ++sPcLevelToCap.messageFrames >= 64;
 }
 
 static void ClearLevelToCapWindow(void)
@@ -3738,7 +3750,7 @@ static void Task_LevelMonToCap(u8 taskId)
         break;
 
     case LTC_LEVEL_MSG:
-        if (!IsDma3ManagerBusyWithBgCopy() && JOY_NEW(A_BUTTON | B_BUTTON | DPAD_ANY))
+        if (IsLevelToCapProgressMessageDone())
             sStorage->state = LTC_MOVE_LOOP;
         break;
 
@@ -3780,7 +3792,7 @@ static void Task_LevelMonToCap(u8 taskId)
         break;
 
     case LTC_LEARNED_MSG:
-        if (!IsDma3ManagerBusyWithBgCopy() && JOY_NEW(A_BUTTON | B_BUTTON | DPAD_ANY))
+        if (IsLevelToCapProgressMessageDone())
             sStorage->state = LTC_MOVE_LOOP;
         break;
 

@@ -113,6 +113,7 @@ struct ShopData
 static EWRAM_DATA struct MartInfo sMartInfo = {0};
 static EWRAM_DATA u16 *sSlateportStock = NULL;
 static EWRAM_DATA u8 sSlateportCategory = 0;
+static EWRAM_DATA bool8 sReturnToSlateportScript = FALSE;
 static EWRAM_DATA struct ShopData *sShopData = NULL;
 static EWRAM_DATA struct ListMenuItem *sListMenuItems = NULL;
 static EWRAM_DATA u8 (*sItemNames)[ITEM_NAME_LENGTH + 2] = {0};
@@ -485,10 +486,9 @@ static void Task_ReturnToShopMenu(u8 taskId)
 {
     if (IsWeatherNotFadingIn() == TRUE)
     {
-        if (sSlateportStock != NULL)
+        if (sReturnToSlateportScript)
         {
-            Free(sSlateportStock);
-            sSlateportStock = NULL;
+            sReturnToSlateportScript = FALSE;
             TryPutSmartShopperOnAir();
             UnlockPlayerFieldControls();
             DestroyTask(taskId);
@@ -581,6 +581,12 @@ static void BuyMenuFreeMemory(void)
     Free(sShopData);
     Free(sListMenuItems);
     Free(sItemNames);
+    // Returning to the field resets the heap, so the stock cannot outlive the buy menu.
+    if (sSlateportStock != NULL)
+    {
+        FREE_AND_SET_NULL(sSlateportStock);
+        sReturnToSlateportScript = TRUE;
+    }
     FreeAllWindowBuffers();
 }
 

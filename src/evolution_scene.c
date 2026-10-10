@@ -535,6 +535,7 @@ static void CB2_EvolutionSceneUpdate(void)
 {
     AnimateSprites();
     BuildOamBuffer();
+    UpdateTextPrinterDisplayTimers();
     RunTextPrinters();
     UpdatePaletteFade();
     RunTasks();
@@ -544,6 +545,7 @@ static void CB2_TradeEvolutionSceneUpdate(void)
 {
     AnimateSprites();
     BuildOamBuffer();
+    UpdateTextPrinterDisplayTimers();
     RunTextPrinters();
     UpdatePaletteFade();
     RunTasks();

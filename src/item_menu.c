@@ -123,6 +123,7 @@ static void Task_WallyTutorialBagMenu(u8);
 static void Task_BagMenu_HandleInput(u8);
 static void GetItemNameFromPocket(u8 *dest, enum Item itemId);
 static void PrintItemDescription(int);
+static void UpdateTMCategoryIcon(s32 itemIndex);
 static void BagMenu_PrintCursorAtPos(u8, u8);
 static void BagMenu_Print(u8, u8, const u8 *, u8, u8, u8, u8, u8, u8);
 static void Task_CloseBagMenu(u8);
@@ -874,6 +875,8 @@ static bool8 LoadBagMenu_Graphics(void)
         break;
     case 4:
         LoadSpritePalette(&gBagPaletteTable);
+        LoadCompressedSpriteSheet(&gSpriteSheet_CategoryIcons);
+        LoadSpritePalette(&gSpritePal_CategoryIcons);
         gBagMenu->graphicsLoadState++;
         break;
     default:
@@ -1016,8 +1019,26 @@ static void BagMenu_MoveCursorCallback(s32 itemIndex, bool8 onInit, struct ListM
     else
        AddBagItemIconSprite(ITEM_LIST_END, gBagMenu->itemIconSlot);
     gBagMenu->itemIconSlot ^= 1;
+    UpdateTMCategoryIcon(itemIndex);
     if (!gBagMenu->inhibitItemDescriptionPrint)
         PrintItemDescription(itemIndex);
+}
+
+// Shows the highlighted TM/HM's move category beside its item icon, as on the summary screen.
+static void UpdateTMCategoryIcon(s32 itemIndex)
+{
+    u8 *spriteId = &gBagMenu->spriteIds[ITEMMENUSPRITE_TM_CATEGORY];
+
+    if (gBagPosition.pocket != BAG_TM_HM || itemIndex == LIST_CANCEL)
+    {
+        if (*spriteId != SPRITE_NONE)
+            gSprites[*spriteId].invisible = TRUE;
+        return;
+    }
+    if (*spriteId == SPRITE_NONE)
+        *spriteId = CreateSprite(&gSpriteTemplate_CategoryIcons, 45, 96, 0);
+    gSprites[*spriteId].invisible = FALSE;
+    StartSpriteAnim(&gSprites[*spriteId], GetMoveCategory(ItemIdToBattleMoveId(GetBagItemId(gBagPosition.pocket, itemIndex))));
 }
 
 static void BagMenu_ItemPrintCallback(u8 windowId, u32 itemIndex, u8 y)
@@ -1401,6 +1422,7 @@ static void SwitchBagPocket(u8 taskId, s16 deltaBagPocketId, bool16 skipEraseLis
         DestroyListMenuTask(tListTaskId, &gBagPosition.scrollPosition[gBagPosition.pocket], &gBagPosition.cursorPosition[gBagPosition.pocket]);
         ScheduleBgCopyTilemapToVram(0);
         gSprites[gBagMenu->spriteIds[ITEMMENUSPRITE_ITEM + (gBagMenu->itemIconSlot ^ 1)]].invisible = TRUE;
+        UpdateTMCategoryIcon(LIST_CANCEL);
         BagDestroyPocketScrollArrowPair();
     }
     newPocket = gBagPosition.pocket;

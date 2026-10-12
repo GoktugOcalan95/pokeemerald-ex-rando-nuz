@@ -577,7 +577,6 @@ EWRAM_DATA static struct {
     u8 finalLevel;
     u8 messageFrames;
     u16 moveToLearn;
-    u16 startSpecies;
     u16 evoSpecies;
     bool32 evoCanStop;
 } sPcLevelToCap = {0};
@@ -3710,7 +3709,6 @@ static void LevelToCapChangeScreen(u8 screenChangeType, u8 resumeState)
 
 static void Task_LevelMonToCap(u8 taskId)
 {
-    struct BoxPokemon *boxMon;
     struct Pokemon *mon;
     u16 move;
 
@@ -3725,7 +3723,6 @@ static void Task_LevelMonToCap(u8 taskId)
 
         sPcLevelToCap.slot = StorageLevelCap_GetPartySlot();
         mon = &gParties[B_TRAINER_PLAYER][sPcLevelToCap.slot];
-        sPcLevelToCap.startSpecies = GetMonData(mon, MON_DATA_SPECIES);
         sPcLevelToCap.curLevel = GetMonData(mon, MON_DATA_LEVEL);
         sPcLevelToCap.finalLevel = GetCurrentLevelCap();
         if (sPcLevelToCap.curLevel >= sPcLevelToCap.finalLevel)
@@ -3866,15 +3863,7 @@ static void Task_LevelMonToCap(u8 taskId)
             TilemapUtil_Update(TILEMAPID_PARTY_MENU);
         }
         TryRefreshDisplayMon();
-        if (sCursorArea == CURSOR_AREA_IN_PARTY)
-            boxMon = &gParties[B_TRAINER_PLAYER][sCursorPosition].box;
-        else
-            boxMon = GetBoxedMonPtr(StorageGetCurrentBox(), sCursorPosition);
-
-        if (boxMon != NULL && GetBoxMonData(boxMon, MON_DATA_SPECIES) != sPcLevelToCap.startSpecies)
-            UpdateSpeciesSpritePSS(boxMon);
-        else
-            RefreshDisplayMonData();
+        RefreshDisplayMonData();
 
         SetPokeStorageTask(Task_PokeStorageMain);
         break;
@@ -4089,7 +4078,7 @@ static void Task_ChangeScreen(u8 taskId)
                                            CB2_ReturnToPokeStorage, sPcLevelToCap.moveToLearn);
         break;
     case SCREEN_CHANGE_LEVEL_TO_CAP_EVO:
-        SetVBlankCallback(NULL);
+        // Keep the NULL-safe PC VBlank: the evolution scene's opening fade needs palette transfers.
         FreePokeStorageData();
         gCB2_AfterEvolution = CB2_ReturnToPokeStorage;
         BeginEvolutionScene(&gParties[B_TRAINER_PLAYER][sPcLevelToCap.slot], sPcLevelToCap.evoSpecies,

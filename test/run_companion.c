@@ -5,10 +5,12 @@
 #include "string_util.h"
 #include "gba/flash_internal.h"
 #include "pokemon.h"
+#include "player_teachable_moves.h"
 #include "pokemon_storage_system.h"
 #include "run_companion.h"
 #include "save.h"
 #include "test/test.h"
+#include "constants/region_map_sections.h"
 
 TEST("Companion metadata and tutor discovery survive a full save and load")
 {
@@ -31,6 +33,22 @@ TEST("Companion metadata and tutor discovery survive a full save and load")
     EXPECT_EQ(memcmp(&gSaveBlock1Ptr->runDiscovery, &discovery, sizeof(discovery)), 0);
     RunCompanion_Init();
     EXPECT_EQ(gSaveBlock1Ptr->runDiscovery.tutorsSeen, 0);
+}
+
+TEST("Entering a tutor's map section discovers every tutor there")
+{
+    u32 furyCutter = 0;
+    while (gTutorMoves[furyCutter] != MOVE_FURY_CUTTER)
+        furyCutter++;
+    RunCompanion_Init();
+    RunCompanion_RecordTutorsInArea(MAPSEC_ROUTE_101);
+    EXPECT_EQ(gSaveBlock1Ptr->runDiscovery.tutorsSeen, 0);
+    RunCompanion_RecordTutorsInArea(MAPSEC_VERDANTURF_TOWN);
+    EXPECT_EQ(gSaveBlock1Ptr->runDiscovery.tutorsSeen, 1u << furyCutter);
+    EXPECT_EQ(gSaveBlock1Ptr->runDiscovery.tutorAreas[furyCutter], MAPSEC_VERDANTURF_TOWN);
+    RunCompanion_RecordTutorsInArea(MAPSEC_BATTLE_FRONTIER);
+    EXPECT_EQ(__builtin_popcount(gSaveBlock1Ptr->runDiscovery.tutorsSeen), 21);
+    EXPECT_EQ(gSaveBlock1Ptr->runDiscovery.tutorAreas[furyCutter], MAPSEC_VERDANTURF_TOWN);
 }
 
 // The companion's ROM save vector. Values here are mirrored in the companion's test/save.test.ts.

@@ -31,6 +31,7 @@ struct ScriptContext;
 
 void RunCompanion_Init(void);
 void RunCompanion_RecordTutor(u16 move);
+void RunCompanion_RecordTutorsInArea(u32 mapsec);
 bool8 ScriptRecordTutorOffer(struct ScriptContext *ctx);
 
 #endif

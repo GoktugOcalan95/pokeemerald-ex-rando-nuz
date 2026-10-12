@@ -55,6 +55,7 @@
 #include "play_time.h"
 #include "random.h"
 #include "roamer.h"
+#include "run_companion.h"
 #include "rotating_gate.h"
 #include "rtc.h"
 #include "safari_zone.h"
@@ -888,6 +889,7 @@ void LoadMapFromCameraTransition(u8 mapGroup, u8 mapNum)
     LoadCurrentMapData();
     LoadObjEventTemplatesFromHeader();
     TrySetMapSaveWarpStatus();
+    RunCompanion_RecordTutorsInArea(gMapHeader.regionMapSectionId);
     ClearTempFieldEventData();
     ResetDexNavSearch();
     ResetCyclingRoadChallengeData();
@@ -953,6 +955,7 @@ static void LoadMapFromWarp(bool32 a1)
 
     CheckLeftFriendsSecretBase();
     TrySetMapSaveWarpStatus();
+    RunCompanion_RecordTutorsInArea(gMapHeader.regionMapSectionId);
     ClearTempFieldEventData();
     ResetDexNavSearch();
     // reset hours override on every warp

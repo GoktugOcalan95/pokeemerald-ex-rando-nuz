@@ -48,6 +48,8 @@
 #define MAPCURSOR_Y_MAX (MAPCURSOR_Y_MIN + MAP_HEIGHT - 1)
 
 #define FLYDESTICON_RED_OUTLINE 6
+#define FLYDESTICON_ROUTE_CAN_FLY 7
+#define FLYDESTICON_ROUTE_CANT_FLY 8
 
 enum {
     TAG_CURSOR,
@@ -76,7 +78,7 @@ static EWRAM_DATA struct {
     u16 state;
     mapsec_u16_t mapSecId;
     struct RegionMap regionMap;
-    u8 tileBuffer[0x1c0];
+    u8 tileBuffer[0x200];
     u8 nameBuffer[0x26]; // never read
     bool8 choseFlyLocation;
     bool8 fromStartMenu;
@@ -690,6 +692,19 @@ static const union AnimCmd sFlyDestIcon_Anim_RedOutline[] =
     ANIMCMD_END
 };
 
+// Route sub-section destinations use a smaller dot than towns
+static const union AnimCmd sFlyDestIcon_Anim_RouteCanFly[] =
+{
+    ANIMCMD_FRAME(14, 5),
+    ANIMCMD_END
+};
+
+static const union AnimCmd sFlyDestIcon_Anim_RouteCantFly[] =
+{
+    ANIMCMD_FRAME(15, 5),
+    ANIMCMD_END
+};
+
 static const union AnimCmd *const sFlyDestIcon_Anims[] =
 {
     [SPRITE_SHAPE(8x8)]       = sFlyDestIcon_Anim_8x8CanFly,
@@ -698,7 +713,9 @@ static const union AnimCmd *const sFlyDestIcon_Anims[] =
     [SPRITE_SHAPE(8x8)  + 3]  = sFlyDestIcon_Anim_8x8CantFly,
     [SPRITE_SHAPE(16x8) + 3]  = sFlyDestIcon_Anim_16x8CantFly,
     [SPRITE_SHAPE(8x16) + 3]  = sFlyDestIcon_Anim_8x16CantFly,
-    [FLYDESTICON_RED_OUTLINE] = sFlyDestIcon_Anim_RedOutline
+    [FLYDESTICON_RED_OUTLINE] = sFlyDestIcon_Anim_RedOutline,
+    [FLYDESTICON_ROUTE_CAN_FLY] = sFlyDestIcon_Anim_RouteCanFly,
+    [FLYDESTICON_ROUTE_CANT_FLY] = sFlyDestIcon_Anim_RouteCantFly
 };
 
 static const struct SpriteTemplate sFlyDestIconSpriteTemplate =
@@ -2411,7 +2428,7 @@ static void CreateRouteFlyDestIcons(void)
             (y + MAPCURSOR_Y_MIN) * 8 + 4, 10);
         if (spriteId != MAX_SPRITES)
         {
-            StartSpriteAnim(&gSprites[spriteId], available ? 0 : 3);
+            StartSpriteAnim(&gSprites[spriteId], available ? FLYDESTICON_ROUTE_CAN_FLY : FLYDESTICON_ROUTE_CANT_FLY);
             gSprites[spriteId].sIconMapSec = mapsec;
             if (available)
                 gSprites[spriteId].callback = SpriteCB_FlyDestIcon;

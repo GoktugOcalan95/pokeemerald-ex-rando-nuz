@@ -22,6 +22,7 @@
 #include "international_string_util.h"
 #include "item_menu.h"
 #include "link.h"
+#include "map_name_popup.h"
 #include "load_save.h"
 #include "main.h"
 #include "menu.h"
@@ -34,6 +35,7 @@
 #include "pokenav.h"
 #include "safari_zone.h"
 #include "region_map.h"
+#include "rtc.h"
 #include "save.h"
 #include "scanline_effect.h"
 #include "script.h"
@@ -89,6 +91,7 @@ COMMON_DATA bool8 (*gMenuCallback)(void) = NULL;
 // EWRAM
 EWRAM_DATA static u8 sSafariBallsWindowId = 0;
 EWRAM_DATA static u8 sBattlePyramidFloorWindowId = 0;
+EWRAM_DATA static u8 sLocationTimeWindowId = 0;
 EWRAM_DATA static u8 sStartMenuCursorPos = 0;
 EWRAM_DATA static u8 sNumStartMenuActions = 0;
 EWRAM_DATA static u8 sCurrentStartMenuActions[9] = {0};
@@ -263,6 +266,7 @@ static void BuildBattlePyramidStartMenu(void);
 static void BuildMultiPartnerRoomStartMenu(void);
 static void ShowSafariBallsWindow(void);
 static void ShowPyramidFloorWindow(void);
+static void ShowLocationTimeWindow(void);
 static void RemoveExtraStartMenuWindows(void);
 static bool32 PrintStartMenuActions(s8 *pIndex, u32 count);
 static bool32 InitStartMenuStep(void);
@@ -469,8 +473,63 @@ static void ShowPyramidFloorWindow(void)
     CopyWindowToVram(sBattlePyramidFloorWindowId, COPYWIN_GFX);
 }
 
+static const u8 *const sTimeOfDayNames[TIMES_OF_DAY_COUNT] =
+{
+    [TIME_MORNING] = COMPOUND_STRING("Morning"),
+    [TIME_DAY]     = COMPOUND_STRING("Day"),
+    [TIME_EVENING] = COMPOUND_STRING("Evening"),
+    [TIME_NIGHT]   = COMPOUND_STRING("Night"),
+};
+
+// Top-left box; sits below the Safari/Pyramid window when one is shown.
+static void ShowLocationTimeWindow(void)
+{
+    // Frame columns 0 and 21 keep it clear of the start menu frame at column 21.
+    enum { MAX_WIDTH = 19 };
+    struct WindowTemplate template = {
+        .bg = 0,
+        .tilemapLeft = 1,
+        .tilemapTop = 1,
+        .height = 4,
+        .paletteNum = 15,
+        // After the 12x4 Safari/Pyramid window at 0x8.
+        .baseBlock = 0x38,
+    };
+    enum TimeOfDay timeOfDay;
+    u8 *end;
+    u32 width;
+
+    if (GetSafariZoneFlag() || CurrentBattlePyramidLocation() != PYRAMID_LOCATION_NONE)
+        template.tilemapTop = 7;
+
+    GetPopUpMapName(gStringVar1, &gMapHeader);
+    timeOfDay = GetTimeOfDay(); // Also refreshes gLocalTime.
+    end = ConvertIntToDecimalStringN(gStringVar2, gLocalTime.hours, STR_CONV_MODE_LEADING_ZEROS, 2);
+    *end++ = CHAR_COLON;
+    end = ConvertIntToDecimalStringN(end, gLocalTime.minutes, STR_CONV_MODE_LEADING_ZEROS, 2);
+    end = StringCopy(end, COMPOUND_STRING(" · "));
+    StringCopy(end, sTimeOfDayNames[timeOfDay]);
+
+    width = max(GetStringWidth(FONT_NORMAL, gStringVar1, 0), GetStringWidth(FONT_NORMAL, gStringVar2, 0));
+    template.width = min((width + 7) / 8 + 1, MAX_WIDTH);
+
+    sLocationTimeWindowId = AddWindow(&template);
+    PutWindowTilemap(sLocationTimeWindowId);
+    DrawStdWindowFrame(sLocationTimeWindowId, FALSE);
+    AddTextPrinterParameterized(sLocationTimeWindowId, FONT_NORMAL, gStringVar1, 4, 1, TEXT_SKIP_DRAW, NULL);
+    AddTextPrinterParameterized(sLocationTimeWindowId, FONT_NORMAL, gStringVar2, 4, 17, TEXT_SKIP_DRAW, NULL);
+    CopyWindowToVram(sLocationTimeWindowId, COPYWIN_GFX);
+}
+
 static void RemoveExtraStartMenuWindows(void)
 {
+    if (sLocationTimeWindowId != WINDOW_NONE)
+    {
+        ClearStdWindowAndFrameToTransparent(sLocationTimeWindowId, FALSE);
+        CopyWindowToVram(sLocationTimeWindowId, COPYWIN_GFX);
+        RemoveWindow(sLocationTimeWindowId);
+        sLocationTimeWindowId = WINDOW_NONE;
+    }
     if (GetSafariZoneFlag())
     {
         ClearStdWindowAndFrameToTransparent(sSafariBallsWindowId, FALSE);
@@ -522,6 +581,8 @@ static bool32 InitStartMenuStep(void)
     switch (state)
     {
     case 0:
+        // EWRAM starts zeroed and 0 is a valid window id.
+        sLocationTimeWindowId = WINDOW_NONE;
         sInitStartMenuData[0]++;
         break;
     case 1:
@@ -539,6 +600,7 @@ static bool32 InitStartMenuStep(void)
             ShowSafariBallsWindow();
         if (CurrentBattlePyramidLocation() != PYRAMID_LOCATION_NONE)
             ShowPyramidFloorWindow();
+        ShowLocationTimeWindow();
         sInitStartMenuData[0]++;
         break;
     case 4:
@@ -785,8 +847,7 @@ static bool8 StartMenuPlayerNameCallback(void)
 
 static bool8 StartMenuSaveCallback(void)
 {
-    if (CurrentBattlePyramidLocation() != PYRAMID_LOCATION_NONE)
-        RemoveExtraStartMenuWindows();
+    RemoveExtraStartMenuWindows();
 
     gMenuCallback = SaveStartCallback; // Display save menu
 

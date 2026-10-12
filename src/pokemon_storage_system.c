@@ -702,6 +702,7 @@ static bool8 CanPlaceMon(void);
 static bool8 CanShiftMon(void);
 static bool8 IsMonBeingMoved(void);
 static void TryRefreshDisplayMon(void);
+static void SetLevelToCapDisplayMon(void);
 static void ReshowDisplayMon(void);
 static void SetDisplayMonData(void *, u8);
 
@@ -7253,10 +7254,25 @@ static void TryRefreshDisplayMon(void)
             SetDisplayMonData(NULL, MODE_MOVE);
             break;
         case CURSOR_AREA_IN_BOX:
-            SetDisplayMonData(GetBoxedMonPtr(StorageGetCurrentBox(), sCursorPosition), MODE_BOX);
+            if (StorageLevelCap_IsBoxed())
+                SetLevelToCapDisplayMon();
+            else
+                SetDisplayMonData(GetBoxedMonPtr(StorageGetCurrentBox(), sCursorPosition), MODE_BOX);
             break;
         }
     }
+}
+
+// The box slot is only written back when PC Level to cap finishes, so show the borrowed party copy.
+// The move loop steps that copy through intermediate levels; the panel always shows the final level.
+static void SetLevelToCapDisplayMon(void)
+{
+    struct Pokemon *mon = &gParties[B_TRAINER_PLAYER][sPcLevelToCap.slot];
+    u8 level = GetMonData(mon, MON_DATA_LEVEL);
+
+    SetMonData(mon, MON_DATA_LEVEL, &sPcLevelToCap.finalLevel);
+    SetDisplayMonData(mon, MODE_PARTY);
+    SetMonData(mon, MON_DATA_LEVEL, &level);
 }
 
 static void ReshowDisplayMon(void)

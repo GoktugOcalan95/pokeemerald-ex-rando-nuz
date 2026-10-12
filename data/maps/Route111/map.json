@@ -656,7 +656,7 @@
     },
     {
       "graphics_id": "OBJ_EVENT_GFX_ITEM_BALL",
-      "x": 19,
+      "x": 17,
       "y": 55,
       "elevation": 3,
       "movement_type": "MOVEMENT_TYPE_LOOK_AROUND",

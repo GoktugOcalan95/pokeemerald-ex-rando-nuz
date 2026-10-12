@@ -98,6 +98,13 @@ TEST("Expanded TMs add separate shop stock at matching prices and Game Corner ch
         for (u32 i = 0; i < 5; i++)
             EXPECT_EQ(BuyGameCornerTM(GetGameCornerTM(i, extra)), 1);
     EXPECT_EQ(GetCoins(), 0);
+    // The prize list interleaves each original with its counterpart.
+    gSpecialVar_Result = 2;
+    RUN_OVERWORLD_SCRIPT(callnative SelectGameCornerTMFromScript;);
+    EXPECT_EQ(gSpecialVar_0x8004, ITEM_TM29);
+    gSpecialVar_Result = 9;
+    RUN_OVERWORLD_SCRIPT(callnative SelectGameCornerTMFromScript;);
+    EXPECT_EQ(gSpecialVar_0x8004, ITEM_TM63);
     FlagSet(FLAG_RUN_RULE_REUSABLE_TMS);
     SetCoins(50);
     EXPECT_EQ(BuyGameCornerTM(ITEM_TM13), 3);

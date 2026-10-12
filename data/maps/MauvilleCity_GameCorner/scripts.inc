@@ -220,6 +220,7 @@ MauvilleCity_GameCorner_EventScript_ChooseTMPrizeMessage::
 	message MauvilleCity_GameCorner_Text_WhichPrize
 	waitmessage
 	setvar VAR_TEMP_1, 0
+	setvar VAR_TEMP_3, 0
 	showcoinsbox 0, 0
 	goto MauvilleCity_GameCorner_EventScript_ChooseTMPrize
 
@@ -228,25 +229,38 @@ MauvilleCity_GameCorner_EventScript_ReturnToChooseTMPrize::
 	waitmessage
 	goto MauvilleCity_GameCorner_EventScript_ChooseTMPrize
 
+@ Even ids are the original TMs; with expanded TMs, each counterpart (TMxx + 50) follows at the next odd id.
+@ VAR_TEMP_3 keeps the cursor on the last chosen row.
 MauvilleCity_GameCorner_EventScript_ChooseTMPrize::
-	setvar VAR_TEMP_3, 0
-	goto_if_set FLAG_RUN_RULE_EXPANDED_TMS, MauvilleCity_GameCorner_EventScript_ChooseExpandedTMPrize
-	multichoice 12, 0, MULTI_GAME_CORNER_TMS, FALSE
-	goto_if_ge VAR_RESULT, 5, MauvilleCity_GameCorner_EventScript_CancelTMSelect
+	call_if_set FLAG_RUN_RULE_EXPANDED_TMS, MauvilleCity_GameCorner_EventScript_PushExpandedTMPrizes
+	call_if_unset FLAG_RUN_RULE_EXPANDED_TMS, MauvilleCity_GameCorner_EventScript_PushTMPrizes
+	dynmultipush gText_Exit, 10
+	dynmultistack 12, 0, FALSE, 6, FALSE, VAR_TEMP_3, DYN_MULTICHOICE_CB_NONE
+	goto_if_ge VAR_RESULT, 10, MauvilleCity_GameCorner_EventScript_CancelTMSelect
+	copyvar VAR_TEMP_3, VAR_RESULT
 	goto MauvilleCity_GameCorner_EventScript_SelectTMPrize
 
-MauvilleCity_GameCorner_EventScript_ChooseExpandedTMPrize::
-	setvar VAR_TEMP_3, 0
-	multichoice 12, 0, MULTI_GAME_CORNER_TMS_EXPANDED, FALSE
-	goto_if_eq VAR_RESULT, 5, MauvilleCity_GameCorner_EventScript_ChooseExtraTMPrize
-	goto_if_ge VAR_RESULT, 6, MauvilleCity_GameCorner_EventScript_CancelTMSelect
-	goto MauvilleCity_GameCorner_EventScript_SelectTMPrize
+MauvilleCity_GameCorner_EventScript_PushTMPrizes::
+	dynmultipush MauvilleCity_GameCorner_Text_TM32Prize, 0
+	dynmultipush MauvilleCity_GameCorner_Text_TM29Prize, 2
+	dynmultipush MauvilleCity_GameCorner_Text_TM35Prize, 4
+	dynmultipush MauvilleCity_GameCorner_Text_TM24Prize, 6
+	dynmultipush MauvilleCity_GameCorner_Text_TM13Prize, 8
+	return
 
-MauvilleCity_GameCorner_EventScript_ChooseExtraTMPrize::
-	setvar VAR_TEMP_3, 1
-	multichoice 12, 0, MULTI_GAME_CORNER_EXTRA_TMS, FALSE
-	goto_if_eq VAR_RESULT, 5, MauvilleCity_GameCorner_EventScript_ChooseExpandedTMPrize
-	goto_if_ge VAR_RESULT, 6, MauvilleCity_GameCorner_EventScript_CancelTMSelect
+MauvilleCity_GameCorner_EventScript_PushExpandedTMPrizes::
+	dynmultipush MauvilleCity_GameCorner_Text_TM32Prize, 0
+	dynmultipush MauvilleCity_GameCorner_Text_TM82Prize, 1
+	dynmultipush MauvilleCity_GameCorner_Text_TM29Prize, 2
+	dynmultipush MauvilleCity_GameCorner_Text_TM79Prize, 3
+	dynmultipush MauvilleCity_GameCorner_Text_TM35Prize, 4
+	dynmultipush MauvilleCity_GameCorner_Text_TM85Prize, 5
+	dynmultipush MauvilleCity_GameCorner_Text_TM24Prize, 6
+	dynmultipush MauvilleCity_GameCorner_Text_TM74Prize, 7
+	dynmultipush MauvilleCity_GameCorner_Text_TM13Prize, 8
+	dynmultipush MauvilleCity_GameCorner_Text_TM63Prize, 9
+	return
+
 MauvilleCity_GameCorner_EventScript_SelectTMPrize::
 	callnative SelectGameCornerTMFromScript
 	bufferitemname STR_VAR_1, VAR_0x8004
@@ -268,6 +282,36 @@ MauvilleCity_GameCorner_EventScript_AlreadyHaveTM::
 
 MauvilleCity_GameCorner_Text_AlreadyHaveTM:
 	.string "You already have that reusable TM.$"
+
+MauvilleCity_GameCorner_Text_TM32Prize:
+	.string "TM32{CLEAR_TO 72}50 COINS$"
+
+MauvilleCity_GameCorner_Text_TM29Prize:
+	.string "TM29{CLEAR_TO 72}50 COINS$"
+
+MauvilleCity_GameCorner_Text_TM35Prize:
+	.string "TM35{CLEAR_TO 72}50 COINS$"
+
+MauvilleCity_GameCorner_Text_TM24Prize:
+	.string "TM24{CLEAR_TO 72}50 COINS$"
+
+MauvilleCity_GameCorner_Text_TM13Prize:
+	.string "TM13{CLEAR_TO 72}50 COINS$"
+
+MauvilleCity_GameCorner_Text_TM82Prize:
+	.string "TM82{CLEAR_TO 72}50 COINS$"
+
+MauvilleCity_GameCorner_Text_TM79Prize:
+	.string "TM79{CLEAR_TO 72}50 COINS$"
+
+MauvilleCity_GameCorner_Text_TM85Prize:
+	.string "TM85{CLEAR_TO 72}50 COINS$"
+
+MauvilleCity_GameCorner_Text_TM74Prize:
+	.string "TM74{CLEAR_TO 72}50 COINS$"
+
+MauvilleCity_GameCorner_Text_TM63Prize:
+	.string "TM63{CLEAR_TO 72}50 COINS$"
 
 MauvilleCity_GameCorner_EventScript_NotEnoughCoinsForTM::
 	msgbox MauvilleCity_GameCorner_Text_NotEnoughCoins, MSGBOX_DEFAULT

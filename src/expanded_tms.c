@@ -4,7 +4,6 @@
 #include "expanded_tms.h"
 #include "item.h"
 #include "teaching_randomizer.h"
-#include "constants/vars.h"
 
 // The expanded counterpart of TMxx is TMxx + 50, found by item ID offset.
 STATIC_ASSERT(ITEM_TM100 == ITEM_TM01 + 99, TMItemIdsContiguous);
@@ -35,9 +34,10 @@ u32 BuyGameCornerTM(u16 item)
     return 1;
 }
 
+// The prize list interleaves each original TM (even id) with its expanded counterpart (odd id).
 void SelectGameCornerTMFromScript(void)
 {
-    gSpecialVar_0x8004 = GetGameCornerTM(gSpecialVar_Result, VarGet(VAR_TEMP_3));
+    gSpecialVar_0x8004 = GetGameCornerTM(gSpecialVar_Result / 2, gSpecialVar_Result % 2);
 }
 
 void BuyGameCornerTMFromScript(void)

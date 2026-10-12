@@ -32,15 +32,8 @@ static void AddFormItem(u32 item)
 {
     if (item <= ITEM_NONE || item >= ITEMS_COUNT)
         return;
-    if (gItemsInfo[item].sortType == ITEM_TYPE_Z_CRYSTAL)
-        return;
-    AddStockItem(item, SLATEPORT_SHOP_FORMS);
-    if (gItemsInfo[item].sortType == ITEM_TYPE_NECTAR)
-        AddStockItem(item, SLATEPORT_SHOP_EVOLUTION);
-    else if (gItemsInfo[item].sortType != ITEM_TYPE_PLATE
-          && gItemsInfo[item].sortType != ITEM_TYPE_MEMORY
-          && gItemsInfo[item].sortType != ITEM_TYPE_DRIVE)
-        AddStockItem(item, SLATEPORT_SHOP_TM);
+    if (gItemsInfo[item].sortType != ITEM_TYPE_Z_CRYSTAL)
+        AddStockItem(item, SLATEPORT_SHOP_FORMS);
 }
 
 static void InitStockCategories(void)

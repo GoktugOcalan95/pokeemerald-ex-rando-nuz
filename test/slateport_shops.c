@@ -113,6 +113,24 @@ TEST("Slateport shops cover functional evolution form and legendary items before
     EXPECT(StockContains(SLATEPORT_SHOP_TM, ITEM_TM_HIDDEN_POWER));
     EXPECT(StockContains(SLATEPORT_SHOP_TM, ITEM_TM_SECRET_POWER));
     EXPECT(!IsSlateportPreChampionItem(ITEM_POKE_BALL));
+    EXPECT(!StockContains(SLATEPORT_SHOP_TM, ITEM_ADAMANT_CRYSTAL));
+    EXPECT(!StockContains(SLATEPORT_SHOP_EVOLUTION, ITEM_RED_NECTAR));
+}
+
+TEST("Slateport shops sell each pre-Champion item from one seller")
+{
+    u16 stock[ITEMS_COUNT];
+    u8 sellers[ITEMS_COUNT] = {0};
+    FlagClear(FLAG_IS_CHAMPION);
+    FlagClear(FLAG_RUN_RULE_NO_EV_GAIN);
+    for (u32 category = 0; category < SLATEPORT_SHOP_MEGA; category++)
+    {
+        u32 count = BuildSlateportShopStock(category, stock);
+        for (u32 i = 0; i < count; i++)
+            sellers[stock[i]]++;
+    }
+    for (u32 item = 0; item < ITEMS_COUNT; item++)
+        EXPECT_LE(sellers[item], 1);
 }
 
 TEST("Slateport shops fix special prices against discounts and prevent resale profit")

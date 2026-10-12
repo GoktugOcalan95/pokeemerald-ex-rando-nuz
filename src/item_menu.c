@@ -1024,7 +1024,7 @@ static void BagMenu_MoveCursorCallback(s32 itemIndex, bool8 onInit, struct ListM
         PrintItemDescription(itemIndex);
 }
 
-// Shows the highlighted TM/HM's move category beside its item icon, as on the summary screen.
+// Shows the highlighted TM/HM's move category overlapping the lower-right of its disc icon; OAM priority 0 keeps it above the item icon (priority 1).
 static void UpdateTMCategoryIcon(s32 itemIndex)
 {
     u8 *spriteId = &gBagMenu->spriteIds[ITEMMENUSPRITE_TM_CATEGORY];
@@ -1036,7 +1036,7 @@ static void UpdateTMCategoryIcon(s32 itemIndex)
         return;
     }
     if (*spriteId == SPRITE_NONE)
-        *spriteId = CreateSprite(&gSpriteTemplate_CategoryIcons, 45, 96, 0);
+        *spriteId = CreateSprite(&gSpriteTemplate_CategoryIcons, 33, 95, 0);
     gSprites[*spriteId].invisible = FALSE;
     StartSpriteAnim(&gSprites[*spriteId], GetMoveCategory(ItemIdToBattleMoveId(GetBagItemId(gBagPosition.pocket, itemIndex))));
 }

@@ -5,15 +5,15 @@ set -euo pipefail
 repo_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 readonly repo_dir
 readonly rom_path="$repo_dir/pokeemerald.gba"
-destination_dir="${1:-/mnt/d/DEV/Projects/pokeemerald-ex-rando-nuz-root/playtest}"
+destination_dir="${1:-${EXPORT_DIR:-}}"
 temp_path=""
 
-if (( $# > 1 )); then
-    echo "Usage: $0 [destination-directory]" >&2
+if (( $# > 1 )) || [[ -z "$destination_dir" ]]; then
+    echo "Usage: $0 <destination-directory> (or set EXPORT_DIR)" >&2
     exit 2
 fi
 
-if ! make -C "$repo_dir" -j2; then
+if ! make -C "$repo_dir" -j"$(nproc)"; then
     echo "Build failed; ROM was not exported." >&2
     exit 1
 fi

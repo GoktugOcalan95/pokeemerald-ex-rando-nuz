@@ -1746,6 +1746,21 @@ bool8 BufferTMHMMoveName(void)
     return FALSE;
 }
 
+// Buffers "TM27 - Quick Attack" for VAR_0x8006 into gStringVar1; VAR_RESULT says whether it is a TM/HM.
+void BufferTMHMObtainName(void)
+{
+    static const u8 sText_TMHMMoveSeparator[] = _(" - ");
+    u32 item = gSpecialVar_0x8006;
+
+    gSpecialVar_Result = (gItemsInfo[item].pocket == POCKET_TM_HM);
+    if (gSpecialVar_Result)
+    {
+        u8 *end = CopyItemName(item, gStringVar1);
+        end = StringCopy(end, sText_TMHMMoveSeparator);
+        StringCopy(end, GetMoveName(ItemIdToBattleMoveId(item)));
+    }
+}
+
 bool8 IsBadEggInParty(void)
 {
     u8 partyCount = CalculatePlayerPartyCount();

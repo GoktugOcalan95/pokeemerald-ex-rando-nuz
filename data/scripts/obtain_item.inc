@@ -53,6 +53,8 @@ EventScript_BufferBerriesPocket::
 	return
 
 EventScript_ObtainedItem::
+	callnative BufferTMHMObtainName
+	goto_if_eq VAR_RESULT, TRUE, EventScript_ObtainedTMHMMessage
 	compare VAR_0x8001, TRUE
 	goto_if_eq EventScript_ObtainedItemMessage
 	buffernumberstring 0, VAR_0x8001
@@ -60,6 +62,9 @@ EventScript_ObtainedItem::
 	goto EventScript_ContinueObtainedItem
 EventScript_ObtainedItemMessage:
 	message gText_ObtainedTheItem
+	goto EventScript_ContinueObtainedItem
+EventScript_ObtainedTMHMMessage:
+	message gText_ObtainedTMHM
 EventScript_ContinueObtainedItem:
 	delay 10
 	showitemdescription
@@ -147,7 +152,7 @@ EventScript_PutBattlePyramidItemInBag::
 	return
 
 EventScript_FoundTMHM::
-	bufferitemnameplural STR_VAR_1, VAR_0x8004, VAR_0x8005
+	callnative BufferTMHMObtainName
 	compare VAR_0x8005, 2
 	goto_if_lt EventScript_FoundTMHMMessage
 	buffernumberstring STR_VAR_3, VAR_0x8005
@@ -198,7 +203,7 @@ EventScript_PickUpHiddenItem::
 	end
 
 EventScript_FoundHiddenTMHM::
-	bufferitemnameplural STR_VAR_1, VAR_0x8004, 1
+	callnative BufferTMHMObtainName
 	message gText_PlayerFoundOneTMHM
 	goto EventScript_PutHiddenItemInPocket
 	end

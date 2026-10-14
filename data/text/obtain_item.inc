@@ -1,6 +1,10 @@
 gText_ObtainedTheItem::
 	.string "Obtained the {STR_VAR_2}!$"
 
+gText_ObtainedTMHM::
+	.string "Obtained\n"
+	.string "{STR_VAR_1}!$"
+
 gText_TheBagIsFull::
 	.string "The BAG is full…$"
 

@@ -21532,7 +21532,9 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     [MOVE_BLAZING_TORQUE] =
     {
         .name = COMPOUND_STRING("Blazing Torque"),
-        .description = COMPOUND_STRING("---"),
+        .description = COMPOUND_STRING(
+            "A blazing charge that may\n"
+            "burn the target."),
         .effect = EFFECT_HIT,
         .power = 80,
         .type = TYPE_FIRE,
@@ -21592,7 +21594,9 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     [MOVE_NOXIOUS_TORQUE] =
     {
         .name = COMPOUND_STRING("Noxious Torque"),
-        .description = COMPOUND_STRING("---"),
+        .description = COMPOUND_STRING(
+            "A noxious charge that may\n"
+            "poison the target."),
         .effect = EFFECT_HIT,
         .power = 100,
         .type = TYPE_POISON,
@@ -21621,7 +21625,9 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     [MOVE_COMBAT_TORQUE] =
     {
         .name = COMPOUND_STRING("Combat Torque"),
-        .description = COMPOUND_STRING("---"),
+        .description = COMPOUND_STRING(
+            "A forceful charge that may\n"
+            "paralyze the target."),
         .effect = EFFECT_HIT,
         .power = 100,
         .type = TYPE_FIGHTING,
@@ -21650,7 +21656,9 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
     [MOVE_MAGICAL_TORQUE] =
     {
         .name = COMPOUND_STRING("Magical Torque"),
-        .description = COMPOUND_STRING("---"),
+        .description = COMPOUND_STRING(
+            "A magical charge that may\n"
+            "confuse the target."),
         .effect = EFFECT_HIT,
         .power = 100,
         .type = TYPE_FAIRY,

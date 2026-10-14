@@ -4354,7 +4354,13 @@ void SetTypeSpritePosAndPal(enum Type typeId, u8 x, u8 y, u8 spriteArrayId)
 static void SetMonTypeIcons(void)
 {
     struct PokeSummary *summary = &sMonSummaryScreen->summary;
-    FillWindowPixelRect(PSS_LABEL_WINDOW_POKEMON_INFO_TYPE, PIXEL_FILL(0), 112, 0, 32, 16);
+    // Tighter spacing makes room for a "TERA" label before the third icon, so a single type plus Tera
+    // doesn't read as a dual type. Locked Tera Types aren't shown.
+    bool32 showTera = (P_SHOW_TERA_TYPE >= GEN_9 && !summary->isEgg && summary->teraUnlocked);
+    u32 type1X = showTera ? 118 : 120;
+    u32 type2X = showTera ? 152 : 160;
+
+    FillWindowPixelRect(PSS_LABEL_WINDOW_POKEMON_INFO_TYPE, PIXEL_FILL(0), 96, 0, 48, 16);
     SetSpriteInvisibility(SPRITE_ARR_ID_TYPE + 2, TRUE);
     if (summary->isEgg)
     {
@@ -4363,22 +4369,20 @@ static void SetMonTypeIcons(void)
     }
     else
     {
-        SetTypeSpritePosAndPal(GetSpeciesType(summary->species, 0), 120, 48, SPRITE_ARR_ID_TYPE);
+        SetTypeSpritePosAndPal(GetSpeciesType(summary->species, 0), type1X, 48, SPRITE_ARR_ID_TYPE);
         if (GetSpeciesType(summary->species, 0) != GetSpeciesType(summary->species, 1))
         {
-            SetTypeSpritePosAndPal(GetSpeciesType(summary->species, 1), 160, 48, SPRITE_ARR_ID_TYPE + 1);
+            SetTypeSpritePosAndPal(GetSpeciesType(summary->species, 1), type2X, 48, SPRITE_ARR_ID_TYPE + 1);
             SetSpriteInvisibility(SPRITE_ARR_ID_TYPE + 1, FALSE);
         }
         else
         {
             SetSpriteInvisibility(SPRITE_ARR_ID_TYPE + 1, TRUE);
         }
-        if (P_SHOW_TERA_TYPE >= GEN_9)
+        if (showTera)
         {
-            if (summary->teraUnlocked)
-                SetTypeSpritePosAndPal(summary->teraType, 200, 48, SPRITE_ARR_ID_TYPE + 2);
-            else
-                PrintTextOnWindowToFitPx(PSS_LABEL_WINDOW_POKEMON_INFO_TYPE, COMPOUND_STRING("LOCKED"), 112, 1, 0, 0, 32);
+            PrintTextOnWindowWithFont(PSS_LABEL_WINDOW_POKEMON_INFO_TYPE, COMPOUND_STRING("TERA"), 97, 3, 0, 0, FONT_SMALL_NARROWER);
+            SetTypeSpritePosAndPal(summary->teraType, 202, 48, SPRITE_ARR_ID_TYPE + 2);
         }
     }
     CopyWindowToVram(PSS_LABEL_WINDOW_POKEMON_INFO_TYPE, COPYWIN_GFX);

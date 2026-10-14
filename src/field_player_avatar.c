@@ -983,6 +983,11 @@ enum Collision CheckForObjectEventCollision(struct ObjectEvent *objectEvent, s16
 
     if (ShouldJumpLedge(x, y, direction))
     {
+        // Like surfing, a ledge jump can't land on an object (e.g. an item ball below the ledge).
+        s16 landX = x, landY = y;
+        MoveCoords(direction, &landX, &landY);
+        if (GetObjectObjectCollidesWith(objectEvent, landX, landY, FALSE) < OBJECT_EVENTS_COUNT)
+            return COLLISION_IMPASSABLE;
         IncrementGameStat(GAME_STAT_JUMPED_DOWN_LEDGES);
         return COLLISION_LEDGE_JUMP;
     }

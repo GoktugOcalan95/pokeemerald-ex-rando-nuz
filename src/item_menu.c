@@ -2111,6 +2111,9 @@ static void Task_RegisteredItemWheel(u8 taskId)
         return;
     }
     item = RegisteredItemWheelInput(gMain.newKeys);
+    // The direction that picked the slot is still held when field control returns; don't step with it.
+    if (item != ITEM_NONE)
+        IgnoreFieldDpadUntilReleased();
     if (item == ITEMS_COUNT)
     {
         PlaySE(SE_SELECT);

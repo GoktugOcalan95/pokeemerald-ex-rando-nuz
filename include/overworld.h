@@ -157,6 +157,7 @@ enum MapBattleScene GetCurrentMapBattleScene(void);
 void CleanupOverworldWindowsAndTilemaps(void);
 bool32 IsOverworldLinkActive(void);
 void CB1_Overworld(void);
+void IgnoreFieldDpadUntilReleased(void);
 void CB2_OverworldBasic(void);
 void UpdateTimeOfDay(bool32 updateBlend);
 bool32 MapHasNaturalLight(enum MapType mapType);

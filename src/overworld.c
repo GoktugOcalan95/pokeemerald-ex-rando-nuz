@@ -238,6 +238,7 @@ EWRAM_DATA bool8 gDisableMapMusicChangeOnMapLoad = MUSIC_DISABLE_OFF;
 static EWRAM_DATA const struct CreditsOverworldCmd *sCreditsOverworld_Script = NULL;
 static EWRAM_DATA s16 sCreditsOverworld_CmdLength = 0;
 static EWRAM_DATA s16 sCreditsOverworld_CmdIndex = 0;
+static EWRAM_DATA bool8 sIgnoreDpadUntilReleased = FALSE;
 
 static const struct WarpData sDummyWarpData =
 {
@@ -1672,10 +1673,27 @@ bool32 IsOverworldLinkActive(void)
         return FALSE;
 }
 
+void IgnoreFieldDpadUntilReleased(void)
+{
+    sIgnoreDpadUntilReleased = TRUE;
+}
+
 static void DoCB1_Overworld(u16 newKeys, u16 heldKeys)
 {
     struct FieldInput inputStruct;
 
+    if (sIgnoreDpadUntilReleased)
+    {
+        if (heldKeys & DPAD_ANY)
+        {
+            newKeys &= ~DPAD_ANY;
+            heldKeys &= ~DPAD_ANY;
+        }
+        else
+        {
+            sIgnoreDpadUntilReleased = FALSE;
+        }
+    }
     UpdatePlayerAvatarTransitionState();
     FieldClearPlayerInput(&inputStruct);
     FieldGetPlayerInput(&inputStruct, newKeys, heldKeys);
